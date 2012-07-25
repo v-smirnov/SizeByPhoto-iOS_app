@@ -1,0 +1,297 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		55AC330A15C02D5E00B17709 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55AC330915C02D5E00B17709 /* UIKit.framework */; };
+		55AC330C15C02D5E00B17709 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55AC330B15C02D5E00B17709 /* Foundation.framework */; };
+		55AC330E15C02D5E00B17709 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55AC330D15C02D5E00B17709 /* CoreGraphics.framework */; };
+		55AC331415C02D5E00B17709 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 55AC331215C02D5E00B17709 /* InfoPlist.strings */; };
+		55AC331615C02D5E00B17709 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 55AC331515C02D5E00B17709 /* main.m */; };
+		55AC331A15C02D5E00B17709 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 55AC331915C02D5E00B17709 /* AppDelegate.m */; };
+		55AC331D15C02D5E00B17709 /* MasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55AC331C15C02D5E00B17709 /* MasterViewController.m */; };
+		55AC332015C02D5E00B17709 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55AC331F15C02D5E00B17709 /* DetailViewController.m */; };
+		55AC332315C02D5E00B17709 /* MasterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55AC332115C02D5E00B17709 /* MasterViewController.xib */; };
+		55AC332615C02D5E00B17709 /* DetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55AC332415C02D5E00B17709 /* DetailViewController.xib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		55AC330515C02D5E00B17709 /* EasySize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasySize.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		55AC330915C02D5E00B17709 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		55AC330B15C02D5E00B17709 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		55AC330D15C02D5E00B17709 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		55AC331115C02D5E00B17709 /* EasySize-Info.plist */ = {isa = PBXFileReference; path = "EasySize-Info.plist"; sourceTree = "<group>"; };
+		55AC331315C02D5E00B17709 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		55AC331515C02D5E00B17709 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		55AC331715C02D5E00B17709 /* EasySize-Prefix.pch */ = {isa = PBXFileReference; path = "EasySize-Prefix.pch"; sourceTree = "<group>"; };
+		55AC331815C02D5E00B17709 /* AppDelegate.h */ = {isa = PBXFileReference; path = AppDelegate.h; sourceTree = "<group>"; };
+		55AC331915C02D5E00B17709 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		55AC331B15C02D5E00B17709 /* MasterViewController.h */ = {isa = PBXFileReference; path = MasterViewController.h; sourceTree = "<group>"; };
+		55AC331C15C02D5E00B17709 /* MasterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MasterViewController.m; sourceTree = "<group>"; };
+		55AC331E15C02D5E00B17709 /* DetailViewController.h */ = {isa = PBXFileReference; path = DetailViewController.h; sourceTree = "<group>"; };
+		55AC331F15C02D5E00B17709 /* DetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
+		55AC332215C02D5E00B17709 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MasterViewController.xib; sourceTree = "<group>"; };
+		55AC332515C02D5E00B17709 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/DetailViewController.xib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		55AC330215C02D5E00B17709 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				55AC330A15C02D5E00B17709 /* UIKit.framework in Frameworks */,
+				55AC330C15C02D5E00B17709 /* Foundation.framework in Frameworks */,
+				55AC330E15C02D5E00B17709 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		55AC32FA15C02D5E00B17709 = {
+			isa = PBXGroup;
+			children = (
+				55AC330F15C02D5E00B17709 /* EasySize */,
+				55AC330815C02D5E00B17709 /* Frameworks */,
+				55AC330615C02D5E00B17709 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		55AC330615C02D5E00B17709 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				55AC330515C02D5E00B17709 /* EasySize.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		55AC330815C02D5E00B17709 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				55AC330915C02D5E00B17709 /* UIKit.framework */,
+				55AC330B15C02D5E00B17709 /* Foundation.framework */,
+				55AC330D15C02D5E00B17709 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		55AC330F15C02D5E00B17709 /* EasySize */ = {
+			isa = PBXGroup;
+			children = (
+				55AC331815C02D5E00B17709 /* AppDelegate.h */,
+				55AC331915C02D5E00B17709 /* AppDelegate.m */,
+				55AC331B15C02D5E00B17709 /* MasterViewController.h */,
+				55AC331C15C02D5E00B17709 /* MasterViewController.m */,
+				55AC331E15C02D5E00B17709 /* DetailViewController.h */,
+				55AC331F15C02D5E00B17709 /* DetailViewController.m */,
+				55AC332115C02D5E00B17709 /* MasterViewController.xib */,
+				55AC332415C02D5E00B17709 /* DetailViewController.xib */,
+				55AC331015C02D5E00B17709 /* Supporting Files */,
+			);
+			path = EasySize;
+			sourceTree = "<group>";
+		};
+		55AC331015C02D5E00B17709 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				55AC331115C02D5E00B17709 /* EasySize-Info.plist */,
+				55AC331215C02D5E00B17709 /* InfoPlist.strings */,
+				55AC331515C02D5E00B17709 /* main.m */,
+				55AC331715C02D5E00B17709 /* EasySize-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		55AC330415C02D5E00B17709 /* EasySize */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55AC332915C02D5E00B17709 /* Build configuration list for PBXNativeTarget "EasySize" */;
+			buildPhases = (
+				55AC330115C02D5E00B17709 /* Sources */,
+				55AC330215C02D5E00B17709 /* Frameworks */,
+				55AC330315C02D5E00B17709 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EasySize;
+			productName = EasySize;
+			productReference = 55AC330515C02D5E00B17709 /* EasySize.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		55AC32FC15C02D5E00B17709 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0430;
+			};
+			buildConfigurationList = 55AC32FF15C02D5E00B17709 /* Build configuration list for PBXProject "EasySize" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 55AC32FA15C02D5E00B17709;
+			productRefGroup = 55AC330615C02D5E00B17709 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				55AC330415C02D5E00B17709 /* EasySize */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		55AC330315C02D5E00B17709 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				55AC331415C02D5E00B17709 /* InfoPlist.strings in Resources */,
+				55AC332315C02D5E00B17709 /* MasterViewController.xib in Resources */,
+				55AC332615C02D5E00B17709 /* DetailViewController.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		55AC330115C02D5E00B17709 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				55AC331615C02D5E00B17709 /* main.m in Sources */,
+				55AC331A15C02D5E00B17709 /* AppDelegate.m in Sources */,
+				55AC331D15C02D5E00B17709 /* MasterViewController.m in Sources */,
+				55AC332015C02D5E00B17709 /* DetailViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		55AC331215C02D5E00B17709 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				55AC331315C02D5E00B17709 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		55AC332115C02D5E00B17709 /* MasterViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				55AC332215C02D5E00B17709 /* en */,
+			);
+			name = MasterViewController.xib;
+			sourceTree = "<group>";
+		};
+		55AC332415C02D5E00B17709 /* DetailViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				55AC332515C02D5E00B17709 /* en */,
+			);
+			name = DetailViewController.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		55AC332715C02D5E00B17709 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		55AC332815C02D5E00B17709 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		55AC332A15C02D5E00B17709 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "EasySize/EasySize-Prefix.pch";
+				INFOPLIST_FILE = "EasySize/EasySize-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		55AC332B15C02D5E00B17709 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "EasySize/EasySize-Prefix.pch";
+				INFOPLIST_FILE = "EasySize/EasySize-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		55AC32FF15C02D5E00B17709 /* Build configuration list for PBXProject "EasySize" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55AC332715C02D5E00B17709 /* Debug */,
+				55AC332815C02D5E00B17709 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		55AC332915C02D5E00B17709 /* Build configuration list for PBXNativeTarget "EasySize" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55AC332A15C02D5E00B17709 /* Debug */,
+				55AC332B15C02D5E00B17709 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 55AC32FC15C02D5E00B17709 /* Project object */;
+}
