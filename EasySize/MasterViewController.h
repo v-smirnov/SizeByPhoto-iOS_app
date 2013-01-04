@@ -7,11 +7,24 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DataManager.h"
+#import "NewProfileViewController.h"
+#import "ResultViewController.h"
+#import "AppDelegate.h"
+#import "CustomCell.h"
+#import "TipsViewController.h"
+#import "FeedbackViewController.h"
 
-@class DetailViewController;
 
 @interface MasterViewController : UITableViewController
+{
+    UIView *deleteView;
+    UIButton *deleteButton;
+}
 
-@property (strong, nonatomic) DetailViewController *detailViewController;
+@property (nonatomic, retain) IBOutlet UIView *deleteView;
+@property (nonatomic, retain) IBOutlet UIButton *deleteButton;
 
+
+-(IBAction)deleteSelectedCells;
 @end

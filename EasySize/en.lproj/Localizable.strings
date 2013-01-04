@@ -1,0 +1,110 @@
+/* 
+  Localizable.strings
+  EasySize
+
+  Created by Vladimir Smirnov on 25.09.12.
+
+*/
+/* Measure stuff */
+"T-shirt" = "T-shirt";
+"Shirt" = "Shirt";
+"Dress" = "Dress";
+"Skirt" = "Skirt";
+"Trousers & jeans" = "Trousers & jeans";
+"Coats & jackets" = "Coats & jackets";
+"Bras" = "Bras";
+"Underwear" = "Underwear";
+"Ring" = "Ring";
+"Shoes" = "Shoes";
+"Gloves" = "Gloves";
+
+
+"Height" = "Height";
+"Chest" = "Chest";
+"Under chest" = "Under chest";
+"Waist" = "Waist";
+"Hips" = "Hips";
+"Outer leg" = "Outer leg";
+"Inner leg" = "Inner leg";
+"Sleeve" = "Sleeve";
+"Finger" = "Finger";
+"Foot" = "Foot";
+"Palm" = "Palm";
+"Neck" = "Neck";
+"Inside leg" = "Inside leg";
+
+
+/*buttons and bars titles*/
+"Edit" = "Edit";
+"Done" = "Done";
+"Add" = "Add";
+"Save" = "Save";
+"Delete" = "Delete";
+"Profiles" = "Profiles";
+"Result" = "Result";
+"Expand" = "Expand";
+"Hide" = "Hide";
+"Cancel" = "Cancel";
+"Measure" = "Measure";
+"Next" = "Next";
+"Edit profile data" = "Edit profile data";
+"Edit sizes" = "Edit sizes";
+"Model" = "Model";
+"Table" = "Table";
+"One new photo" = "One new photo";
+"One existing photo" = "One existing photo";
+"Two new photos" = "Two new photos";
+"Two existing photos" = "Two existing photos";
+"Parameters" = "Parameters";
+"cm" = "cm";
+"inch" = "inch";
+"View result" = "View result";
+"Profile" = "Profile";
+"Choose the action" = "Choose the action";
+"Take a photo" = "Take a photo";
+"Choose existing" = "Choose existing";
+"Yes" = "Yes";
+"No" = "No";
+"Tips" = "Tips";
+"Feedback" = "Feedback";
+"Wrong size?" = "Wrong size?";
+"Measure with" = "Measure with";
+"of"="of";
+"Send" = "Send";
+"Tell us about your problem" = "Tell us about your problem:";
+"Your feedback" = "Your feedback:";
+
+/*labels and placeholders*/
+"Name:"="Name:";
+"Surname:"="Surname:";
+"Age:"="Age:";
+"Sex:"="Sex:";
+"name"="name";
+"surname"="surname";
+"age"="age";
+"Your name"  = "Your name:";
+"Your e-mail"= "Your e-mail:";
+
+/*---*/
+"Man" = "Man";
+"Woman" = "Woman";
+
+/*messages and alerts*/
+"Input your name first!" = "Input name first!";
+"Data saved" = "Data saved";
+"Warning" = "Warning";
+"Profile with this name already exist!" = "Profile with this name already exist!";
+"Unable to save data!" = "Unable to save data!";
+"Select at least one type of clothers" = "Select at least one type of clothers";
+"updateMessage" = "Do you want to update the sizes of the other stuff automatically?";
+"There are too many people on the photo or bad conditions!" = "There are too many people on the photo or bad conditions!";
+"Can't see the body" = "Can't see the body!";
+"Thank you for your feedback!" = "Thank you for your feedback!";
+//help tips
+"HelpTip1" = "  Create one or more profiles, specifying the name, age and sex.";
+"HelpTip2" = "  Sizes differ from brand to brand. We offer you midrange sizes. At the top of the screen you can find the parameters of your body in cm and inches so that you can always compare them to the sizes.";
+"HelpTip3" = "  Choosing clothes for measurements\n  Choose the items you want to measure, using a model or a table view.\n  In table view tap at the items the sizes of which you would like to find out.\n  In model view put the desirable items on a mannequin by double tapping at them.\n  You can see all clothes by thumbing them in a wardrobe. \n  You can undress the mannequin by thumbing the clothes from it back to the wardrobe.\n\n  Measuring\n  You can define the size by:\n - two (full and half face) pictures from the gallery;\n - two new pictures(full and half face) using the contour;\n - known parameters (in inches or cm);\n\n  New pictures\n  Take the pictures according to the contours: full and half face. In both cases please put your hands up so that they don’t block the body contours. When taking a half face picture please turn your face to the camera. This will help to make the size more correct.";
+"HelpTip4" = "  Use the tips at the top of the screen where:\n - it is said which part of the body you should measure. You can see the whole list by thumbing it up-down and you can also remeasure;\n - there is a picture which shows where the ruler should be placed during the measurement;Please, pay attention: the ruler should be parallel to the floor and it should be pinched straight according to the person’s body size(neither more nor less).";
+"HelpTip5" = "  If you choose measuring by parameters tap at ’expand’ to scroll a slider according to your parameters (in centimeters or inches).";
+
+
