@@ -25,6 +25,7 @@ typedef enum
 +(MeasureManager *)sharedMeasureManager;
 
 - (NSArray *) getClothesListForPersonType:(PersonType) personType;
+- (NSArray *) getClothesListForAllGenders;
 - (NSMutableDictionary *) getClothesMeasureParamsForPersonType:(PersonType) personType;;
 - (NSArray *)getSizesTableForClothesType:(NSString *) clothesType andPersonType:(PersonType) personType;
 - (float) getMinSizeForClothesType:(NSString *) clothesType andPersonType:(PersonType) personType;

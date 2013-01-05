@@ -178,7 +178,7 @@
         
         
         //initializing sizes with -1(have not yet measured);
-        NSArray *stuffArray = [[MeasureManager sharedMeasureManager] getClothesListForPersonType:[self.genderSegmentedControl selectedSegmentIndex]];
+        NSArray *stuffArray = [[MeasureManager sharedMeasureManager] getClothesListForAllGenders];
         for (NSString *key in stuffArray) {
             
             NSMutableArray *resultsArray = [[NSMutableArray alloc] init];
@@ -307,6 +307,7 @@
 
 
 
+
 #pragma mark action sheet delegate methods
 - (void) willPresentActionSheet:(UIActionSheet *)actionSheet
 {
@@ -418,6 +419,19 @@
 - (NSString *) getSearchingKey
 {
     return [[self.nameField.text stringByAppendingString:@"_"] stringByAppendingString:self.surnameField.text];
+}
+
+- (BOOL) checkAge
+{
+    if ([self.ageField.text integerValue] > 0 && [self.ageField.text integerValue] < 13){
+        [self showAlertDialogWithTitle:@"Warning" andMessage:@"Application doesn't define children sizes (under 13 years old)"];
+    }
+    
+    if ([self.ageField.text integerValue] == 0){
+        [self showAlertDialogWithTitle:@"Warning" andMessage:@"You didn't input age. You should know: application doesn't define children sizes (under 13 years old)"];
+    }
+    
+    return true;
 }
 
 @end

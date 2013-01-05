@@ -72,6 +72,12 @@ static MeasureManager *manager = nil;
     return returnedArray;
 }
 
+- (NSArray *) getClothesListForAllGenders
+{
+    return [NSArray arrayWithObjects:@"Trousers & jeans", @"Skirt", @"T-shirt", @"Shirt", @"Dress", @"Coats & jackets", @"Underwear", @"Bras", nil];
+
+}
+
 - (NSArray *)getClothesWithTheSameSizeForChoosenOne:(NSString *)clothesType andPersonType:(PersonType)personType
 {
     NSDictionary *retDict;
