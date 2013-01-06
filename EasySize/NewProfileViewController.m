@@ -81,11 +81,6 @@
 
     }
     else{
-        /*
-        UIBarButtonItem *saveButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(saveProfileData)] ;
-        self.navigationItem.rightBarButtonItem = saveButton;
-        [saveButton release];
-         */
         UIBarButtonItem *saveButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Save", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(saveProfileData)] ;
         self.navigationItem.rightBarButtonItem = saveButton;
         [saveButton release];
@@ -137,7 +132,7 @@
         //CGRect sexFrame = CGRectMake(0, self.sexScrollView.frame.size.height*[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue], self.sexScrollView.frame.size.width, self.sexScrollView.frame.size.height);
         //[self.sexScrollView scrollRectToVisible:sexFrame animated:NO];
         
-        [self.genderSegmentedControl setSelectedSegmentIndex:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+        [self.genderSegmentedControl setSelectedSegmentIndex:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
         
     }
 
@@ -304,6 +299,10 @@
     [self.surnameField resignFirstResponder];
     [self.ageField resignFirstResponder];
 }
+- (IBAction) onAgeFieldValueChanged:(id)sender
+{
+    [self checkAge];
+}
 
 
 
@@ -423,13 +422,14 @@
 
 - (BOOL) checkAge
 {
-    if ([self.ageField.text integerValue] > 0 && [self.ageField.text integerValue] < 13){
-        [self showAlertDialogWithTitle:@"Warning" andMessage:@"Application doesn't define children sizes (under 13 years old)"];
-    }
     
     if ([self.ageField.text integerValue] == 0){
-        [self showAlertDialogWithTitle:@"Warning" andMessage:@"You didn't input age. You should know: application doesn't define children sizes (under 13 years old)"];
+        [self showAlertDialogWithTitle:@"Warning" andMessage:@"AgeMessage1"];
     }
+    else if ([self.ageField.text integerValue] > 0 && [self.ageField.text integerValue] < 13){
+        [self showAlertDialogWithTitle:@"Warning" andMessage:@"AgeMessage2"];
+    }
+
     
     return true;
 }

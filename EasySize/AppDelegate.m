@@ -10,6 +10,12 @@
 
 #import "MasterViewController.h"
 #import <CommonCrypto/CommonDigest.h>
+#import "LocalyticsSession.h"
+
+//#define LOCALYTICS_KEY @"00fb78a21902e83de0fdc6a-88ab17d4-581c-11e2-3908-004b50a28849"
+//test key
+#define LOCALYTICS_KEY @"d8722b8bedd61a7d9f9f6a3-414e236c-5827-11e2-3909-004b50a28849"
+
 
 @implementation AppDelegate
 
@@ -28,9 +34,11 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    //Localytics
+    [[LocalyticsSession sharedLocalyticsSession] startSession:LOCALYTICS_KEY];
+    
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
-
     MasterViewController *masterViewController = [[[MasterViewController alloc] initWithNibName:@"RootView" bundle:nil] autorelease];
     self.navigationController = [[[UINavigationController alloc] initWithRootViewController:masterViewController] autorelease];
     self.window.rootViewController = self.navigationController;
@@ -90,12 +98,18 @@
     if (!imagePickerControllerIsActive){
         [self.navigationController popToRootViewControllerAnimated:NO];
     }
-
+    
+    //Localytics
+    [[LocalyticsSession sharedLocalyticsSession] close];
+    [[LocalyticsSession sharedLocalyticsSession] upload];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    //Localytics
+    [[LocalyticsSession sharedLocalyticsSession] resume];
+    [[LocalyticsSession sharedLocalyticsSession] upload];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -106,6 +120,9 @@
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    //Localytics
+    [[LocalyticsSession sharedLocalyticsSession] close];
+    [[LocalyticsSession sharedLocalyticsSession] upload];
 }
 
 #pragma mark - help functions
@@ -115,7 +132,7 @@
     
     NSString *result = nil;
     NSString *isu = [UIDevice currentDevice].uniqueIdentifier;
-    NSLog(@"%@", isu);
+    //NSLog(@"%@", isu);
     
     if(isu) {
         unsigned char digest[16];
@@ -154,9 +171,11 @@
         NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
         if((!error) && ([(NSHTTPURLResponse *)response statusCode] == 200) && ([responseData length] > 0)) {
             [fileManager createFileAtPath:appOpenPath contents:nil attributes:nil]; // successful report, mark it as such
-            NSLog(@"App download successfully reported.");
+            //NSLog(@"App download successfully reported.");
         } else {
-            NSLog(@"WARNING: App download not successfully reported. %@", [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding]);
+            //NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+            //NSLog(@"WARNING: App download not successfully reported. %@", responseString);
+            //[responseString release];
         }
     }
     [pool release];

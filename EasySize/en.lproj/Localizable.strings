@@ -100,6 +100,9 @@
 "There are too many people on the photo or bad conditions!" = "There are too many people on the photo or bad conditions!";
 "Can't see the body" = "Can't see the body!";
 "Thank you for your feedback!" = "Thank you for your feedback!";
+"AgeMessage1" = "You didn't input age. You should know: application doesn't define children sizes (under 13 years old)";
+"AgeMessage2" = "Application doesn't define children sizes (under 13 years old)";
+
 //help tips
 "HelpTip1" = "  Create one or more profiles, specifying the name, age and sex.";
 "HelpTip2" = "  Sizes differ from brand to brand. We offer you midrange sizes. At the top of the screen you can find the parameters of your body in cm and inches so that you can always compare them to the sizes.";

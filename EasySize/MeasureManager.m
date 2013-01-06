@@ -7,6 +7,7 @@
 //
 
 #import "MeasureManager.h"
+#import "DataManager.h"
 static MeasureManager *manager = nil;
 
 @implementation MeasureManager
@@ -779,6 +780,11 @@ static MeasureManager *manager = nil;
 - (NSArray *)getGenderList
 {
     return [NSArray arrayWithObjects:@"Man", @"Woman", nil];
+}
+
+- (NSInteger)getCurrentProfileGender
+{
+    return [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue];
 }
 
 - (NSArray *)getSizesListForClothesType:(NSString *)clothesType personType:(PersonType)personType andIndex:(NSInteger)index

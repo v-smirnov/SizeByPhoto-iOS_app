@@ -40,5 +40,7 @@ typedef enum
 - (NSString *) getLegLengthDescriptionForValue:(float) value andPersonType:(PersonType) personType;
 - (NSArray *)getOrderedMeasureParams;
 - (NSString *) getLetterForBrasSizeWithChest:(float) chest andUnderChest:(float) underChest;
+- (NSInteger) getCurrentProfileGender;
+
 
 @end

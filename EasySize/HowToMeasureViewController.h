@@ -17,23 +17,26 @@
 {
     UIScrollView *clothesScrollView;
     UIImageView *figureView;
-    UITableView *choosingSizesTableView;
     NSInteger backButtonNum;
     NSArray *tableClothesArray;
     NSMutableArray *imageViewsArray;
     NSMutableArray *clothesArray;
     NSMutableDictionary *whatWillBeMeasuredDict;
     UIImageView *wardrobeView;
-    NSInteger numberOfSubviewsBeforeAddingClothes;
     UIButton *infoButton;
+    UIScrollView *tableScrollView;
+    UIButton *rightArrowButton;
+    UIButton *leftArrowButton;
 }
 
 @property (nonatomic, retain) IBOutlet UIScrollView *clothesScrollView;
 @property (nonatomic, retain) IBOutlet UIImageView *figureView;
-@property (nonatomic, retain) IBOutlet UITableView *choosingSizesTableView;
 @property (nonatomic, assign) NSInteger backButtonNum;
 @property (nonatomic, retain) IBOutlet UIImageView *wardrobeView;
 @property (nonatomic, retain) IBOutlet UIButton *infoButton;
+@property (nonatomic, retain) IBOutlet UIScrollView *tableScrollView;
+@property (nonatomic, retain) IBOutlet UIButton *rightArrowButton;
+@property (nonatomic, retain) IBOutlet UIButton *leftArrowButton;
 
 - (IBAction) showTips:(id)sender;
 

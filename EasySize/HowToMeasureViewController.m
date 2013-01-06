@@ -7,6 +7,7 @@
 //
 
 #import "HowToMeasureViewController.h"
+#import "LocalyticsSession.h"
 
 @interface HowToMeasureViewController ()
 
@@ -14,7 +15,7 @@
 
 @implementation HowToMeasureViewController
 
-@synthesize clothesScrollView, figureView, choosingSizesTableView, backButtonNum, wardrobeView, infoButton;
+@synthesize clothesScrollView, figureView, backButtonNum, wardrobeView, infoButton, tableScrollView, rightArrowButton, leftArrowButton;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -30,45 +31,40 @@
 {
     [clothesScrollView release];
     [figureView release];
-    [choosingSizesTableView release];
     [tableClothesArray release];
     [imageViewsArray release];
     [clothesArray release];
     [whatWillBeMeasuredDict release];
     [wardrobeView release];
     [infoButton release];
+    [tableScrollView release];
+    [rightArrowButton release];
+    [leftArrowButton release];
     [super dealloc];
 }
 
 - (void)viewDidUnload
 {
     [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
     self.clothesScrollView = nil;
     self.figureView = nil;
-    self.choosingSizesTableView = nil;
     self.wardrobeView = nil;
     self.infoButton = nil;
+    self.tableScrollView = nil;
+    self.rightArrowButton = nil;
+    self.leftArrowButton = nil;
     [tableClothesArray release]; tableClothesArray = nil;
     [imageViewsArray release]; imageViewsArray = nil;
     [clothesArray release]; clothesArray = nil;
+
 
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
     
-    numberOfSubviewsBeforeAddingClothes = [[self.view subviews] count];
-    
-    UIImageView *bgImageView = [[UIImageView alloc] initWithFrame:self.choosingSizesTableView.backgroundView.frame];
-    bgImageView.image = [UIImage imageNamed:@"background.png"];
-    [self.choosingSizesTableView setBackgroundView: bgImageView];
-    [bgImageView release];
-
-    self.choosingSizesTableView.layer.cornerRadius = 10.0f;
+    float currentY = 0;
     
       
     UITapGestureRecognizer *CSVTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(CSVTwoTapDetected:)];
@@ -101,7 +97,8 @@
     [measureButton release];
 
     
-    NSInteger sex = [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue];
+    NSInteger sex = [[MeasureManager sharedMeasureManager] getCurrentProfileGender];
+    
     
     NSString *bodyImageName = [@"Body_" stringByAppendingString: [NSString stringWithFormat:@"%d",sex]];
     self.figureView.image = [UIImage imageNamed:bodyImageName];
@@ -112,6 +109,7 @@
     // all image views array
     imageViewsArray = [[NSMutableArray alloc] init];
     
+       
     //array with names of the wear
     clothesArray = [[NSMutableArray alloc] init];
     NSMutableArray *wardrobeClothesArray = [[NSMutableArray alloc] init];
@@ -124,7 +122,12 @@
         
         [clothesArray addObject:newWearObject];
         [wardrobeClothesArray addObject:newWardrobeWearObject];
+        
+        [self createCellViewWithFrame:CGRectMake(0,currentY,self.tableScrollView.frame.size.width,50) Title:wearObject andNumber:[tableClothesArray indexOfObject:wearObject]];
+        currentY = currentY + 53;
+        
     }
+    self.tableScrollView.contentSize = CGSizeMake(self.tableScrollView.frame.size.width , currentY);
     
     self.clothesScrollView.contentSize = CGSizeMake(self.clothesScrollView.frame.size.width * [clothesArray count], self.clothesScrollView.frame.size.height);
 
@@ -194,7 +197,7 @@
 {
     //uncheking wear at the table
     NSInteger row = [imageViewsArray indexOfObject:((UISwipeGestureRecognizer *)sender).view];
-    [self _setChekmarkInRow:row andSection:0 andType:UITableViewCellAccessoryNone];
+    [self _setChekmarkInRow:row withImage:nil];
     [whatWillBeMeasuredDict removeObjectForKey:[tableClothesArray objectAtIndex:row]];
     
     //remember ald center
@@ -226,8 +229,10 @@
         self.clothesScrollView.hidden = NO;
         self.figureView.hidden = NO;
         self.wardrobeView.hidden = NO;
-        self.choosingSizesTableView.hidden = YES;
+        self.tableScrollView.hidden = YES;
         self.infoButton.hidden = NO;
+        self.rightArrowButton.hidden = NO;
+        self.leftArrowButton.hidden = NO;
     }
     else if (((UISegmentedControl *)sender).selectedSegmentIndex == 1){
         for (UIImageView * imageView in imageViewsArray) {
@@ -236,8 +241,10 @@
         self.clothesScrollView.hidden = YES;
         self.figureView.hidden = YES;
         self.wardrobeView.hidden = YES;
-        self.choosingSizesTableView.hidden = NO;
+        self.tableScrollView.hidden = NO;
         self.infoButton.hidden = YES;
+        self.rightArrowButton.hidden = YES;
+        self.leftArrowButton.hidden = YES;
     }
 }
 
@@ -312,15 +319,16 @@
     [imageView release];
 }
 
-- (void) _setChekmarkInRow:(NSInteger) row andSection:(NSInteger) section andType:(UITableViewCellAccessoryType) type
+- (void) _setChekmarkInRow:(NSInteger) row withImage:(UIImage *) image
 {
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
-    
-    UITableViewCell *cell = [self.choosingSizesTableView cellForRowAtIndexPath:indexPath];
-
-    if (cell.accessoryType != type){
-        cell.accessoryType = type;
+    UIButton *rowView = (UIButton *)[self.tableScrollView viewWithTag:row];
+    if (rowView){
+        UIImageView *checkSignImageView = (UIImageView *)[rowView viewWithTag:999];
+        if (checkSignImageView){
+            checkSignImageView.image = image;
+        }
     }
+    
 }
 
 
@@ -426,6 +434,40 @@
 }
 
 
+- (void) createCellViewWithFrame:(CGRect) frame  Title:(NSString *) title andNumber:(NSInteger) number
+{
+    //row view
+    //use button to visualize click
+    UIButton *currentView = [UIButton buttonWithType:UIButtonTypeCustom];
+    [currentView setTag:number];
+    [currentView setFrame:frame];
+    [currentView setBackgroundImage:[UIImage imageNamed:@"cell_background"] forState:UIControlStateNormal];
+    [currentView addTarget:self action:@selector(cellTapDetected:) forControlEvents:UIControlEventTouchUpInside];
+    
+    //title
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, currentView.frame.size.height/2-10, currentView.frame.size.width/2, 20)];
+    label.textColor = [UIColor blackColor];
+    label.font = [UIFont systemFontOfSize:16.0f];
+    label.backgroundColor = [UIColor clearColor];
+    label.numberOfLines = 0;
+    label.lineBreakMode = UILineBreakModeWordWrap;
+    label.textAlignment =UITextAlignmentLeft;
+    label.text = NSLocalizedString(title, nil);
+    [currentView addSubview:label];
+    [label release];
+
+    //check image view
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(currentView.frame.size.width-30, currentView.frame.size.height-currentView.frame.size.height/2-10, 20, 20)];
+    imageView.image = nil;
+    imageView.tag = 999;
+    [currentView addSubview:imageView];
+    [imageView release];
+    
+    [self.tableScrollView addSubview:currentView];
+    
+}
+
+
 
 #pragma mark - Gesture Recognizers
 
@@ -453,73 +495,37 @@
         [self.view insertSubview: [imageViewsArray objectAtIndex:page] atIndex:[self getIndexToInsertWearViewWithTag:[[imageViewsArray objectAtIndex:page] tag]]];
     }
     
-    [self _setChekmarkInRow:page andSection:0 andType:UITableViewCellAccessoryCheckmark];
+    [self _setChekmarkInRow:page withImage:[UIImage imageNamed:@"checkImage"]];
     [whatWillBeMeasuredDict setObject:[tableClothesArray objectAtIndex:page] forKey:[tableClothesArray objectAtIndex:page]];
     // NSLog(@"%d", [self.view.subviews count]);
    
 }
 
-#pragma mark - Table View delegate methods
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+- (void)cellTapDetected:(id)sender
 {
-    return 1;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    return [tableClothesArray count];
-}
-
-// Customize the appearance of table view cells.
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
+    UIButton *senderButton = (UIButton *)sender;
     
-    static NSString *CellIdentifier = @"Cell";
-    
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
-        cell.accessoryType = UITableViewCellAccessoryNone;
-        //UIImage *indicatorImage = [UIImage imageNamed:@"sex_on_0.png"];
-        //cell.accessoryView = [[[UIImageView alloc] initWithImage:indicatorImage] autorelease];
-        
-        cell.selectionStyle = UITableViewCellSelectionStyleGray;
-        
-        cell.backgroundView = [[UIImageView new] autorelease];
-        cell.selectedBackgroundView = [[UIImageView new] autorelease];
+    // tag 999 - is constant value for check image view
+    UIImageView *checkSignImageView = (UIImageView *)[senderButton viewWithTag:999];
+    if (checkSignImageView){
+        if (checkSignImageView.image){
+            checkSignImageView.image = nil;
+            [[imageViewsArray objectAtIndex:senderButton.tag]removeFromSuperview];
+            
+            [whatWillBeMeasuredDict removeObjectForKey:[tableClothesArray objectAtIndex:senderButton.tag]];
+        }
+        else{
+            checkSignImageView.image = [UIImage imageNamed:@"checkImage"];
+            [self.view insertSubview: [imageViewsArray objectAtIndex:senderButton.tag] atIndex:[self getIndexToInsertWearViewWithTag:[[imageViewsArray objectAtIndex:senderButton.tag] tag]]];
+            [whatWillBeMeasuredDict setObject:[tableClothesArray objectAtIndex:senderButton.tag] forKey:[tableClothesArray objectAtIndex:senderButton.tag]];
+        }
     }
-    ((UIImageView *)cell.backgroundView).image = [UIImage imageNamed:@"cell_background.png"];
-    ((UIImageView *)cell.selectedBackgroundView).backgroundColor = [UIColor clearColor];
-    
-    // getting name
-    //cell.textLabel.textColor = [UIColor brownColor];
-    cell.textLabel.text = NSLocalizedString([tableClothesArray objectAtIndex:indexPath.row], nil);
     
     
-    return cell;
-
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-   
-    UITableViewCell *cell = [self.choosingSizesTableView cellForRowAtIndexPath:indexPath];
-    
-    if (cell.accessoryType == UITableViewCellAccessoryCheckmark) {
-        cell.accessoryType = UITableViewCellAccessoryNone;
-        [[imageViewsArray objectAtIndex:indexPath.row]removeFromSuperview];
-        
-        [whatWillBeMeasuredDict removeObjectForKey:[tableClothesArray objectAtIndex:indexPath.row]];
-    
-    } else {
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
-        //[self.view addSubview:[imageViewsArray objectAtIndex:indexPath.row]];
-        [self.view insertSubview: [imageViewsArray objectAtIndex:indexPath.row] atIndex:[self getIndexToInsertWearViewWithTag:[[imageViewsArray objectAtIndex:indexPath.row] tag]]];
-        [whatWillBeMeasuredDict setObject:[tableClothesArray objectAtIndex:indexPath.row] forKey:[tableClothesArray objectAtIndex:indexPath.row]];
-    }    
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
-}
+
+
 
 #pragma mark action sheet delegate methods
 - (void) willPresentActionSheet:(UIActionSheet *)actionSheet
@@ -623,6 +629,7 @@
              */
             if (buttonIndex == actionSheet.firstOtherButtonIndex){
                 
+                [[LocalyticsSession sharedLocalyticsSession] tagEvent:@"Measure with new photos"];
                 MeasureViewController *measureController = [[MeasureViewController alloc] initWithNibName:measureViewNib bundle:nil];
                 measureController.whatToMeasureArray = tmpArray;
                 measureController.makeMeasurementsUsingTwoPhotos = YES;
@@ -631,6 +638,7 @@
                 [measureController release];            }
             if (buttonIndex == 1){
                 
+                [[LocalyticsSession sharedLocalyticsSession] tagEvent:@"Measure with 2 existing photos"];
                 MeasureViewController *measureController = [[MeasureViewController alloc] initWithNibName:measureViewNib bundle:nil];
                 measureController.whatToMeasureArray = tmpArray;
                 measureController.makeMeasurementsUsingTwoPhotos = YES;
@@ -642,7 +650,7 @@
             
             else if (buttonIndex == 2){
                 
-                
+                [[LocalyticsSession sharedLocalyticsSession] tagEvent:@"Measure with parameters"];
                 MeasureByParamsViewController *measureController = [[MeasureByParamsViewController alloc] initWithNibName:@"MeasureByParamsView" bundle:nil];
                 measureController.whatToMeasureArray = tmpArray;
                 [self.navigationController pushViewController:measureController animated:YES];
@@ -682,6 +690,7 @@
           */
             if (buttonIndex == actionSheet.firstOtherButtonIndex){
                 
+                [[LocalyticsSession sharedLocalyticsSession] tagEvent:@"Measure with 2 existing photos"];
                 MeasureViewController *measureController = [[MeasureViewController alloc] initWithNibName:measureViewNib bundle:nil];
                 measureController.whatToMeasureArray = tmpArray;
                 measureController.makeMeasurementsUsingTwoPhotos = YES;
@@ -690,6 +699,7 @@
                 [measureController release];
             }
             if (buttonIndex == 1){
+                [[LocalyticsSession sharedLocalyticsSession] tagEvent:@"Measure with parameters"];
                 //measure by params
                 MeasureByParamsViewController *measureController = [[MeasureByParamsViewController alloc] initWithNibName:@"MeasureByParamsView" bundle:nil];
                 measureController.whatToMeasureArray = tmpArray;
