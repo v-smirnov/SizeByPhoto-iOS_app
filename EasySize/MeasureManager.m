@@ -110,6 +110,49 @@ static MeasureManager *manager = nil;
 }
 
 
+- (BOOL)needToUpdateSizesForClothesWithTheSameParameters:(NSArray *)clothesArray forPersonType:(PersonType)personType;
+{
+    BOOL needToUpdate = FALSE;
+    
+    NSDictionary *groupsDict;
+    if (personType == Man){
+        groupsDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                   [NSArray arrayWithObjects:@"Trousers & jeans", @"Underwear", nil], @"firstGroup",
+                   [NSArray arrayWithObjects:@"Shirt", @"Coats & jackets", @"T-shirt",nil], @"secondGroup",
+                    nil];
+    }
+    else if (personType == Woman){
+        groupsDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                   [NSArray arrayWithObjects:@"Skirt",@"Trousers & jeans", @"Underwear", nil], @"firstGroup",
+                   [NSArray arrayWithObjects:@"Shirt", @"Coats & jackets", @"T-shirt", nil], @"secondGroup",
+                   nil];
+    }
+    else{
+        
+        groupsDict = [NSDictionary dictionary];
+    }
+    
+    NSInteger i = 0;
+    for (NSString *key in groupsDict) {
+        NSArray *groupArray = [groupsDict objectForKey:key]; // gettin group of similar glothes
+        
+        for (NSString *thing in clothesArray) {
+            if ([groupArray indexOfObject:thing] != NSNotFound){
+                i++;
+            }
+        }
+        //if count of things in array belonging to one group < group size the we shoulp update 
+        if (i > 0 && i < [groupArray count]){
+            needToUpdate = TRUE;
+            break;
+        }
+        i = 0;
+    }
+    
+    return needToUpdate;
+}
+
+
 
 - (NSMutableDictionary *)getClothesMeasureParamsForPersonType:(PersonType)personType
 {

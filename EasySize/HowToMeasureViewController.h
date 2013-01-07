@@ -13,7 +13,7 @@
 #import "MeasureManager.h"
 
 
-@interface HowToMeasureViewController : UIViewController <UITabBarControllerDelegate, UINavigationBarDelegate, UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@interface HowToMeasureViewController : UIViewController <UITabBarControllerDelegate, UINavigationBarDelegate, UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIScrollViewDelegate>
 {
     UIScrollView *clothesScrollView;
     UIImageView *figureView;
@@ -39,5 +39,7 @@
 @property (nonatomic, retain) IBOutlet UIButton *leftArrowButton;
 
 - (IBAction) showTips:(id)sender;
+- (IBAction) rightArrowBtnClick:(id)sender;
+- (IBAction) leftArrowBtnClick:(id)sender;
 
 @end

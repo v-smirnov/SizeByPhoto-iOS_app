@@ -41,6 +41,7 @@ typedef enum
 - (NSArray *)getOrderedMeasureParams;
 - (NSString *) getLetterForBrasSizeWithChest:(float) chest andUnderChest:(float) underChest;
 - (NSInteger) getCurrentProfileGender;
+- (BOOL) needToUpdateSizesForClothesWithTheSameParameters:(NSArray *) clothesArray forPersonType:(PersonType)personType;
 
 
 @end

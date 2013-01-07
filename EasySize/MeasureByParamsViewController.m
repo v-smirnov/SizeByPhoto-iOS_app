@@ -57,7 +57,7 @@
     viewsStateArray = [[NSMutableArray alloc] init];
     
     
-    NSMutableDictionary *allStuffToMeasureDictionary = [[[MeasureManager sharedMeasureManager] getClothesMeasureParamsForPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]] retain];
+    NSMutableDictionary *allStuffToMeasureDictionary = [[[MeasureManager sharedMeasureManager] getClothesMeasureParamsForPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]] retain];
 
 
     UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:NSLocalizedString(@"cm", nil),                                                                                      NSLocalizedString(@"inch", nil), nil]];
@@ -135,7 +135,7 @@
     
     //CGFloat pageHeight = sView.frame.size.height;
     //NSInteger page = roundf((currentSlider.value - currentSlider.minimumValue)/currentSlider.step);
-    NSInteger page = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+    NSInteger page = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
     CGRect currentFrame = sView.frame;
     currentFrame.origin.y = currentFrame.size.height * (page);
     [sView scrollRectToVisible:currentFrame animated:YES];
@@ -173,7 +173,7 @@
 
             //CGFloat pageHeight = sView.frame.size.height;
             //NSInteger page = roundf((currentSlider.value - currentSlider.minimumValue)/currentSlider.step);
-            NSInteger page = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+            NSInteger page = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
             CGRect currentFrame = sView.frame;
             currentFrame.origin.y = currentFrame.size.height * (page);
             [sView scrollRectToVisible:currentFrame animated:NO];
@@ -285,7 +285,7 @@
     
     //creating sizes scrollView
     
-    NSArray *sizesArray = [[MeasureManager sharedMeasureManager] getSizesTableForClothesType:currentView.viewKey andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+    NSArray *sizesArray = [[MeasureManager sharedMeasureManager] getSizesTableForClothesType:currentView.viewKey andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
     
     
     UIScrollView *sizesScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(10, 75, frame.size.width-10, 35)];
@@ -340,9 +340,9 @@
         
         
         LabeledSlider *currentSlider = [[LabeledSlider alloc] init];
-        currentSlider.minimumValue = [[MeasureManager sharedMeasureManager] getMinSizeForClothesType:[object objectAtIndex:0] andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
-        currentSlider.maximumValue = [[MeasureManager sharedMeasureManager] getMaxSizeForClothesType:[object objectAtIndex:0] andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
-        //currentSlider.step = [[MeasureManager sharedMeasureManager] getStepSliderValueForKey:[object objectAtIndex:0] andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+        currentSlider.minimumValue = [[MeasureManager sharedMeasureManager] getMinSizeForClothesType:[object objectAtIndex:0] andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
+        currentSlider.maximumValue = [[MeasureManager sharedMeasureManager] getMaxSizeForClothesType:[object objectAtIndex:0] andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
+        //currentSlider.step = [[MeasureManager sharedMeasureManager] getStepSliderValueForKey:[object objectAtIndex:0] andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
         currentSlider.sliderKey = [object objectAtIndex:0];
         currentSlider.continuous = YES;
         currentSlider.value = currentSlider.minimumValue;
@@ -413,7 +413,8 @@
     
     // if was not measured all stuff we ask user about updating sizes for other clothes
     // else just showing the result
-    if ([[[MeasureManager sharedMeasureManager] getClothesListForPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]] count] != [self.whatToMeasureArray count]){
+    //if ([[[MeasureManager sharedMeasureManager] getClothesListForPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]] count] != [self.whatToMeasureArray count]){
+    if ([[MeasureManager sharedMeasureManager] needToUpdateSizesForClothesWithTheSameParameters:self.whatToMeasureArray forPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]]){
         
         UIAlertView* alert = [[UIAlertView alloc]
                               initWithTitle:NSLocalizedString(@"", nil)
@@ -501,7 +502,7 @@
     UIScrollView *sView = mView.sizesScrollView;
     
     if ([currentSlider.sliderKey isEqualToString:@"Inside leg"]){
-        mView.additionalInfoLabel.text = [[MeasureManager sharedMeasureManager] getLegLengthDescriptionForValue:currentSlider.value andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+        mView.additionalInfoLabel.text = [[MeasureManager sharedMeasureManager] getLegLengthDescriptionForValue:currentSlider.value andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
         //there is possibility 
     }
     else if (([mView.viewKey isEqualToString:@"Bras"]) && ([currentSlider.sliderKey isEqualToString:@"Chest"])){
@@ -561,7 +562,7 @@
         }
         
         
-        NSInteger page = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+        NSInteger page = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
         CGRect currentFrame = sView.frame;
         currentFrame.origin.y = currentFrame.size.height * (page);
         [sView scrollRectToVisible:currentFrame animated:YES];
@@ -764,7 +765,7 @@
         
         
         //[lSlider setValue:(lSlider.minimumValue+lSlider.step*(sView.contentOffset.y/sView.frame.size.height)) animated:YES];
-        [lSlider setValue:[[MeasureManager sharedMeasureManager] getSizeValueForKey:lSlider.sliderKey PersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue] andState:roundf(sView.contentOffset.y/sView.frame.size.height)] animated:YES];
+        [lSlider setValue:[[MeasureManager sharedMeasureManager] getSizeValueForKey:lSlider.sliderKey PersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender] andState:roundf(sView.contentOffset.y/sView.frame.size.height)] animated:YES];
         lSlider.valueLabel.text = [NSString stringWithFormat:@"%.2f", lSlider.value];
         
         //definig letter fo bra 
@@ -828,9 +829,11 @@
                 [resultsArray addObject:[NSNumber numberWithInteger: positionInSizesArray]];
                 
                 //getting  dictionaty to change the size for the clothes with the same params
-                NSArray *clothesWithTheSameSize = [[MeasureManager sharedMeasureManager] getClothesWithTheSameSizeForChoosenOne:tmpView.viewKey andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+                NSArray *clothesWithTheSameSize = [[MeasureManager sharedMeasureManager] getClothesWithTheSameSizeForChoosenOne:tmpView.viewKey andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
                 
                 for (NSString *wear in clothesWithTheSameSize) {
+                    // TODO: think about saving the additional info!!!
+                    
                     [[[DataManager sharedDataManager] currentProfile] setObject:resultsArray forKey:wear];
                 }
                 [resultsArray release];

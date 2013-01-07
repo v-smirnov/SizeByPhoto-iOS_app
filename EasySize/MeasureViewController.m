@@ -89,7 +89,7 @@
     
     
     
-    allStuffToMeasureDictionary = [[[MeasureManager sharedMeasureManager] getClothesMeasureParamsForPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]] retain];
+    allStuffToMeasureDictionary = [[[MeasureManager sharedMeasureManager] getClothesMeasureParamsForPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]] retain];
     
     // preparing all human body parts to measure
     NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] init];
@@ -112,9 +112,7 @@
         }
             
     }
-    //for (NSString *key in tempDict) {
-        //[measureObjects addObject:key];
-    //}
+    
     [tempDict release];
     //
     
@@ -216,12 +214,12 @@
     if (mode == main)
     {
         imageName = [bodyPart stringByAppendingString:@"_"];
-        imageName = [imageName  stringByAppendingString:[NSString stringWithFormat:@"%d", [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]]];
+        imageName = [imageName  stringByAppendingString:[NSString stringWithFormat:@"%d", [[MeasureManager sharedMeasureManager] getCurrentProfileGender]]];
     }
     else if (mode == side)
     {
         imageName = [bodyPart stringByAppendingString:@"_side_"];
-        imageName = [imageName  stringByAppendingString:[NSString stringWithFormat:@"%d", [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]]];
+        imageName = [imageName  stringByAppendingString:[NSString stringWithFormat:@"%d", [[MeasureManager sharedMeasureManager] getCurrentProfileGender]]];
 
     }
     
@@ -336,7 +334,7 @@
 
 
 
-- (void) recognizeBoobs:(NSArray *) features
+- (void) processPhoto:(NSArray *) features
 {
     self.linImageView.image = nil;
     self.linImageView = nil;
@@ -344,16 +342,10 @@
     
     BOOL eyesRecognized = NO;
     
-    //UIImage *failImage = nil;
     NSString *failMessage = nil;
-    
-    //CGPoint leftEyePos;
-    
-    //AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     if ([features count] > 1)
     {
-        //failImage = [UIImage imageNamed:@""];
         failMessage = @"There are too many people on the photo or bad conditions!";
     }
     else
@@ -361,41 +353,29 @@
         for (CIFaceFeature *feature in features)
         {
             
-            
-            
             if ((feature.hasRightEyePosition) & (feature.hasLeftEyePosition) & (feature.hasMouthPosition))
             {
                 
                 eyesRecognized = YES;
                 distanceBetweenEyes = feature.rightEyePosition.x-feature.leftEyePosition.x;
                 
-                //image is rotated because of difference betweeen cordinate systems
-                //leftEyePos = CGPointMake(feature.leftEyePosition.x, self.sizeView.image.size.height-feature.leftEyePosition.y);
                 
-                //CGPoint rightEye = CGPointMake(feature.rightEyePosition.x, self.sizeView.image.size.height-feature.rightEyePosition.y);
-                
-                //appDelegate.mainViewController.boobsModel.leftEyePos = leftEye;
-                //appDelegate.mainViewController.boobsModel.rightEyePos = rightEye;
-                //appDelegate.mainViewController.boobsModel.lengthBetweenEyes = distBetweenEyes;
-                
-                
-                float bustgalterWidth = distanceBetweenEyes*4.0f;
-                float bustgalterHeight = distanceBetweenEyes/2.5f;
+                float rulerWidth = distanceBetweenEyes*4.0f;
+                float rulerHeight = distanceBetweenEyes/2.5f;
                
-                CGPoint bustCenter = CGPointMake(self.view.center.x, self.view.center.y);
+                CGPoint rulerCenter = CGPointMake(self.view.center.x, self.view.center.y);
                 
-                               
-                CGRect bustRect = CGRectMake(bustCenter.x-bustgalterWidth/2, bustCenter.y-bustgalterHeight/2, bustgalterWidth, bustgalterHeight);
+                CGRect rulerRect = CGRectMake(rulerCenter.x-rulerWidth/2, rulerCenter.y-rulerHeight/2, rulerWidth, rulerHeight);
                 
                 
                 
                 if (self.linImageView == nil)
                 {
                     
-                    UIImageView *tmpImageView = [[UIImageView alloc] initWithFrame:bustRect];
+                    UIImageView *tmpImageView = [[UIImageView alloc] initWithFrame:rulerRect];
                     self.linImageView = tmpImageView;
                     [tmpImageView release];
-                    [self.linImageView setCenter:bustCenter];
+                    [self.linImageView setCenter:rulerCenter];
                     self.linImageView.image = [UIImage imageNamed:@"ruler.png"];
                     self.linImageView.alpha = 0;
                     [self.sizeView addSubview:self.linImageView];
@@ -408,8 +388,8 @@
                         self.linImageView.image = [UIImage imageNamed:@"ruler.png"];
                     }
                     self.linImageView.alpha = 0;
-                    [self.linImageView setFrame:bustRect];
-                    [self.linImageView setCenter:bustCenter];
+                    [self.linImageView setFrame:rulerRect];
+                    [self.linImageView setCenter:rulerCenter];
                     if (self.linImageView.superview == nil)
                     {
                         [self.sizeView addSubview:self.linImageView];
@@ -432,11 +412,9 @@
         
         if (!failMessage)
         {
-            //failImage = [UIImage imageNamed:@""];
             failMessage = @"Can't see the body";
         }
-        //self.sizeView.image = failImage;
-       
+
         [self showAlertDialogWithTitle:@"Warning" andMessage:failMessage];
     }
     else {
@@ -558,7 +536,8 @@
     
     // if was not measured all stuff we ask user about updating sizes for other clothes
     // else just showing the result
-    if ([[[MeasureManager sharedMeasureManager] getClothesListForPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]] count] != [self.whatToMeasureArray count]){
+    //if ([[[MeasureManager sharedMeasureManager] getClothesListForPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]] count] != [self.whatToMeasureArray count]){
+    if ([[MeasureManager sharedMeasureManager] needToUpdateSizesForClothesWithTheSameParameters:self.whatToMeasureArray forPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]]){
         
         UIAlertView* alert = [[UIAlertView alloc]
                               initWithTitle:NSLocalizedString(@"", nil)
@@ -576,13 +555,15 @@
         for (NSString *object in self.whatToMeasureArray) {
             NSMutableArray *tmpArray = [allStuffToMeasureDictionary objectForKey:object];
             for (NSMutableArray *mArray in tmpArray) {
+                //we don't need chest to define number size for bra
+                //we need it to define letter
                 if (([object isEqualToString:@"Bras"]) && ([[mArray objectAtIndex:0] isEqualToString:@"Chest"])){
                     continue;
                 }
                 [tempDict setObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:[mArray objectAtIndex:0]]] forKey:[mArray objectAtIndex:0]];
             }
             // finding pointer to sizes string in array
-            NSInteger numberInSizesArray = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+            NSInteger numberInSizesArray = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
             
             NSMutableArray *resultsArray = [[NSMutableArray alloc] init];
             //adding main size
@@ -672,7 +653,7 @@
     float koef = 1;
     
     if (!makeMeasurementsUsingTwoPhotos){
-        koef = [[MeasureManager sharedMeasureManager] getMeasureKoefForKey:currentView.key personType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+        koef = [[MeasureManager sharedMeasureManager] getMeasureKoefForKey:currentView.key personType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
         //koef = 1;
     }
   
@@ -767,7 +748,7 @@
                            
                            NSArray *features = [detector featuresInImage:[CIImage imageWithCGImage: self.sizeView.image.CGImage]];
                            
-                           dispatch_async(dispatch_get_main_queue(), ^{[self recognizeBoobs: features];});
+                           dispatch_async(dispatch_get_main_queue(), ^{[self processPhoto: features];});
                        });
     }
 
@@ -836,16 +817,10 @@
     }
     //decreasing speed of rotation
     angle = angle/3;
-    //NSLog(@"rotation - %f", angle);
+    
     
     currentAngle = currentAngle + angle;
     self.linImageView.transform = CGAffineTransformRotate(self.linImageView.transform, angle);
-    /*
-    UILabel *angleLabel = (UILabel*)[self.view viewWithTag:45];
-    if (angleLabel){
-        angleLabel.text = [NSString stringWithFormat:@"%.3f",currentAngle* 180 / M_PI];
-    }
-     */
     rotationRecognizer.rotation = 0.0f;
     
     
@@ -953,7 +928,7 @@
                                
                                NSArray *features = [detector featuresInImage:[CIImage imageWithCGImage: self.sizeView.image.CGImage]];
                                
-                               dispatch_async(dispatch_get_main_queue(), ^{[self recognizeBoobs: features];});
+                               dispatch_async(dispatch_get_main_queue(), ^{[self processPhoto: features];});
                            });
 
         }
@@ -975,7 +950,7 @@
                            
                            NSArray *features = [detector featuresInImage:[CIImage imageWithCGImage: self.sizeView.image.CGImage]];
                            
-                           dispatch_async(dispatch_get_main_queue(), ^{[self recognizeBoobs: features];});
+                           dispatch_async(dispatch_get_main_queue(), ^{[self processPhoto: features];});
                        });
 
         
@@ -1044,7 +1019,7 @@
                     [tempDict setObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:[mArray objectAtIndex:0]]] forKey:[mArray objectAtIndex:0]];
                 }
                 // finding pointer to sizes string in array
-                NSInteger numberInSizesArray = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+                NSInteger numberInSizesArray = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
                 
                 NSMutableArray *resultsArray = [[NSMutableArray alloc] init];
                 //adding main size
@@ -1052,10 +1027,15 @@
                 
                            
                 //getting  dictionaty to change the size for the clothes with the same params
-                NSArray *clothesWithTheSameSize = [[MeasureManager sharedMeasureManager] getClothesWithTheSameSizeForChoosenOne:object andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+                NSArray *clothesWithTheSameSize = [[MeasureManager sharedMeasureManager] getClothesWithTheSameSizeForChoosenOne:object andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
                 
                 for (NSString *wear in clothesWithTheSameSize) {
+                    // TODO: think about saving the additional info!!!
+                    
+                    //if wear in main array we don't need to update size
+                    //if ([self.whatToMeasureArray indexOfObject:wear] == NSNotFound){
                     [[[DataManager sharedDataManager] currentProfile] setObject:resultsArray forKey:wear];
+                    //}
                 }
                 [resultsArray release];
                 
@@ -1098,7 +1078,7 @@
                     [tempDict setObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:[mArray objectAtIndex:0]]] forKey:[mArray objectAtIndex:0]];
                 }
                 // finding pointer to sizes string in array
-                NSInteger numberInSizesArray = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+                NSInteger numberInSizesArray = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
                 
                 NSMutableArray *resultsArray = [[NSMutableArray alloc] init];
                 //adding main size

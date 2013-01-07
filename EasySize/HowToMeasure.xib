@@ -51,7 +51,7 @@
 							<string key="NSResourceName">background.png</string>
 						</object>
 					</object>
-					<object class="IBUIScrollView" id="777131875">
+					<object class="IBUIScrollView" id="165567897">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">-2147483374</int>
 						<string key="NSFrameSize">{320, 416}</string>
@@ -254,7 +254,7 @@
 					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">tableScrollView</string>
 						<reference key="source" ref="372490531"/>
-						<reference key="destination" ref="777131875"/>
+						<reference key="destination" ref="165567897"/>
 					</object>
 					<int key="connectionID">36</int>
 				</object>
@@ -283,6 +283,24 @@
 					</object>
 					<int key="connectionID">31</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchEventConnection" key="connection">
+						<string key="label">rightArrowBtnClick:</string>
+						<reference key="source" ref="647995747"/>
+						<reference key="destination" ref="372490531"/>
+						<int key="IBEventType">7</int>
+					</object>
+					<int key="connectionID">39</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchEventConnection" key="connection">
+						<string key="label">leftArrowBtnClick:</string>
+						<reference key="source" ref="918736951"/>
+						<reference key="destination" ref="372490531"/>
+						<int key="IBEventType">7</int>
+					</object>
+					<int key="connectionID">40</int>
+				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<array key="orderedObjects">
@@ -303,7 +321,7 @@
 							<reference ref="708249267"/>
 							<reference ref="647995747"/>
 							<reference ref="918736951"/>
-							<reference ref="777131875"/>
+							<reference ref="165567897"/>
 						</array>
 						<reference key="parent" ref="0"/>
 					</object>
@@ -356,7 +374,7 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">35</int>
-						<reference key="object" ref="777131875"/>
+						<reference key="object" ref="165567897"/>
 						<reference key="parent" ref="191373211"/>
 					</object>
 				</array>
@@ -380,7 +398,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">38</int>
+			<int key="maxID">40</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes"/>
 		<int key="IBDocument.localizationMode">0</int>

@@ -8,6 +8,7 @@
 
 #import "ResultViewController.h"
 
+
 @interface ResultViewController ()
 
 @end
@@ -59,16 +60,20 @@
     
     self.profileImageView.clipsToBounds =YES;
     self.profileImageView.layer.cornerRadius = 10.0f;
-    
+
+    //just viewing results
     if (eButtonType != noButton){
         UIBarButtonItem *changeButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Edit", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(editData)] ;
     
         self.navigationItem.rightBarButtonItem = changeButton;
         [changeButton release];
-        self.fbButton.hidden = YES;
+        self.fbButton.hidden = NO;
+        [self.fbButton setTitle:NSLocalizedString(@"Send by e-mail", nil) forState:UIControlStateNormal];
     }
+    //viewing results after measuring
     else{
         self.fbButton.hidden = NO;
+        [self.fbButton setTitle:NSLocalizedString(@"Wrong size?", nil) forState:UIControlStateNormal];
     }
     
     if (self.bButtonType == rootButton){
@@ -77,30 +82,9 @@
         self.navigationItem.leftBarButtonItem = backToProfilesButton;
         [backToProfilesButton release];
     }
-    /*
-    if ([[DataManager sharedDataManager] currentProfile]){
-        
-        NSString *name = [[[DataManager sharedDataManager] currentProfile] objectForKey:@"name"];
-        
-        name = [name stringByAppendingString:@" "];
-        
-        name = [name stringByAppendingString:[[[DataManager sharedDataManager] currentProfile] objectForKey:@"surname"]];
-        
-        
-        self.nameLabel.text = name;
-        
-        //getting photo
-        NSData *imageData = [[[DataManager sharedDataManager] currentProfile] objectForKey:@"photo"];
-        if (imageData)
-        {
-            UIImage *image = [UIImage imageWithData:imageData];
-            self.profileImageView.image = image;
-        }
-    }
-     */
     self.title = NSLocalizedString(@"Result", nil);
     
-    [self.fbButton setTitle:NSLocalizedString(@"Wrong size?", nil) forState:UIControlStateNormal];
+    
     
     [self fillScrollViewWithSizes];
    
@@ -121,7 +105,7 @@
         
         self.nameLabel.text = name;
 
-        self.sexLabel.text = NSLocalizedString([[[MeasureManager sharedMeasureManager] getGenderList] objectAtIndex:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]], nil);
+        self.sexLabel.text = NSLocalizedString([[[MeasureManager sharedMeasureManager] getGenderList] objectAtIndex:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]], nil);
         NSString *bodyParams = @"";
         if ([[[DataManager sharedDataManager] currentProfile] objectForKey:@"Chest"] )
         {
@@ -174,6 +158,73 @@
 
 #pragma mark - help functions
 
+- (NSString *) getCurrentProfileSizes
+{
+    NSString *resStr = @"";
+    NSArray *stuffArray;
+    
+    NSArray *countries = [NSArray arrayWithObjects:@"EU", @"RU", @"US", @"UK", @"INT", nil];
+    
+    if (self.resultArray){
+        stuffArray = self.resultArray;
+    }
+    else{
+        stuffArray = [[MeasureManager sharedMeasureManager] getClothesListForPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
+    }
+    
+    for (NSString *clothesType in stuffArray) {
+        
+        if ([[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:0] integerValue] != -1)
+        {
+            
+            resStr = [resStr stringByAppendingString:NSLocalizedString(clothesType, nil)];
+            resStr = [resStr stringByAppendingString:@": "];
+            
+            NSArray *sizesArray =  [[MeasureManager sharedMeasureManager] getSizesListForClothesType:clothesType personType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender] andIndex:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:0] integerValue]];
+            
+            NSString *additionalInfo = @"";
+            if ([[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] count] == 2){
+                /*
+                 if ([clothesType isEqualToString:@"Trousers & jeans"]){
+                 additionalInfo = [[MeasureManager sharedMeasureManager] getLegLengthDescriptionForValue:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:1] floatValue] andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
+                 }
+                 */
+                //letter for bra size
+                if ([clothesType isEqualToString:@"Bras"]){
+                    additionalInfo = [[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:1];
+                }
+                
+            }
+            NSInteger i = 0;
+            for (NSString *sizeString in sizesArray) {
+                resStr = [resStr stringByAppendingString:[countries objectAtIndex:i]];
+                resStr = [resStr stringByAppendingString:@" - "];
+                resStr = [resStr stringByAppendingString:sizeString];
+                resStr = [resStr stringByAppendingString:@"; "];
+                i++;
+            }
+            resStr = [resStr stringByAppendingString: additionalInfo];
+            resStr = [resStr stringByAppendingString:@"\n"];
+        }
+        
+        
+    }
+    resStr = [resStr stringByAppendingString: NSLocalizedString(@"Sent from EasySize", nil)];
+    return resStr;
+    
+}
+
+- (void) showAlertDialogWithTitle:(NSString *) title andMessage:(NSString *) message{
+    UIAlertView* alert = [[UIAlertView alloc]
+                          initWithTitle:NSLocalizedString(title, nil)
+                          message:NSLocalizedString(message, nil)
+                          delegate:self
+                          cancelButtonTitle:@"OK"
+                          otherButtonTitles:nil];
+    [alert show];
+    [alert release];
+}
+
 - (void) fillScrollViewWithSizes
 {
     float currentY = 0;
@@ -183,7 +234,7 @@
         stuffArray = self.resultArray;
     }
     else{
-        stuffArray = [[MeasureManager sharedMeasureManager] getClothesListForPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+        stuffArray = [[MeasureManager sharedMeasureManager] getClothesListForPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
     }
     
     for (NSString *clothesType in stuffArray) {
@@ -191,14 +242,14 @@
         if ([[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:0] integerValue] != -1)
         {
             
-            NSArray *sizesArray =  [[MeasureManager sharedMeasureManager] getSizesListForClothesType:clothesType personType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue] andIndex:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:0] integerValue]];
+            NSArray *sizesArray =  [[MeasureManager sharedMeasureManager] getSizesListForClothesType:clothesType personType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender] andIndex:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:0] integerValue]];
             
             NSString *additionalInfo = @"";
             if ([[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] count] == 2){
                 //NSLog(@"%@",clothesType);
                 /*
                 if ([clothesType isEqualToString:@"Trousers & jeans"]){
-                    additionalInfo = [[MeasureManager sharedMeasureManager] getLegLengthDescriptionForValue:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:1] floatValue] andPersonType:[[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue]];
+                    additionalInfo = [[MeasureManager sharedMeasureManager] getLegLengthDescriptionForValue:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:1] floatValue] andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
                 }
                  */
                 //letter for bra size
@@ -386,13 +437,44 @@
     
 }
 
--(IBAction) showFeedbackForm:sender
+-(IBAction) showFeedbackOrEmailForm:sender
 {
-    FeedbackViewController *controller = [[FeedbackViewController alloc] initWithNibName:@"FeedbackView" bundle:nil];
-    controller.textForFeedbackLabel = @"Tell us about your problem" ;
-    controller.form = result;
-    [self.navigationController pushViewController:controller animated:YES];
-    [controller release];
+    //just viewing results
+    //and sending e-mail
+    if (eButtonType != noButton){
+        if(![MFMailComposeViewController canSendMail]) {
+            [self showAlertDialogWithTitle:@"Warning" andMessage:@"Can't send e-mail"];
+            
+        } else {
+            MFMailComposeViewController *mailController = [[MFMailComposeViewController alloc] init];
+            [mailController setSubject:[NSLocalizedString(@"Sizes of ", nil) stringByAppendingString:self.nameLabel.text]];
+            [mailController setToRecipients:
+             [NSArray arrayWithObjects:@"person_mail@mail.com", nil]];
+            
+            [mailController setMessageBody:[self getCurrentProfileSizes]
+                                    isHTML:NO];
+            
+            mailController.mailComposeDelegate = self;
+            /*
+            NSString *path = [[NSBundle mainBundle] pathForResource:@"my_logo"
+                                                             ofType:@"png"];
+            NSData *data = [NSData dataWithContentsOfFile:path];
+            [mailController addAttachmentData:myData mimeType:@"image/png"
+                                     fileName:@"my_logo"];
+            */
+            [self presentViewController:mailController animated:YES completion:NULL];
+            [mailController  release];
+        }
+        
+    }
+    //show sending feedback form
+    else{
+        FeedbackViewController *controller = [[FeedbackViewController alloc] initWithNibName:@"FeedbackView" bundle:nil];
+        controller.textForFeedbackLabel = @"Tell us about your problem" ;
+        controller.form = result;
+        [self.navigationController pushViewController:controller animated:YES];
+        [controller release];
+    }
 
 }
 
@@ -501,7 +583,43 @@
     
    }
 
-
+#pragma mark - MFMailComposeViewControllerDelegate methods
+-(void) mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+    NSString *strResult = nil;
+    switch(result) {
+        case MFMailComposeResultCancelled:
+            strResult = @"E-mail canceled";
+            break;
+        case MFMailComposeResultSaved:
+            strResult = @"E-mail saved";
+            break;
+        case MFMailComposeResultSent:
+            strResult = @"E-mail sent";
+            break;
+        case MFMailComposeResultFailed:
+        {
+            if([error.domain isEqualToString:MFMailComposeErrorDomain]) {
+                switch(error.code) {
+                    case MFMailComposeErrorCodeSendFailed:
+                        strResult = @"Can't send e-mail";
+                        break;
+                    case MFMailComposeErrorCodeSaveFailed:
+                        strResult = @"Can't save e-mail";
+                        break;
+                }
+            } else {
+                strResult = @"Can't send e-mail";
+            }
+            break;
+        }
+        default:
+            strResult = @"Can't send e-mail";
+    }
+    
+    [self showAlertDialogWithTitle:@"" andMessage:strResult];
+    [controller dismissViewControllerAnimated:YES completion:NULL];
+}
 
 #pragma mark - newProfileViewController delegate methods
 

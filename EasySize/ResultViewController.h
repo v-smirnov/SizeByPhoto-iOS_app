@@ -15,7 +15,7 @@
 #import "MeasureView.h"
 #import "TipsViewController.h"
 #import "FeedbackViewController.h"
-
+#import <MessageUI/MessageUI.h>
 
 typedef enum
 {
@@ -31,7 +31,7 @@ typedef enum
     
 } editButtonType;
 
-@interface ResultViewController : UIViewController <NewProfileViewControllerDelegate, UIActionSheetDelegate>
+@interface ResultViewController : UIViewController <NewProfileViewControllerDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
 {
     UIImageView *profileImageView;
     UILabel *nameLabel;
@@ -55,6 +55,6 @@ typedef enum
 @property (nonatomic, retain) IBOutlet UIButton *fbButton;
 
 -(IBAction) showTips:sender;
--(IBAction) showFeedbackForm:sender;
+-(IBAction) showFeedbackOrEmailForm:sender;
 
 @end

@@ -127,6 +127,10 @@
         currentY = currentY + 53;
         
     }
+    //emulate table up-down moving effect  
+    if (currentY < self.view.frame.size.height){
+        currentY = self.view.frame.size.height+10;
+    }
     self.tableScrollView.contentSize = CGSizeMake(self.tableScrollView.frame.size.width , currentY);
     
     self.clothesScrollView.contentSize = CGSizeMake(self.clothesScrollView.frame.size.width * [clothesArray count], self.clothesScrollView.frame.size.height);
@@ -170,6 +174,7 @@
         [imageViewsArray addObject:wearImageView];
         [wearImageView release];
     }
+    self.clothesScrollView.delegate = self;
     
     [wardrobeClothesArray release];
 }
@@ -305,6 +310,25 @@
         
     }
     
+}
+
+-(IBAction) rightArrowBtnClick:(id)sender
+{
+    CGFloat pageWidth = self.clothesScrollView.frame.size.width;
+    NSInteger page = floor((self.clothesScrollView.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
+    CGRect newVisibleArea = CGRectMake(self.clothesScrollView.frame.size.width * (page+1), 0, self.clothesScrollView.frame.size.width, self.clothesScrollView.frame.size.height);
+    
+    [self.clothesScrollView scrollRectToVisible:newVisibleArea animated:YES];
+    
+}
+
+-(IBAction) leftArrowBtnClick:(id)sender
+{
+    CGFloat pageWidth = self.clothesScrollView.frame.size.width;
+    NSInteger page = floor((self.clothesScrollView.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
+    CGRect newVisibleArea = CGRectMake(self.clothesScrollView.frame.size.width * (page-1), 0, self.clothesScrollView.frame.size.width, self.clothesScrollView.frame.size.height);
+    
+    [self.clothesScrollView scrollRectToVisible:newVisibleArea animated:YES];
 }
 
  
@@ -467,6 +491,23 @@
     
 }
 
+- (void) checkArrowBtnsAccessibility
+{
+    CGFloat pageWidth = self.clothesScrollView.frame.size.width;
+    NSInteger page = floor((self.clothesScrollView.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
+    if (page == 0){
+        self.leftArrowButton.enabled = FALSE;
+    }
+    // table clothes array count = all stuff at wardrobe
+    else if (page == [tableClothesArray count]-1){
+        self.rightArrowButton.enabled = FALSE;
+    }
+    else{
+        self.leftArrowButton.enabled = TRUE;
+        self.rightArrowButton.enabled = TRUE;
+    }
+}
+
 
 
 #pragma mark - Gesture Recognizers
@@ -524,8 +565,17 @@
     
 }
 
+#pragma mark scrollView delegate methods
 
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    [self checkArrowBtnsAccessibility];
+}
 
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+{
+    //NSLog(@"%f", self.clothesScrollView.contentOffset.x);
+}
 
 #pragma mark action sheet delegate methods
 - (void) willPresentActionSheet:(UIActionSheet *)actionSheet

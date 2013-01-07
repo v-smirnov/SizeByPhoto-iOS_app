@@ -35,6 +35,7 @@
 		559F04751699E05E0004AB3A /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 559F04741699E05E0004AB3A /* AdSupport.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		559F0480169A05710004AB3A /* leftArrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 559F047E169A05700004AB3A /* leftArrow.png */; };
 		559F0481169A05710004AB3A /* rightArrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 559F047F169A05700004AB3A /* rightArrow.png */; };
+		559F0483169AFC110004AB3A /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 559F0482169AFC110004AB3A /* MessageUI.framework */; };
 		55A295EF15EE5D7700D256F7 /* LabeledSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 55A295EE15EE5D7700D256F7 /* LabeledSlider.m */; };
 		55A295F215EE5F0B00D256F7 /* MeasureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55A295F115EE5F0B00D256F7 /* MeasureView.m */; };
 		55A479F3164F9585003B9981 /* testView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55A479F2164F9585003B9981 /* testView.xib */; };
@@ -172,6 +173,7 @@
 		559F04741699E05E0004AB3A /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		559F047E169A05700004AB3A /* leftArrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = leftArrow.png; sourceTree = "<group>"; };
 		559F047F169A05700004AB3A /* rightArrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rightArrow.png; sourceTree = "<group>"; };
+		559F0482169AFC110004AB3A /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		55A295ED15EE5D7700D256F7 /* LabeledSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabeledSlider.h; sourceTree = "<group>"; };
 		55A295EE15EE5D7700D256F7 /* LabeledSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabeledSlider.m; sourceTree = "<group>"; };
 		55A295F015EE5F0B00D256F7 /* MeasureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeasureView.h; sourceTree = "<group>"; };
@@ -291,6 +293,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				559F0483169AFC110004AB3A /* MessageUI.framework in Frameworks */,
 				559F04751699E05E0004AB3A /* AdSupport.framework in Frameworks */,
 				559F04731699E03E0004AB3A /* libsqlite3.dylib in Frameworks */,
 				559F04711699E0280004AB3A /* libz.dylib in Frameworks */,
@@ -396,6 +399,7 @@
 		55AC330815C02D5E00B17709 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				559F0482169AFC110004AB3A /* MessageUI.framework */,
 				559F04741699E05E0004AB3A /* AdSupport.framework */,
 				55F7570315D525D000F831D7 /* CoreImage.framework */,
 				55AC330915C02D5E00B17709 /* UIKit.framework */,
