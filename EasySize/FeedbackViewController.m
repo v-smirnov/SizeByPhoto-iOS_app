@@ -7,6 +7,9 @@
 //
 
 #import "FeedbackViewController.h"
+#import <CoreGraphics/CoreGraphics.h>
+#import <QuartzCore/QuartzCore.h>
+
 #define GENERAL_API_KEY @"67af906bbcdf4ccb9d948f6f7f41cdf3"
 #define RESULT_API_KEY @"7428cec26b3d41988a333da404b4d3a7"
 
@@ -69,6 +72,8 @@
     self.nameField.placeholder = NSLocalizedString(@"Your name", nil);
     [self.sendButton setTitle:NSLocalizedString(@"Send", nil) forState:UIControlStateNormal];
     
+    self.feedbackTextView.layer.cornerRadius = 10.0f;
+    self.feedbackTextView.delegate = self;
     [self.activityIndicator stopAnimating];
 }
 
@@ -201,6 +206,26 @@
     //Lf [recievedData release];
     [connection release];
     [self showAlertDialogWithTitle:@"Warning" andMessage:[error localizedDescription]];
+}
+#pragma mark - Text view delegate methods
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+    CGRect newFrame;
+    if ([[UIScreen mainScreen] bounds].size.height == 568){
+        newFrame = CGRectMake(textView.frame.origin.x, textView.frame.origin.y, textView.frame.size.width, 125);
+    }
+    else{
+        newFrame = CGRectMake(textView.frame.origin.x, textView.frame.origin.y, textView.frame.size.width, 45);
+    }
+    
+    textView.frame = newFrame;
+}
+
+- (void) textViewDidEndEditing:(UITextView *)textView
+{
+    CGRect newFrame = CGRectMake(textView.frame.origin.x, textView.frame.origin.y, textView.frame.size.width, 207);
+    
+    textView.frame = newFrame;
 }
 
 @end

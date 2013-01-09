@@ -15,6 +15,7 @@
 #import "ResultViewController.h"
 #import "ImageViewWithKey.h"
 #import "AppDelegate.h"
+#import "OverlayViewController.h"
 
 typedef enum
 {
@@ -24,7 +25,7 @@ typedef enum
 } pictureMode;
 
 
-@interface MeasureViewController : UIViewController <UIGestureRecognizerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIScrollViewDelegate, UIActionSheetDelegate, UIAlertViewDelegate>
+@interface MeasureViewController : UIViewController <UIGestureRecognizerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIScrollViewDelegate, UIActionSheetDelegate, UIAlertViewDelegate, OverlayViewControllerDelegate>
 {
     UIImageView *sizeView;
     CGFloat currentAngle;
@@ -43,6 +44,7 @@ typedef enum
     NSMutableDictionary *firstPhotoMeasuresDictionary;
     BOOL measureDidFail;
     UIButton *infoButton;
+    OverlayViewController *overlayViewController; // the camera custom overlay view
     
 }
 
@@ -55,6 +57,7 @@ typedef enum
 @property (nonatomic, retain) IBOutlet UIActivityIndicatorView *activityIndicator;
 @property (nonatomic, assign) BOOL makeMeasurementsUsingTwoPhotos;
 @property (nonatomic, retain) IBOutlet UIButton *infoButton;
+@property (nonatomic, retain) OverlayViewController *overlayViewController;
 
 -(void)addMeasure;
 - (IBAction) showTips:(id)sender;

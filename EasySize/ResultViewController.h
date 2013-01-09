@@ -14,6 +14,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "MeasureView.h"
 #import "TipsViewController.h"
+#import "BrandsViewController.h"
 #import "FeedbackViewController.h"
 #import <MessageUI/MessageUI.h>
 
@@ -42,6 +43,7 @@ typedef enum
     UIScrollView *resultScrollView;
     NSArray *resultArray;
     UIButton *fbButton;
+    UIButton *brandsButton;
 }
 
 @property (nonatomic, retain) IBOutlet UIImageView *profileImageView;
@@ -53,8 +55,10 @@ typedef enum
 @property (nonatomic, retain) IBOutlet UIScrollView *resultScrollView;
 @property (nonatomic, retain) NSArray *resultArray;
 @property (nonatomic, retain) IBOutlet UIButton *fbButton;
+@property (nonatomic, retain) IBOutlet UIButton *brandsButton;
 
--(IBAction) showTips:sender;
--(IBAction) showFeedbackOrEmailForm:sender;
+-(IBAction) showTips:(id) sender;
+-(IBAction) showFeedbackOrEmailForm:(id) sender;
+-(IBAction) showBrands:(id) sender;
 
 @end

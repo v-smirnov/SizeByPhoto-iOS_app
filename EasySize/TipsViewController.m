@@ -79,8 +79,9 @@
 #pragma mark - help funtions
 -(void) createNewTipsWithNumber:(int) number andPlaceItToView:(UIScrollView *) sView
 {
-    NSString *tipsName = [@"HelpTip" stringByAppendingString:[NSString stringWithFormat:@"%d",number]];
     
+    NSString *tipsName = [@"HelpTip" stringByAppendingString:[NSString stringWithFormat:@"%d",number]];
+    /*
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(sView.frame.size.width*(number-1)+5, 10, sView.frame.size.width-10, 10)];
     label.textColor = [UIColor blackColor];
     label.font = [UIFont systemFontOfSize:12.0f];
@@ -92,7 +93,15 @@
     [label sizeToFit];
     [sView addSubview:label];
     [label release];
-
+     */
+    
+    UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectMake(sView.frame.size.width*(number-1), 0, sView.frame.size.width, sView.frame.size.height)];
+    [webView setAutoresizingMask:  UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth ];
+    [webView setBackgroundColor:[UIColor clearColor]];
+    [webView setOpaque:NO];
+    [webView loadHTMLString:NSLocalizedString(tipsName, nil) baseURL:nil];
+    [sView addSubview:webView];
+    [webView release];
 }
 
 - (IBAction)changePage

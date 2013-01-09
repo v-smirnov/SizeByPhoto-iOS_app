@@ -14,7 +14,7 @@ typedef enum
 }
 formType;
 
-@interface FeedbackViewController : UIViewController<NSURLConnectionDelegate, NSURLConnectionDataDelegate>
+@interface FeedbackViewController : UIViewController<NSURLConnectionDelegate, NSURLConnectionDataDelegate, UITextViewDelegate>
 {
     UITextField *nameField;
     UILabel *nameLabel;

@@ -15,7 +15,7 @@
 
 @implementation ResultViewController
 
-@synthesize profileImageView, nameLabel, bButtonType, sexLabel, bodyParamsLabel, eButtonType, fbButton,resultScrollView, resultArray;
+@synthesize profileImageView, nameLabel, bButtonType, sexLabel, bodyParamsLabel, eButtonType, fbButton,resultScrollView, resultArray, brandsButton;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -38,6 +38,7 @@
     self.resultScrollView = nil;
     self.resultArray = nil;
     self.fbButton = nil;
+    self.brandsButton = nil;
 }
 
 - (void)dealloc
@@ -49,6 +50,7 @@
     [resultScrollView release];
     [resultArray release];
     [fbButton release];
+    [brandsButton release];
     [super dealloc];
 }
 
@@ -75,6 +77,7 @@
         self.fbButton.hidden = NO;
         [self.fbButton setTitle:NSLocalizedString(@"Wrong size?", nil) forState:UIControlStateNormal];
     }
+    [self.brandsButton setTitle:NSLocalizedString(@"Sizes by brands", nil) forState:UIControlStateNormal];
     
     if (self.bButtonType == rootButton){
         UIBarButtonItem *backToProfilesButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Profiles", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(backToProfiles)] ;
@@ -209,6 +212,7 @@
         
         
     }
+    resStr = [resStr stringByAppendingString:@"\n"];
     resStr = [resStr stringByAppendingString: NSLocalizedString(@"Sent from EasySize", nil)];
     return resStr;
     
@@ -425,7 +429,16 @@
 
 #pragma mark - actions
 
-- (IBAction) showTips:sender
+- (IBAction) showBrands:(id) sender
+{
+    BrandsViewController *controller = [[BrandsViewController alloc] initWithNibName:@"BrandsView" bundle:nil];
+    [self.navigationController pushViewController:controller animated:YES];
+    [controller release];
+    
+}
+
+
+- (IBAction) showTips:(id) sender
 {
     TipsViewController *controller = [[TipsViewController alloc] initWithNibName:@"TipsView" bundle:nil];
     //controller.delegate = self;
@@ -437,7 +450,7 @@
     
 }
 
--(IBAction) showFeedbackOrEmailForm:sender
+-(IBAction) showFeedbackOrEmailForm:(id) sender
 {
     //just viewing results
     //and sending e-mail

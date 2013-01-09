@@ -14,7 +14,7 @@
 
 @implementation MeasureViewController
 
-@synthesize sizeView, linImageView, whatToMeasureArray, source, pickingCanceled, sizesScrollView, activityIndicator, makeMeasurementsUsingTwoPhotos, infoButton;
+@synthesize sizeView, linImageView, whatToMeasureArray, source, pickingCanceled, sizesScrollView, activityIndicator, makeMeasurementsUsingTwoPhotos, infoButton, overlayViewController;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -36,6 +36,7 @@
     self.sizesScrollView = nil;
     self.activityIndicator = nil;
     self.infoButton = nil;
+    self.overlayViewController = nil;
     [allStuffToMeasureDictionary release]; allStuffToMeasureDictionary = nil;
     [measureObjects release]; measureObjects = nil;
     [photosDictionary release]; photosDictionary = nil;
@@ -55,6 +56,7 @@
     [activityIndicator release];
     [photosDictionary release];
     [firstPhotoMeasuresDictionary release];
+    [overlayViewController release];
     [super dealloc];
     
 }
@@ -88,6 +90,23 @@
     [rotationRecognizer release];
     
     
+    // initializing overlay view controller (custom camera)
+    if (self.overlayViewController == nil)
+    {
+        NSString *nibName = nil;
+        if ([[UIScreen mainScreen] bounds].size.height == 568){
+            nibName = @"ImageOverlayView568";
+        }
+        else{
+            nibName = @"ImageOverlayView";
+        }
+        
+        OverlayViewController *overlayController = [[OverlayViewController alloc] initWithNibName:nibName bundle:nil];
+        self.overlayViewController = overlayController;
+        self.overlayViewController.delegate = self;
+        [overlayController release];
+    }
+
     
     allStuffToMeasureDictionary = [[[MeasureManager sharedMeasureManager] getClothesMeasureParamsForPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]] retain];
     
@@ -142,7 +161,7 @@
     [super viewDidAppear:animated];
     if ((self.sizeView.image == nil) && (self.pickingCanceled == NO) && (![photosDictionary objectForKey:@"firstPhoto"]))
     {
-        [self getPhotoFromSource:self.source forPictureMode:main];
+        [self showImagePicker:self.source forPictureMode:0]; //0 - main mode 
     }
     else
     {
@@ -208,15 +227,15 @@
 
 #pragma mark help funtions
 
-- (NSString *) getTipsImageNameForBodyPart:(NSString *)bodyPart mode:(pictureMode) mode
+- (NSString *) getTipsImageNameForBodyPart:(NSString *)bodyPart mode:(NSInteger) mode
 {
     NSString *imageName = @"";
-    if (mode == main)
+    if (mode == 0) // main
     {
         imageName = [bodyPart stringByAppendingString:@"_"];
         imageName = [imageName  stringByAppendingString:[NSString stringWithFormat:@"%d", [[MeasureManager sharedMeasureManager] getCurrentProfileGender]]];
     }
-    else if (mode == side)
+    else if (mode == 1) //side
     {
         imageName = [bodyPart stringByAppendingString:@"_side_"];
         imageName = [imageName  stringByAppendingString:[NSString stringWithFormat:@"%d", [[MeasureManager sharedMeasureManager] getCurrentProfileGender]]];
@@ -265,7 +284,7 @@
     //infoImageView.layer.cornerRadius = 5.0f;
     infoImageView.key = key;
     infoImageView.userInteractionEnabled = YES;
-    infoImageView.image = [UIImage imageNamed:[self getTipsImageNameForBodyPart:key mode:main]];
+    infoImageView.image = [UIImage imageNamed:[self getTipsImageNameForBodyPart:key mode:0]];
     
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(infoImageTap:)];
     tapRecognizer.numberOfTapsRequired = 1;
@@ -297,41 +316,15 @@
     [alert release];
 }
 
-
-
-- (void) getPhotoFromSource:(UIImagePickerControllerSourceType) sourceType forPictureMode:(pictureMode) pMode
+- (void)showImagePicker:(UIImagePickerControllerSourceType)sourceType forPictureMode:(NSInteger) pMode
 {
-    
-    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
-    picker.delegate = self;
-    picker.allowsEditing = NO;
-    picker.sourceType = sourceType;
-    
-    CGRect contourRect;
-    if ([[UIScreen mainScreen] bounds].size.height == 568){
-        contourRect = CGRectMake(0, 0, picker.view.frame.size.width, picker.view.frame.size.height-88);
-    }
-    else{
-        contourRect = CGRectMake(0, 0, picker.view.frame.size.width, picker.view.frame.size.height-44);
-    }
-    UIImageView *contourImageView = [[UIImageView alloc] initWithFrame:contourRect];
-    contourImageView.contentMode = UIViewContentModeScaleAspectFit;
-    //contourImageView.center = picker.view.center;
-    if (pMode == main){
-        contourImageView.image = [UIImage imageNamed:@"Contour"];
-    }
-    else{
-        contourImageView.image = [UIImage imageNamed:@"SideContour"];
-    }
-    [picker.view addSubview:contourImageView];
-    [contourImageView release];
-    [self presentViewController:picker animated:YES completion:NULL];
-    [picker release];
-    
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [appDelegate setImagePickerControllerIsActive:TRUE];
+    
+    [self.overlayViewController setupImagePicker:sourceType forPictureMode:(NSInteger) pMode];
+    [self presentViewController:self.overlayViewController.imagePickerController animated:YES completion:NULL];
+    
 }
-
 
 
 - (void) processPhoto:(NSArray *) features
@@ -730,7 +723,7 @@
         for (UIView *tmpView in self.sizesScrollView.subviews) {
             if ([tmpView isKindOfClass:[ImageViewWithKey class]]){
                 ImageViewWithKey *imageView = (ImageViewWithKey *)tmpView;
-                imageView.image = [UIImage imageNamed:[self getTipsImageNameForBodyPart:imageView.key mode:side]];
+                imageView.image = [UIImage imageNamed:[self getTipsImageNameForBodyPart:imageView.key mode:1]];
             }
         }
 
@@ -844,15 +837,17 @@
     
 }
 
-#pragma mark UIImagePickerController delegate methods
-- (void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+#pragma mark OverlayViewControllerDelegate
+
+
+- (void)didTakePicture:(UIImage *)picture
 {
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [appDelegate setImagePickerControllerIsActive:FALSE];
     
     CGSize newSize = CGSizeMake(self.sizeView.frame.size.width, self.sizeView.frame.size.height);
     
-    UIImage *picture = [info objectForKey:UIImagePickerControllerOriginalImage];
+    //UIImage *picture = [info objectForKey:UIImagePickerControllerOriginalImage];
     
     if (picture.size.width > picture.size.height) //landscape
     {
@@ -907,11 +902,10 @@
         if (![photosDictionary objectForKey:@"firstPhoto"]){
             //self.sizeView.image = shrunkenImage;
             [photosDictionary setObject:shrunkenImage forKey:@"firstPhoto"];
-            [picker dismissViewControllerAnimated:YES completion:^{[self getPhotoFromSource:self.source forPictureMode:side];}];
-            
+            [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:^{[self showImagePicker:self.source forPictureMode:1];}]; // side mode
         }
         else{
-            [picker dismissViewControllerAnimated:YES completion:NULL];
+            [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
             [photosDictionary setObject:shrunkenImage forKey:@"secondPhoto"];
             
             self.sizeView.image = [photosDictionary objectForKey:@"firstPhoto"];
@@ -935,7 +929,7 @@
     }
     else{
         
-        [picker dismissViewControllerAnimated:YES completion:NULL];
+        [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
         self.sizeView.image = shrunkenImage;
         self.activityIndicator.hidden = NO;
         [self.activityIndicator startAnimating];
@@ -958,6 +952,36 @@
     
   
 }
+
+// as a delegate we are told to finished with the camera
+- (void)didFinishWithCamera
+{
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [appDelegate setImagePickerControllerIsActive:FALSE];
+
+     [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
+    //[self dismissViewControllerAnimated:YES completion:^{
+        //;
+    //}];
+}
+
+- (void)didCancelWithCamera
+{
+    self.pickingCanceled = YES;
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [appDelegate setImagePickerControllerIsActive:FALSE];
+
+    
+     [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
+    //[self dismissViewControllerAnimated:YES completion:^{
+        //;
+    //}];
+}
+
+
+
+
+
 
 - (void) imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {

@@ -36,6 +36,15 @@
 		559F0480169A05710004AB3A /* leftArrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 559F047E169A05700004AB3A /* leftArrow.png */; };
 		559F0481169A05710004AB3A /* rightArrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 559F047F169A05700004AB3A /* rightArrow.png */; };
 		559F0483169AFC110004AB3A /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 559F0482169AFC110004AB3A /* MessageUI.framework */; };
+		559F0490169D7DE80004AB3A /* changeCamera.png in Resources */ = {isa = PBXBuildFile; fileRef = 559F048E169D7DE80004AB3A /* changeCamera.png */; };
+		559F0491169D7DE80004AB3A /* mainCamera.png in Resources */ = {isa = PBXBuildFile; fileRef = 559F048F169D7DE80004AB3A /* mainCamera.png */; };
+		559F0494169D7E480004AB3A /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 559F0493169D7E480004AB3A /* OverlayViewController.m */; };
+		559F0496169D7E500004AB3A /* ImageOverlayView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 559F0495169D7E500004AB3A /* ImageOverlayView.xib */; };
+		559F0498169D7E570004AB3A /* ImageOverlayView568.xib in Resources */ = {isa = PBXBuildFile; fileRef = 559F0497169D7E570004AB3A /* ImageOverlayView568.xib */; };
+		559F049B169DED6C0004AB3A /* BrandManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 559F049A169DED6C0004AB3A /* BrandManager.m */; };
+		559F049E169DEEB10004AB3A /* Brands.plist in Resources */ = {isa = PBXBuildFile; fileRef = 559F049D169DEEB10004AB3A /* Brands.plist */; };
+		559F04A2169DF0DC0004AB3A /* BrandsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 559F04A0169DF0DB0004AB3A /* BrandsViewController.m */; };
+		559F04A3169DF0DC0004AB3A /* BrandsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 559F04A1169DF0DC0004AB3A /* BrandsView.xib */; };
 		55A295EF15EE5D7700D256F7 /* LabeledSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 55A295EE15EE5D7700D256F7 /* LabeledSlider.m */; };
 		55A295F215EE5F0B00D256F7 /* MeasureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55A295F115EE5F0B00D256F7 /* MeasureView.m */; };
 		55A479F3164F9585003B9981 /* testView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55A479F2164F9585003B9981 /* testView.xib */; };
@@ -174,6 +183,18 @@
 		559F047E169A05700004AB3A /* leftArrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = leftArrow.png; sourceTree = "<group>"; };
 		559F047F169A05700004AB3A /* rightArrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rightArrow.png; sourceTree = "<group>"; };
 		559F0482169AFC110004AB3A /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		559F048E169D7DE80004AB3A /* changeCamera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = changeCamera.png; sourceTree = "<group>"; };
+		559F048F169D7DE80004AB3A /* mainCamera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mainCamera.png; sourceTree = "<group>"; };
+		559F0492169D7E400004AB3A /* OverlayViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OverlayViewController.h; sourceTree = "<group>"; };
+		559F0493169D7E480004AB3A /* OverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewController.m; sourceTree = "<group>"; };
+		559F0495169D7E500004AB3A /* ImageOverlayView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ImageOverlayView.xib; sourceTree = "<group>"; };
+		559F0497169D7E570004AB3A /* ImageOverlayView568.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ImageOverlayView568.xib; sourceTree = "<group>"; };
+		559F0499169DED6C0004AB3A /* BrandManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrandManager.h; sourceTree = "<group>"; };
+		559F049A169DED6C0004AB3A /* BrandManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrandManager.m; sourceTree = "<group>"; };
+		559F049D169DEEB10004AB3A /* Brands.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Brands.plist; sourceTree = "<group>"; };
+		559F049F169DF0DA0004AB3A /* BrandsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrandsViewController.h; sourceTree = "<group>"; };
+		559F04A0169DF0DB0004AB3A /* BrandsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrandsViewController.m; sourceTree = "<group>"; };
+		559F04A1169DF0DC0004AB3A /* BrandsView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BrandsView.xib; sourceTree = "<group>"; };
 		55A295ED15EE5D7700D256F7 /* LabeledSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabeledSlider.h; sourceTree = "<group>"; };
 		55A295EE15EE5D7700D256F7 /* LabeledSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabeledSlider.m; sourceTree = "<group>"; };
 		55A295F015EE5F0B00D256F7 /* MeasureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeasureView.h; sourceTree = "<group>"; };
@@ -331,6 +352,8 @@
 				55B444F01621D59A004291E2 /* CustomCell.m */,
 				55D683331625882A00FA8E75 /* MeasureManager.h */,
 				55D683341625882A00FA8E75 /* MeasureManager.m */,
+				559F0499169DED6C0004AB3A /* BrandManager.h */,
+				559F049A169DED6C0004AB3A /* BrandManager.m */,
 			);
 			name = OtherClasses;
 			sourceTree = "<group>";
@@ -377,6 +400,23 @@
 				559F046B1699DD860004AB3A /* WebserviceConstants.h */,
 			);
 			name = Localytics;
+			sourceTree = "<group>";
+		};
+		559F048C169D7DD20004AB3A /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				559F048E169D7DE80004AB3A /* changeCamera.png */,
+				559F048F169D7DE80004AB3A /* mainCamera.png */,
+			);
+			name = Camera;
+			sourceTree = "<group>";
+		};
+		559F049C169DEE750004AB3A /* pList_files */ = {
+			isa = PBXGroup;
+			children = (
+				559F049D169DEEB10004AB3A /* Brands.plist */,
+			);
+			name = pList_files;
 			sourceTree = "<group>";
 		};
 		55AC32FA15C02D5E00B17709 = {
@@ -453,6 +493,9 @@
 				55B444ED1621D4D8004291E2 /* CustomCell.xib */,
 				556C95F6167D1361000385BB /* TipsView.xib */,
 				5594B3431681A72D003B8D20 /* FeedbackView.xib */,
+				559F0495169D7E500004AB3A /* ImageOverlayView.xib */,
+				559F0497169D7E570004AB3A /* ImageOverlayView568.xib */,
+				559F04A1169DF0DC0004AB3A /* BrandsView.xib */,
 				55A479F2164F9585003B9981 /* testView.xib */,
 			);
 			name = Nibs;
@@ -475,6 +518,8 @@
 				55CDC5C415C98A280051C5F3 /* Default.png */,
 				55E57F85160B0E970028E69E /* Default-568h@2x.png */,
 				55CDC5C515C98A280051C5F3 /* Default@2x.png */,
+				559F049C169DEE750004AB3A /* pList_files */,
+				559F048C169D7DD20004AB3A /* Camera */,
 				555D447A1683C49F003DE187 /* Contours */,
 				55E60AB31683AA01000517F4 /* Icons */,
 				55E60A8816825D54000517F4 /* Tips_images */,
@@ -591,6 +636,10 @@
 				556C95F5167D1361000385BB /* TipsViewController.m */,
 				5594B3411681A72D003B8D20 /* FeedbackViewController.h */,
 				5594B3421681A72D003B8D20 /* FeedbackViewController.m */,
+				559F0492169D7E400004AB3A /* OverlayViewController.h */,
+				559F0493169D7E480004AB3A /* OverlayViewController.m */,
+				559F049F169DF0DA0004AB3A /* BrandsViewController.h */,
+				559F04A0169DF0DB0004AB3A /* BrandsViewController.m */,
 			);
 			name = ViewControllers;
 			sourceTree = "<group>";
@@ -793,6 +842,12 @@
 				559F046C1699DD860004AB3A /* LICENSE in Resources */,
 				559F0480169A05710004AB3A /* leftArrow.png in Resources */,
 				559F0481169A05710004AB3A /* rightArrow.png in Resources */,
+				559F0490169D7DE80004AB3A /* changeCamera.png in Resources */,
+				559F0491169D7DE80004AB3A /* mainCamera.png in Resources */,
+				559F0496169D7E500004AB3A /* ImageOverlayView.xib in Resources */,
+				559F0498169D7E570004AB3A /* ImageOverlayView568.xib in Resources */,
+				559F049E169DEEB10004AB3A /* Brands.plist in Resources */,
+				559F04A3169DF0DC0004AB3A /* BrandsView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -824,6 +879,9 @@
 				559F046D1699DD860004AB3A /* LocalyticsDatabase.m in Sources */,
 				559F046E1699DD860004AB3A /* LocalyticsSession.m in Sources */,
 				559F046F1699DD860004AB3A /* LocalyticsUploader.m in Sources */,
+				559F0494169D7E480004AB3A /* OverlayViewController.m in Sources */,
+				559F049B169DED6C0004AB3A /* BrandManager.m in Sources */,
+				559F04A2169DF0DC0004AB3A /* BrandsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
