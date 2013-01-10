@@ -73,7 +73,8 @@
 "Tell us about your problem" = "Расскажите о вашей проблеме:";
 "Your feedback" = "Ваш отзыв:";
 "Send by e-mail" = "Отправить по email";
-"Sizes by brands" = "Размеры по брендам";
+"Brands" = "Брэнды";
+"Sizes" = "Размеры";
 
 /*labels and placeholders*/
 "Name:"="Имя:";
@@ -103,6 +104,7 @@
 "Thank you for your feedback!" = "Спасибо за Ваш отзыв!";
 "AgeMessage1" = "Вы не ввели возраст. Вам следует знать: приложение не определяет размеры детей в возрасте до 13 лет";
 "AgeMessage2" = "Приложение не определяет размеры детей в возрасте до 13 лет";
+"AgeMessage3" = "Да ладно?!?!?";
 "Can't send e-mail" = "Не удалось отправить сообщение";
 "Can't save e-mail" = "Не удалось сохранить сообщение";
 "E-mail sent" = "Сообщение успешно отправлено";
@@ -110,6 +112,8 @@
 "E-mail canceled" = "Отправка сообщения отменена пользователем";
 "Sent from EasySize" = "Отправлено из EasySize";
 "Sizes of " = "Размеры ";
+"Use short name, please!" = "Используйте более короткое имя, пожалуйста!";
+"Use short surname, please!" = "Используйте более короткую фамилию, пожалуйста!";
 
 //tips
 "HelpTip1" = "<html><head><title></title><style>p {text-indent: 20px; text-align: justify; font: 12pt ArialMT;}</style></head><body><p>Создайте один или несколько профилей, указав имя, возраст и пол измеряемых.</p></body></html>";

@@ -74,7 +74,8 @@
 "Tell us about your problem" = "Tell us about your problem:";
 "Your feedback" = "Your feedback:";
 "Send by e-mail" = "Send by email";
-"Sizes by brands" = "Sizes by brands";
+"Brands" = "Brands";
+"Sizes" = "Sizes";
 
 /*labels and placeholders*/
 "Name:"="Name:";
@@ -104,6 +105,7 @@
 "Thank you for your feedback!" = "Thank you for your feedback!";
 "AgeMessage1" = "You didn't input age. You should know: application doesn't define children sizes (under 13 years old)";
 "AgeMessage2" = "Application doesn't define children sizes (under 13 years old)";
+"AgeMessage3" = "Are you sure?!?!?";
 "Can't send e-mail" = "Can't send e-mail";
 "Can't save e-mail" = "Can't save e-mail";
 "E-mail sent" = "E-mail sent";
@@ -111,6 +113,8 @@
 "E-mail canceled" = "E-mail canceled";
 "Sent from EasySize" = "Sent from EasySize";
 "Sizes of " = "Sizes of ";
+"Use short name, please!" = "Use short name, please!";
+"Use short surname, please!" = "Use short surname, please!";
 
 //help tips
 "HelpTip1" = "  Create one or more profiles, specifying the name, age and sex.";

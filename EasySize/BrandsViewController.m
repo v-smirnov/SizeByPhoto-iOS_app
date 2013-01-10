@@ -8,6 +8,7 @@
 
 #import "BrandsViewController.h"
 #import "BrandManager.h"
+#import "BrandSizesViewController.h"
 
 @interface BrandsViewController ()
 
@@ -40,7 +41,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = NSLocalizedString(@"Sizes by brands", nil);
+    self.title = NSLocalizedString(@"Brands", nil);
 }
 
 - (void)didReceiveMemoryWarning
@@ -147,15 +148,10 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     
-    /*
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    ResultViewController *resultController = [[ResultViewController alloc] initWithNibName:@"ResultView" bundle:nil];
-    resultController.bButtonType = rootButton;
-    resultController.eButtonType = standartEditButton;
-    resultController.resultArray = nil;
-    [self.navigationController pushViewController:resultController animated:YES];
-    [resultController release];
-    */
+    BrandSizesViewController *controller = [[BrandSizesViewController alloc] initWithNibName:@"BrandSizesView" bundle:nil];
+    [self.navigationController pushViewController:controller animated:YES];
+    [controller release];
     
 }
 /*

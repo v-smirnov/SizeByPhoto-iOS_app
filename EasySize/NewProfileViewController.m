@@ -304,6 +304,23 @@
     [self checkAge];
 }
 
+- (IBAction) onNameFieldValueChanged:(id)sender
+{
+    if (self.nameField.text.length > 50){
+        [self showAlertDialogWithTitle:@"Warning" andMessage:@"Use short name, please!"];
+        self.nameField.text = @"";
+    }
+}
+
+- (IBAction) onSurnameFieldValueChanged:(id)sender
+{
+    if (self.surnameField.text.length > 50){
+        [self showAlertDialogWithTitle:@"Warning" andMessage:@"Use short surname, please!"];
+        self.surnameField.text = @"";
+    }
+
+}
+
 
 
 
@@ -425,11 +442,15 @@
     
     if ([self.ageField.text integerValue] == 0){
         [self showAlertDialogWithTitle:@"Warning" andMessage:@"AgeMessage1"];
+        self.ageField.text = @"25";
     }
     else if ([self.ageField.text integerValue] > 0 && [self.ageField.text integerValue] < 13){
         [self showAlertDialogWithTitle:@"Warning" andMessage:@"AgeMessage2"];
     }
-
+    else if ([self.ageField.text integerValue] > 150){
+        [self showAlertDialogWithTitle:@"Warning" andMessage:@"AgeMessage3"];
+        self.ageField.text = @"150";
+    }
     
     return true;
 }

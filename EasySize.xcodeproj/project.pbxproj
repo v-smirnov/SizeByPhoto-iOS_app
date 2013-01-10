@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		553126DD16502B6300FEDC2B /* cell_background1.png in Resources */ = {isa = PBXBuildFile; fileRef = 553126DC16502B6300FEDC2B /* cell_background1.png */; };
 		555564671604743E0086039A /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = 555564651604743E0086039A /* background.png */; };
 		555564681604743E0086039A /* background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 555564661604743E0086039A /* background@2x.png */; };
 		5555646F16047E1D0086039A /* DataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 5555646E16047E1D0086039A /* DataManager.m */; };
@@ -45,9 +44,12 @@
 		559F049E169DEEB10004AB3A /* Brands.plist in Resources */ = {isa = PBXBuildFile; fileRef = 559F049D169DEEB10004AB3A /* Brands.plist */; };
 		559F04A2169DF0DC0004AB3A /* BrandsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 559F04A0169DF0DB0004AB3A /* BrandsViewController.m */; };
 		559F04A3169DF0DC0004AB3A /* BrandsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 559F04A1169DF0DC0004AB3A /* BrandsView.xib */; };
+		559F04AE169F423A0004AB3A /* SizesCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 559F04AD169F423A0004AB3A /* SizesCell.m */; };
+		559F04B0169F42650004AB3A /* SizesCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 559F04AF169F42650004AB3A /* SizesCell.xib */; };
+		559F04B4169F4B3D0004AB3A /* BrandSizesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 559F04B2169F4B3C0004AB3A /* BrandSizesViewController.m */; };
+		559F04B5169F4B3D0004AB3A /* BrandSizesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 559F04B3169F4B3C0004AB3A /* BrandSizesView.xib */; };
 		55A295EF15EE5D7700D256F7 /* LabeledSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 55A295EE15EE5D7700D256F7 /* LabeledSlider.m */; };
 		55A295F215EE5F0B00D256F7 /* MeasureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55A295F115EE5F0B00D256F7 /* MeasureView.m */; };
-		55A479F3164F9585003B9981 /* testView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55A479F2164F9585003B9981 /* testView.xib */; };
 		55A479F5164F9848003B9981 /* Skirt_w_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 55A479F4164F9848003B9981 /* Skirt_w_1.png */; };
 		55A479F7164F9861003B9981 /* Trousers & jeans_w_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 55A479F6164F9861003B9981 /* Trousers & jeans_w_1.png */; };
 		55A479F9164F9886003B9981 /* T-shirt_w_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 55A479F8164F9886003B9981 /* T-shirt_w_1.png */; };
@@ -144,7 +146,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		553126DC16502B6300FEDC2B /* cell_background1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cell_background1.png; sourceTree = "<group>"; };
 		555564651604743E0086039A /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background.png; sourceTree = "<group>"; };
 		555564661604743E0086039A /* background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "background@2x.png"; sourceTree = "<group>"; };
 		5555646D16047E1D0086039A /* DataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataManager.h; sourceTree = "<group>"; };
@@ -195,11 +196,16 @@
 		559F049F169DF0DA0004AB3A /* BrandsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrandsViewController.h; sourceTree = "<group>"; };
 		559F04A0169DF0DB0004AB3A /* BrandsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrandsViewController.m; sourceTree = "<group>"; };
 		559F04A1169DF0DC0004AB3A /* BrandsView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BrandsView.xib; sourceTree = "<group>"; };
+		559F04AC169F423A0004AB3A /* SizesCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SizesCell.h; sourceTree = "<group>"; };
+		559F04AD169F423A0004AB3A /* SizesCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SizesCell.m; sourceTree = "<group>"; };
+		559F04AF169F42650004AB3A /* SizesCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SizesCell.xib; sourceTree = "<group>"; };
+		559F04B1169F4B3C0004AB3A /* BrandSizesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrandSizesViewController.h; sourceTree = "<group>"; };
+		559F04B2169F4B3C0004AB3A /* BrandSizesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrandSizesViewController.m; sourceTree = "<group>"; };
+		559F04B3169F4B3C0004AB3A /* BrandSizesView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BrandSizesView.xib; sourceTree = "<group>"; };
 		55A295ED15EE5D7700D256F7 /* LabeledSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabeledSlider.h; sourceTree = "<group>"; };
 		55A295EE15EE5D7700D256F7 /* LabeledSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabeledSlider.m; sourceTree = "<group>"; };
 		55A295F015EE5F0B00D256F7 /* MeasureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeasureView.h; sourceTree = "<group>"; };
 		55A295F115EE5F0B00D256F7 /* MeasureView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeasureView.m; sourceTree = "<group>"; };
-		55A479F2164F9585003B9981 /* testView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = testView.xib; sourceTree = "<group>"; };
 		55A479F4164F9848003B9981 /* Skirt_w_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Skirt_w_1.png; sourceTree = "<group>"; };
 		55A479F6164F9861003B9981 /* Trousers & jeans_w_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Trousers & jeans_w_1.png"; sourceTree = "<group>"; };
 		55A479F8164F9886003B9981 /* T-shirt_w_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "T-shirt_w_1.png"; sourceTree = "<group>"; };
@@ -331,6 +337,8 @@
 		555564711604DB450086039A /* UIControl_SubClasses */ = {
 			isa = PBXGroup;
 			children = (
+				55B444EF1621D594004291E2 /* CustomCell.h */,
+				55B444F01621D59A004291E2 /* CustomCell.m */,
 				55A295ED15EE5D7700D256F7 /* LabeledSlider.h */,
 				55A295EE15EE5D7700D256F7 /* LabeledSlider.m */,
 				55A295F015EE5F0B00D256F7 /* MeasureView.h */,
@@ -339,6 +347,8 @@
 				555564741604DBC20086039A /* TextFieldWithKey.m */,
 				55E60A971682675D000517F4 /* ImageViewWithKey.h */,
 				55E60A981682675D000517F4 /* ImageViewWithKey.m */,
+				559F04AC169F423A0004AB3A /* SizesCell.h */,
+				559F04AD169F423A0004AB3A /* SizesCell.m */,
 			);
 			name = UIControl_SubClasses;
 			sourceTree = "<group>";
@@ -348,8 +358,6 @@
 			children = (
 				5555646D16047E1D0086039A /* DataManager.h */,
 				5555646E16047E1D0086039A /* DataManager.m */,
-				55B444EF1621D594004291E2 /* CustomCell.h */,
-				55B444F01621D59A004291E2 /* CustomCell.m */,
 				55D683331625882A00FA8E75 /* MeasureManager.h */,
 				55D683341625882A00FA8E75 /* MeasureManager.m */,
 				559F0499169DED6C0004AB3A /* BrandManager.h */,
@@ -490,13 +498,14 @@
 				55A7233D15CE9DBA005977DC /* MeasureView.xib */,
 				55D77A8816660DCA00FA58D6 /* MeasureView568.xib */,
 				55B6DFF415EA798200D45064 /* MeasureByParamsView.xib */,
-				55B444ED1621D4D8004291E2 /* CustomCell.xib */,
 				556C95F6167D1361000385BB /* TipsView.xib */,
 				5594B3431681A72D003B8D20 /* FeedbackView.xib */,
 				559F0495169D7E500004AB3A /* ImageOverlayView.xib */,
 				559F0497169D7E570004AB3A /* ImageOverlayView568.xib */,
 				559F04A1169DF0DC0004AB3A /* BrandsView.xib */,
-				55A479F2164F9585003B9981 /* testView.xib */,
+				559F04B3169F4B3C0004AB3A /* BrandSizesView.xib */,
+				55B444ED1621D4D8004291E2 /* CustomCell.xib */,
+				559F04AF169F42650004AB3A /* SizesCell.xib */,
 			);
 			name = Nibs;
 			sourceTree = "<group>";
@@ -610,7 +619,6 @@
 			isa = PBXGroup;
 			children = (
 				55D77A8216649B4200FA58D6 /* cell_background.png */,
-				553126DC16502B6300FEDC2B /* cell_background1.png */,
 				55C6E7AD1629A2ED004B0743 /* middleRow.png */,
 				55B6DFFB15EA7BB600D45064 /* topAndBottomRow.png */,
 				55B6DFF815EA7BA600D45064 /* bottomRow.png */,
@@ -640,6 +648,8 @@
 				559F0493169D7E480004AB3A /* OverlayViewController.m */,
 				559F049F169DF0DA0004AB3A /* BrandsViewController.h */,
 				559F04A0169DF0DB0004AB3A /* BrandsViewController.m */,
+				559F04B1169F4B3C0004AB3A /* BrandSizesViewController.h */,
+				559F04B2169F4B3C0004AB3A /* BrandSizesViewController.m */,
 			);
 			name = ViewControllers;
 			sourceTree = "<group>";
@@ -781,7 +791,6 @@
 				55C3655C164E38DD00705D26 /* navBar.png in Resources */,
 				55C3655D164E38DD00705D26 /* navBar@2x.png in Resources */,
 				55C36567164E534200705D26 /* T-shirt_1.png in Resources */,
-				55A479F3164F9585003B9981 /* testView.xib in Resources */,
 				55A479F5164F9848003B9981 /* Skirt_w_1.png in Resources */,
 				55A479F7164F9861003B9981 /* Trousers & jeans_w_1.png in Resources */,
 				55A479F9164F9886003B9981 /* T-shirt_w_1.png in Resources */,
@@ -792,7 +801,6 @@
 				55A47A15164FB81F003B9981 /* Shoes_0.png in Resources */,
 				55A47A19164FB86D003B9981 /* Shoes_w_0.png in Resources */,
 				55A47A23164FC042003B9981 /* asBtnBackground_.png in Resources */,
-				553126DD16502B6300FEDC2B /* cell_background1.png in Resources */,
 				55AE83C5165FC13B002CD0E8 /* Coats & jackets_1.png in Resources */,
 				55AE83D2165FC300002CD0E8 /* Coats & jackets_w_1.png in Resources */,
 				55AE83D6165FC42E002CD0E8 /* Dress_w_1.png in Resources */,
@@ -848,6 +856,8 @@
 				559F0498169D7E570004AB3A /* ImageOverlayView568.xib in Resources */,
 				559F049E169DEEB10004AB3A /* Brands.plist in Resources */,
 				559F04A3169DF0DC0004AB3A /* BrandsView.xib in Resources */,
+				559F04B0169F42650004AB3A /* SizesCell.xib in Resources */,
+				559F04B5169F4B3D0004AB3A /* BrandSizesView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -882,6 +892,8 @@
 				559F0494169D7E480004AB3A /* OverlayViewController.m in Sources */,
 				559F049B169DED6C0004AB3A /* BrandManager.m in Sources */,
 				559F04A2169DF0DC0004AB3A /* BrandsViewController.m in Sources */,
+				559F04AE169F423A0004AB3A /* SizesCell.m in Sources */,
+				559F04B4169F4B3D0004AB3A /* BrandSizesViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

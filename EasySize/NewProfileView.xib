@@ -501,6 +501,15 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchEventConnection" key="connection">
+						<string key="label">onNameFieldValueChanged:</string>
+						<reference key="source" ref="1020742251"/>
+						<reference key="destination" ref="372490531"/>
+						<int key="IBEventType">19</int>
+					</object>
+					<int key="connectionID">52</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchEventConnection" key="connection">
 						<string key="label">selectProfileImage</string>
 						<reference key="source" ref="220844171"/>
 						<reference key="destination" ref="372490531"/>
@@ -516,6 +525,15 @@
 						<int key="IBEventType">20</int>
 					</object>
 					<int key="connectionID">32</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchEventConnection" key="connection">
+						<string key="label">onSurnameFieldValueChanged:</string>
+						<reference key="source" ref="592501228"/>
+						<reference key="destination" ref="372490531"/>
+						<int key="IBEventType">19</int>
+					</object>
+					<int key="connectionID">51</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchEventConnection" key="connection">
@@ -565,11 +583,11 @@
 							<reference ref="731216900"/>
 							<reference ref="1046648185"/>
 							<reference ref="547337610"/>
-							<reference ref="1020742251"/>
 							<reference ref="592501228"/>
 							<reference ref="653973365"/>
 							<reference ref="475076030"/>
 							<reference ref="256376962"/>
+							<reference ref="1020742251"/>
 						</array>
 						<reference key="parent" ref="0"/>
 					</object>
@@ -676,7 +694,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">49</int>
+			<int key="maxID">52</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -686,6 +704,8 @@
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="hideKeyboard:">id</string>
 						<string key="onAgeFieldValueChanged:">id</string>
+						<string key="onNameFieldValueChanged:">id</string>
+						<string key="onSurnameFieldValueChanged:">id</string>
 						<string key="selectProfileImage">id</string>
 						<string key="textFieldDoneEditing:">id</string>
 					</dictionary>
@@ -696,6 +716,14 @@
 						</object>
 						<object class="IBActionInfo" key="onAgeFieldValueChanged:">
 							<string key="name">onAgeFieldValueChanged:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="onNameFieldValueChanged:">
+							<string key="name">onNameFieldValueChanged:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="onSurnameFieldValueChanged:">
+							<string key="name">onSurnameFieldValueChanged:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="selectProfileImage">

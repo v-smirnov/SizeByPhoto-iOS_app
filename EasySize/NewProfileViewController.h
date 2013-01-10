@@ -55,6 +55,7 @@
 -(IBAction) textFieldDoneEditing:(id)sender;
 -(IBAction) hideKeyboard:(id)sender;
 -(IBAction) onAgeFieldValueChanged:(id)sender;
-
+-(IBAction) onNameFieldValueChanged:(id)sender;
+-(IBAction) onSurnameFieldValueChanged:(id)sender;
 
 @end
