@@ -10,7 +10,7 @@
 "Shirt" = "Рубашка";
 "Dress" = "Платье";
 "Skirt" = "Юбка";
-"Trousers & jeans" = "Брюки и джинсы";
+"Jeans" = "Джинсы";
 "Coats & jackets" = "Верхняя одежда";
 "Bras" = "Бюстгалтер";
 "Underwear" = "Нижнее белье";
@@ -75,6 +75,7 @@
 "Send by e-mail" = "Отправить по email";
 "Brands" = "Брэнды";
 "Sizes" = "Размеры";
+"Sizes by brands" = "Размеры по брендам";
 
 /*labels and placeholders*/
 "Name:"="Имя:";

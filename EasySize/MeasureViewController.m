@@ -562,7 +562,7 @@
             //adding main size
             [resultsArray addObject:[NSNumber numberWithInteger: numberInSizesArray]];
             //adding additional size
-            if ([object isEqualToString:@"Trousers & jeans"]){
+            if ([object isEqualToString:@"Jeans"]){
                 [resultsArray addObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:@"Inside leg"]]];
             }
             //definig and savin bra letter
@@ -1067,7 +1067,7 @@
                 //adding main size
                 [resultsArray addObject:[NSNumber numberWithInteger: numberInSizesArray]];
                 //adding additional size
-                if ([object isEqualToString:@"Trousers & jeans"]){
+                if ([object isEqualToString:@"Jeans"]){
                     [resultsArray addObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:@"Inside leg"]]];
                 }
                 //definig and savin bra letter
@@ -1108,7 +1108,7 @@
                 //adding main size
                 [resultsArray addObject:[NSNumber numberWithInteger: numberInSizesArray]];
                 //adding additional size
-                if ([object isEqualToString:@"Trousers & jeans"]){
+                if ([object isEqualToString:@"Jeans"]){
                     [resultsArray addObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:@"Inside leg"]]];
                 }
                 //definig and savin bra letter

@@ -188,7 +188,7 @@
             NSString *additionalInfo = @"";
             if ([[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] count] == 2){
                 /*
-                 if ([clothesType isEqualToString:@"Trousers & jeans"]){
+                 if ([clothesType isEqualToString:@"Jeans"]){
                  additionalInfo = [[MeasureManager sharedMeasureManager] getLegLengthDescriptionForValue:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:1] floatValue] andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
                  }
                  */
@@ -252,7 +252,7 @@
             if ([[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] count] == 2){
                 //NSLog(@"%@",clothesType);
                 /*
-                if ([clothesType isEqualToString:@"Trousers & jeans"]){
+                if ([clothesType isEqualToString:@"Jeans"]){
                     additionalInfo = [[MeasureManager sharedMeasureManager] getLegLengthDescriptionForValue:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:1] floatValue] andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
                 }
                  */
@@ -271,7 +271,9 @@
         
         
     }
-    
+    if (currentY <= self.resultScrollView.frame.size.height){
+        currentY = self.resultScrollView.frame.size.height + 10;
+    }
     self.resultScrollView.contentSize = CGSizeMake(self.resultScrollView.frame.size.width , currentY);
 }
 

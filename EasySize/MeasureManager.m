@@ -58,13 +58,13 @@ static MeasureManager *manager = nil;
     NSArray *returnedArray;
     
     if (personType == Man){
-        //returnedArray =  [NSArray arrayWithObjects:@"Underwear", @"Trousers & jeans", @"T-shirt", @"Shirt", @"Coats & jackets",@"Ring", @"Shoes", @"Gloves", nil];
-        returnedArray =  [NSArray arrayWithObjects:@"Trousers & jeans",@"T-shirt", @"Shirt", @"Coats & jackets", @"Underwear", nil];
+        //returnedArray =  [NSArray arrayWithObjects:@"Underwear", @"Jeans", @"T-shirt", @"Shirt", @"Coats & jackets",@"Ring", @"Shoes", @"Gloves", nil];
+        returnedArray =  [NSArray arrayWithObjects:@"Jeans",@"T-shirt", @"Shirt", @"Coats & jackets", @"Underwear", nil];
 
     }
     else if (personType == Woman){
-        //returnedArray = [NSArray arrayWithObjects:@"Underwear", @"Bras", @"Trousers & jeans", @"Skirt", @"T-shirt", @"Shirt", @"Dress", @"Coats & jackets", @"Ring", @"Shoes", @"Gloves", nil];
-        returnedArray =  [NSArray arrayWithObjects:@"Trousers & jeans", @"Skirt", @"T-shirt", @"Shirt", @"Dress", @"Coats & jackets", @"Underwear", @"Bras", nil];
+        //returnedArray = [NSArray arrayWithObjects:@"Underwear", @"Bras", @"Jeans", @"Skirt", @"T-shirt", @"Shirt", @"Dress", @"Coats & jackets", @"Ring", @"Shoes", @"Gloves", nil];
+        returnedArray =  [NSArray arrayWithObjects:@"Jeans", @"Skirt", @"T-shirt", @"Shirt", @"Dress", @"Coats & jackets", @"Underwear", @"Bras", nil];
     }
     else{
         returnedArray = [NSArray array];
@@ -75,7 +75,7 @@ static MeasureManager *manager = nil;
 
 - (NSArray *) getClothesListForAllGenders
 {
-    return [NSArray arrayWithObjects:@"Trousers & jeans", @"Skirt", @"T-shirt", @"Shirt", @"Dress", @"Coats & jackets", @"Underwear", @"Bras", nil];
+    return [NSArray arrayWithObjects:@"Jeans", @"Skirt", @"T-shirt", @"Shirt", @"Dress", @"Coats & jackets", @"Underwear", @"Bras", nil];
 
 }
 
@@ -84,8 +84,8 @@ static MeasureManager *manager = nil;
     NSDictionary *retDict;
     if (personType == Man){
         retDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                   [NSArray arrayWithObjects:@"Trousers & jeans", nil], @"Underwear",
-                   [NSArray arrayWithObjects:@"Underwear", nil], @"Trousers & jeans",
+                   [NSArray arrayWithObjects:@"Jeans", nil], @"Underwear",
+                   [NSArray arrayWithObjects:@"Underwear", nil], @"Jeans",
                    [NSArray arrayWithObjects:@"Shirt", @"Coats & jackets", nil], @"T-shirt",
                    [NSArray arrayWithObjects:@"T-shirt", @"Coats & jackets", nil], @"Shirt",
                    [NSArray arrayWithObjects:@"T-shirt", @"Shirt", nil], @"Coats & jackets",
@@ -93,9 +93,9 @@ static MeasureManager *manager = nil;
     }
     else if (personType == Woman){
         retDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                   [NSArray arrayWithObjects:@"Skirt",@"Trousers & jeans", nil], @"Underwear",
-                   [NSArray arrayWithObjects:@"Underwear", @"Skirt", nil], @"Trousers & jeans",
-                   [NSArray arrayWithObjects:@"Underwear", @"Trousers & jeans", nil], @"Skirt",
+                   [NSArray arrayWithObjects:@"Skirt",@"Jeans", nil], @"Underwear",
+                   [NSArray arrayWithObjects:@"Underwear", @"Skirt", nil], @"Jeans",
+                   [NSArray arrayWithObjects:@"Underwear", @"Jeans", nil], @"Skirt",
                    [NSArray arrayWithObjects:@"Shirt", @"Coats & jackets", nil], @"T-shirt",
                    [NSArray arrayWithObjects:@"T-shirt", @"Coats & jackets", nil], @"Shirt",
                    [NSArray arrayWithObjects:@"T-shirt", @"Shirt", nil], @"Coats & jackets",
@@ -117,13 +117,13 @@ static MeasureManager *manager = nil;
     NSDictionary *groupsDict;
     if (personType == Man){
         groupsDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                   [NSArray arrayWithObjects:@"Trousers & jeans", @"Underwear", nil], @"firstGroup",
+                   [NSArray arrayWithObjects:@"Jeans", @"Underwear", nil], @"firstGroup",
                    [NSArray arrayWithObjects:@"Shirt", @"Coats & jackets", @"T-shirt",nil], @"secondGroup",
                     nil];
     }
     else if (personType == Woman){
         groupsDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                   [NSArray arrayWithObjects:@"Skirt",@"Trousers & jeans", @"Underwear", nil], @"firstGroup",
+                   [NSArray arrayWithObjects:@"Skirt",@"Jeans", @"Underwear", nil], @"firstGroup",
                    [NSArray arrayWithObjects:@"Shirt", @"Coats & jackets", @"T-shirt", nil], @"secondGroup",
                    nil];
     }
@@ -141,7 +141,7 @@ static MeasureManager *manager = nil;
                 i++;
             }
         }
-        //if count of things in array belonging to one group < group size the we shoulp update 
+        //if count of things in array belonging to one group < group size then we shoulp update 
         if (i > 0 && i < [groupArray count]){
             needToUpdate = TRUE;
             break;
@@ -163,18 +163,21 @@ static MeasureManager *manager = nil;
         
         returnedDictionary = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                [NSMutableArray arrayWithObjects:
+                                
                                 [NSMutableArray arrayWithObjects:@"Chest", @"?",nil], nil],
                                @"T-shirt",
                                [NSMutableArray arrayWithObjects:
+                                
                                 [NSMutableArray arrayWithObjects:@"Chest", @"?",nil], nil],
                                @"Shirt",
                                [NSMutableArray arrayWithObjects:
+                                
                                 [NSMutableArray arrayWithObjects:@"Chest", @"?",nil], nil],
                                @"Coats & jackets",
                                [NSMutableArray arrayWithObjects:
                                 [NSMutableArray arrayWithObjects:@"Waist", @"?", nil], nil],
                                 //[NSMutableArray arrayWithObjects:@"Inside leg", @"?", nil], nil],
-                               @"Trousers & jeans",
+                               @"Jeans",
                                [NSMutableArray arrayWithObjects:
                                 [NSMutableArray arrayWithObjects:@"Waist", @"?", nil], nil],
                                @"Underwear",
@@ -200,7 +203,7 @@ static MeasureManager *manager = nil;
                                [NSMutableArray arrayWithObjects:
                                 [NSMutableArray arrayWithObjects:@"Hips", @"?", nil], nil],
                                 //[NSMutableArray arrayWithObjects:@"Inside leg", @"?", nil], nil],
-                               @"Trousers & jeans",
+                               @"Jeans",
                                [NSMutableArray arrayWithObjects:
                                 [NSMutableArray arrayWithObjects:@"Hips", @"?", nil], nil],
                                @"Underwear",
@@ -336,7 +339,7 @@ static MeasureManager *manager = nil;
                           [NSArray arrayWithObjects:@"64", @"64", @"46", @"46", @"3XL", nil],
                           [NSArray arrayWithObjects:@"66", @"66", @"48", @"48", @"4XL", nil],
                           [NSArray arrayWithObjects:@"68", @"68", @"50", @"50", @"5XL", nil], nil],
-                         @"Trousers & jeans",
+                         @"Jeans",
 
                          
                          [NSArray arrayWithObjects:
@@ -432,7 +435,7 @@ static MeasureManager *manager = nil;
                           [NSArray arrayWithObjects:@"52", @"58", @"20", @"24", @"2XL", nil],
                           [NSArray arrayWithObjects:@"54", @"60", @"22", @"26", @"2XL", nil], nil],
                          
-                         @"Trousers & jeans",
+                         @"Jeans",
                          
                          [NSArray arrayWithObjects:
                           [NSArray arrayWithObjects:@"32", @"38", @"1",  @"4",  @"2XS", nil],
@@ -825,10 +828,17 @@ static MeasureManager *manager = nil;
     return [NSArray arrayWithObjects:@"Man", @"Woman", nil];
 }
 
+// TODO: create new class fo this functions
 - (NSInteger)getCurrentProfileGender
 {
     return [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue];
 }
+
+- (float)getCurrentProfileBodyParam:(NSString *)bodyParam
+{
+    return [[[[DataManager sharedDataManager] currentProfile] objectForKey:bodyParam] floatValue];
+}
+//
 
 - (NSArray *)getSizesListForClothesType:(NSString *)clothesType personType:(PersonType)personType andIndex:(NSInteger)index
 {

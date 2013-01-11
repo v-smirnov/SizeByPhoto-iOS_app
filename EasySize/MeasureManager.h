@@ -7,15 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "types.h"
 
 
-typedef enum
-{
-    Man = 0,
-    Woman = 1,
-    Kid = 2
-    
-} PersonType;
 
 @interface MeasureManager : NSObject
 {
@@ -40,8 +34,11 @@ typedef enum
 - (NSString *) getLegLengthDescriptionForValue:(float) value andPersonType:(PersonType) personType;
 - (NSArray *)getOrderedMeasureParams;
 - (NSString *) getLetterForBrasSizeWithChest:(float) chest andUnderChest:(float) underChest;
-- (NSInteger) getCurrentProfileGender;
 - (BOOL) needToUpdateSizesForClothesWithTheSameParameters:(NSArray *) clothesArray forPersonType:(PersonType)personType;
+
+- (NSInteger) getCurrentProfileGender;
+- (float) getCurrentProfileBodyParam:(NSString *) bodyParam;
+
 
 
 @end

@@ -10,6 +10,7 @@
 #import "SizesCell.h"
 #import "DataManager.h"
 #import "MeasureManager.h"
+#import "BrandManager.h"
 
 @interface BrandSizesViewController ()
 
@@ -17,7 +18,7 @@
 
 @implementation BrandSizesViewController
 
-@synthesize brandSizesTable;
+@synthesize brandSizesTable, currentBrand;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -35,6 +36,7 @@
 {
     [brandSizesTable release];
     [measuredClothesType release];
+    [currentBrand release];
     [super dealloc];
 }
 
@@ -42,6 +44,7 @@
 {
     [super viewDidUnload];
     self.brandSizesTable = nil;
+    self.currentBrand = nil;
     [measuredClothesType release]; measuredClothesType = nil;
 }
 
@@ -102,12 +105,58 @@
         cell.selectedBackgroundView = [[UIImageView new] autorelease];
         
     }
-    cell.titleLabel.text = NSLocalizedString([measuredClothesType objectAtIndex:indexPath.row], nil);
+    
+    NSString *clothesType = [measuredClothesType objectAtIndex:indexPath.row];
+    cell.titleLabel.text = NSLocalizedString(clothesType, nil);
+    //finding out sizes
+    NSArray *bodyParams = [[BrandManager sharedBrandManager] getMeasureParamsForClothesType:clothesType andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
+    
+    NSMutableDictionary *bodyParamsWithValues = [[NSMutableDictionary alloc] initWithCapacity:[bodyParams count]];
+    for (NSString *param in bodyParams) {
+        [bodyParamsWithValues setObject:[NSNumber numberWithFloat:[[MeasureManager sharedMeasureManager] getCurrentProfileBodyParam:param]] forKey:param];
+    }
+    NSDictionary *sizes = [[BrandManager sharedBrandManager] getSizesForBrand:[self currentBrand] ClothesType:clothesType BodyParams:bodyParamsWithValues andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
+    
+    if ([sizes objectForKey:@"firstSize"]){
+        cell.euSizeLabel.text = [sizes objectForKey:@"firstSize"];
+        
+        if ([sizes objectForKey:@"secondSize"]){
+            cell.ruSizeLabel.text = [sizes objectForKey:@"secondSize"];
+        }
+        else{
+            cell.ruSizeLabel.text = [sizes objectForKey:@"firstSize"];
+        }
+        
+        if ([sizes objectForKey:@"thirdSize"]){
+            cell.usSizeLabel.text = [sizes objectForKey:@"thirdSize"];
+        }
+        else{
+            cell.usSizeLabel.text = [sizes objectForKey:@"firstSize"];
+        }
+
+        if ([sizes objectForKey:@"fourthSize"]){
+            cell.ukSizeLabel.text = [sizes objectForKey:@"fourthSize"];
+        }
+        else{
+            cell.ukSizeLabel.text = [sizes objectForKey:@"firstSize"];
+        }
+        
+        if ([sizes objectForKey:@"fifthSize"]){
+            cell.intSizeLabel.text = [sizes objectForKey:@"fifthSize"];
+        }
+        else{
+            cell.intSizeLabel.text = [sizes objectForKey:@"firstSize"];
+        }
+    }
+    
+    if ([sizes objectForKey:@"additionalInfo"]){
+        cell.infoLabel.text = [sizes objectForKey:@"additionalInfo"];
+    }
     
     ((UIImageView *)cell.backgroundView).image = [UIImage imageNamed:@"cell_background.png"];
     ((UIImageView *)cell.selectedBackgroundView).backgroundColor = [UIColor clearColor];
     
-        return cell;
+    return cell;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
@@ -128,17 +177,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
-    /*
-     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-     ResultViewController *resultController = [[ResultViewController alloc] initWithNibName:@"ResultView" bundle:nil];
-     resultController.bButtonType = rootButton;
-     resultController.eButtonType = standartEditButton;
-     resultController.resultArray = nil;
-     [self.navigationController pushViewController:resultController animated:YES];
-     [resultController release];
-     */
-    
+    //
 }
 
 

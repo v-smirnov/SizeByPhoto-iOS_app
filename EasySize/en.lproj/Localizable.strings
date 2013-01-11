@@ -10,7 +10,7 @@
 "Shirt" = "Shirt";
 "Dress" = "Dress";
 "Skirt" = "Skirt";
-"Trousers & jeans" = "Trousers & jeans";
+"Jeans" = "Jeans";
 "Coats & jackets" = "Coats & jackets";
 "Bras" = "Bras";
 "Underwear" = "Underwear";
@@ -76,6 +76,7 @@
 "Send by e-mail" = "Send by email";
 "Brands" = "Brands";
 "Sizes" = "Sizes";
+"Sizes by brands" = "Sizes by brands";
 
 /*labels and placeholders*/
 "Name:"="Name:";

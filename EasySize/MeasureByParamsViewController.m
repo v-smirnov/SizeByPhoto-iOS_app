@@ -438,7 +438,7 @@
                 //adding main size
                 [resultsArray addObject:[NSNumber numberWithInteger: positionInSizesArray]];
                 //adding additional info
-                if ([tmpView.viewKey isEqualToString:@"Trousers & jeans"]){
+                if ([tmpView.viewKey isEqualToString:@"Jeans"]){
                     for (LabeledSlider *currentSlider in tmpView.slidersArray) {
                         if ([currentSlider.sliderKey isEqualToString:@"Inside leg"]){
                             [resultsArray addObject:[NSNumber numberWithFloat:currentSlider.value]];
@@ -843,7 +843,7 @@
                 [resultsArray addObject:[NSNumber numberWithInteger: positionInSizesArray]];
                 
                 //adding additional info
-                if ([tmpView.viewKey isEqualToString:@"Trousers & jeans"]){
+                if ([tmpView.viewKey isEqualToString:@"Jeans"]){
                     for (LabeledSlider *currentSlider in tmpView.slidersArray) {
                         if ([currentSlider.sliderKey isEqualToString:@"Inside leg"]){
                             [resultsArray addObject:[NSNumber numberWithFloat:currentSlider.value]];
@@ -880,7 +880,7 @@
                 //adding main size
                 [resultsArray addObject:[NSNumber numberWithInteger: positionInSizesArray]];
                 //adding additional info
-                if ([tmpView.viewKey isEqualToString:@"Trousers & jeans"]){
+                if ([tmpView.viewKey isEqualToString:@"Jeans"]){
                     for (LabeledSlider *currentSlider in tmpView.slidersArray) {
                         if ([currentSlider.sliderKey isEqualToString:@"Inside leg"]){
                             [resultsArray addObject:[NSNumber numberWithFloat:currentSlider.value]];

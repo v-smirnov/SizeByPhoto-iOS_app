@@ -385,7 +385,7 @@
             frame = CGRectMake(50, 206+yOffset, 57, 40);
         }
         //jeans
-        else if ([kindOfClothes isEqualToString:@"Trousers & jeans_0"]){
+        else if ([kindOfClothes isEqualToString:@"Jeans_0"]){
             frame = CGRectMake(47, 206+yOffset, 63, 170);
         }
         //t-shirt
@@ -414,7 +414,7 @@
         else if ([kindOfClothes isEqualToString:@"Underwear_1"]){
             frame = CGRectMake(47, 204+yOffset, 62, 33);
         }
-        else if ([kindOfClothes isEqualToString:@"Trousers & jeans_1"]){
+        else if ([kindOfClothes isEqualToString:@"Jeans_1"]){
             frame = CGRectMake(45, 203+yOffset, 65, 169);
         }
         else if ([kindOfClothes isEqualToString:@"Skirt_1"]){

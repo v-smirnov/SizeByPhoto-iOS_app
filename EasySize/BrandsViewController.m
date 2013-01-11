@@ -150,6 +150,7 @@
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     BrandSizesViewController *controller = [[BrandSizesViewController alloc] initWithNibName:@"BrandSizesView" bundle:nil];
+    controller.currentBrand = [[[BrandManager sharedBrandManager] getBrands] objectAtIndex:indexPath.row];
     [self.navigationController pushViewController:controller animated:YES];
     [controller release];
     
