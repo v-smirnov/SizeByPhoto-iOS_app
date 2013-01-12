@@ -66,40 +66,140 @@ static BrandManager *manager = nil;
     return [[NSDictionary dictionaryWithContentsOfFile:filePath] objectForKey:brand];
 }
 
--(NSArray *)getMeasureParamsForClothesType:(NSString *)clothesType andPersonType:(PersonType)personType
+-(NSArray *)getMeasureParamsForBrand:(NSString *)brand clothesType:(NSString *)clothesType andPersonType:(PersonType)personType
 {
     
     NSDictionary *clothesDictionary;
     
-    if (personType == Man){
-        
-        clothesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-                            
-                            [NSArray arrayWithObjects:@"Chest", nil], @"T-shirt",
-                            [NSArray arrayWithObjects:@"Chest", nil], @"Shirt",
-                            [NSArray arrayWithObjects:@"Chest", nil], @"Coats & jackets",
-                            [NSArray arrayWithObjects:@"Waist", nil], @"Jeans",//+@"Inside leg"
-                            [NSArray arrayWithObjects:@"Waist", nil], @"Underwear",
-                            [NSArray arrayWithObjects:@"Foot", nil], @"Shoes",
-                            nil];
+    if ([brand isEqualToString:@"American Apparel"]){
+        if (personType == Man){
+            
+            clothesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"T-shirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Shirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Coats & jackets",
+                                 [NSArray arrayWithObjects:@"Waist", nil], @"Jeans",//+@"Inside leg"
+                                 [NSArray arrayWithObjects:@"Waist", nil], @"Underwear",
+                                 [NSArray arrayWithObjects:@"Foot", nil], @"Shoes",
+                                 nil];
+        }
+        else if (personType == Woman){
+            clothesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"T-shirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Shirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Coats & jackets",
+                                 [NSArray arrayWithObjects:@"Waist", nil], @"Jeans",//+@"Inside leg"
+                                 [NSArray arrayWithObjects:@"Waist", nil], @"Underwear",
+                                 [NSArray arrayWithObjects:@"Chest", @"Under chest", nil], @"Bras",
+                                 [NSArray arrayWithObjects:@"Waist", nil], @"Skirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Dress",
+                                 [NSArray arrayWithObjects:@"Foot", nil], @"Shoes",
+                                 nil];
+            
+        }
+        else{
+            clothesDictionary = [NSMutableDictionary dictionary];
+        }
     }
-    else if (personType == Woman){
-        clothesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-                             
-                             [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"T-shirt",
-                             [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Shirt",
-                             [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Coats & jackets",
-                             [NSArray arrayWithObjects:@"Hips", nil], @"Jeans",//+@"Inside leg"
-                             [NSArray arrayWithObjects:@"Hips", nil], @"Underwear",
-                             [NSArray arrayWithObjects:@"Chest", @"Under chest", nil], @"Bras",
-                             [NSArray arrayWithObjects:@"Hips", nil], @"Skirt",
-                             [NSArray arrayWithObjects:@"Chest", @"Waist", @"Hips", nil], @"Dress",
-                             [NSArray arrayWithObjects:@"Foot", nil],@"Shoes",
-                             nil];
+    else if ([brand isEqualToString:@"TopShop (TopMan)"]){
+        if (personType == Man){
+            
+            clothesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 
+                                 [NSArray arrayWithObjects:@"Chest", nil], @"T-shirt",
+                                 [NSArray arrayWithObjects:@"Chest", nil], @"Shirt",
+                                 [NSArray arrayWithObjects:@"Chest", nil], @"Coats & jackets",
+                                 [NSArray arrayWithObjects:@"Waist", nil], @"Jeans",//+@"Inside leg"
+                                 [NSArray arrayWithObjects:@"Waist", nil], @"Underwear",
+                                 [NSArray arrayWithObjects:@"Foot", nil], @"Shoes",
+                                 nil];
+        }
+        else if (personType == Woman){
+            clothesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"T-shirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Shirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Coats & jackets",
+                                 [NSArray arrayWithObjects:@"Waist", @"Hips", nil], @"Jeans",//+@"Inside leg"
+                                 [NSArray arrayWithObjects:@"Hips", nil], @"Underwear",
+                                 [NSArray arrayWithObjects:@"Chest", @"Under chest", nil], @"Bras",
+                                 [NSArray arrayWithObjects:@"Waist", @"Hips", nil], @"Skirt",
+                                 [NSArray arrayWithObjects:@"Waist", @"Hips", nil], @"Dress",
+                                 [NSArray arrayWithObjects:@"Foot", nil],@"Shoes",
+                                 nil];
+            
+        }
+        else{
+            clothesDictionary = [NSMutableDictionary dictionary];
+        }
 
     }
+    else if ([brand isEqualToString:@"ASOS"]){
+        if (personType == Man){
+            
+            clothesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 
+                                 [NSArray arrayWithObjects:@"Chest", nil], @"T-shirt",
+                                 [NSArray arrayWithObjects:@"Chest", nil], @"Shirt",
+                                 [NSArray arrayWithObjects:@"Chest", nil], @"Coats & jackets",
+                                 [NSArray arrayWithObjects:@"Waist", nil], @"Jeans",//+@"Inside leg"
+                                 [NSArray arrayWithObjects:@"Waist", nil], @"Underwear",
+                                 [NSArray arrayWithObjects:@"Foot", nil], @"Shoes",
+                                 nil];
+        }
+        else if (personType == Woman){
+            clothesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"T-shirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Shirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Coats & jackets",
+                                 [NSArray arrayWithObjects:@"Waist", @"Hips", nil], @"Jeans",//+@"Inside leg"
+                                 [NSArray arrayWithObjects:@"Hips", nil], @"Underwear",
+                                 [NSArray arrayWithObjects:@"Chest", @"Under chest", nil], @"Bras",
+                                 [NSArray arrayWithObjects:@"Waist", @"Hips", nil], @"Skirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", @"Hips", nil], @"Dress",
+                                 [NSArray arrayWithObjects:@"Foot", nil],@"Shoes",
+                                 nil];
+            
+        }
+        else{
+            clothesDictionary = [NSMutableDictionary dictionary];
+        }
+        
+    }
     else{
-        clothesDictionary = [NSMutableDictionary dictionary];
+        if (personType == Man){
+            
+            clothesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                
+                                [NSArray arrayWithObjects:@"Chest", nil], @"T-shirt",
+                                [NSArray arrayWithObjects:@"Chest", nil], @"Shirt",
+                                [NSArray arrayWithObjects:@"Chest", nil], @"Coats & jackets",
+                                [NSArray arrayWithObjects:@"Waist", nil], @"Jeans",//+@"Inside leg"
+                                [NSArray arrayWithObjects:@"Waist", nil], @"Underwear",
+                                [NSArray arrayWithObjects:@"Foot", nil], @"Shoes",
+                                nil];
+        }
+        else if (personType == Woman){
+            clothesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"T-shirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Shirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", nil], @"Coats & jackets",
+                                 [NSArray arrayWithObjects:@"Hips", nil], @"Jeans",//+@"Inside leg"
+                                 [NSArray arrayWithObjects:@"Hips", nil], @"Underwear",
+                                 [NSArray arrayWithObjects:@"Chest", @"Under chest", nil], @"Bras",
+                                 [NSArray arrayWithObjects:@"Hips", nil], @"Skirt",
+                                 [NSArray arrayWithObjects:@"Chest", @"Waist", @"Hips", nil], @"Dress",
+                                 [NSArray arrayWithObjects:@"Foot", nil],@"Shoes",
+                                 nil];
+
+        }
+        else{
+            clothesDictionary = [NSMutableDictionary dictionary];
+        }
     }
     
     return [clothesDictionary objectForKey:clothesType];
@@ -152,7 +252,7 @@ static BrandManager *manager = nil;
             for (NSDictionary *item in difference_info) {
                 NSArray *range = [item objectForKey:@"Diff"];
                 if (difference >= [[range objectAtIndex:0] floatValue] && difference < [[range objectAtIndex:1] floatValue]){
-                        additionalInfo = [@"Letter - " stringByAppendingString:[item objectForKey:@"letter"]];
+                        additionalInfo = [item objectForKey:@"letter"];
                         break;
                 }
             }

@@ -2,8 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
-	<string>American apparel</string>
-	<string>TopShop</string>
-	<string>TopMan</string>
+	<string>American Apparel</string>
+	<string>TopShop (TopMan)</string>
+	<string>ASOS</string>
+	<string>GAP</string>
 </array>
 </plist>

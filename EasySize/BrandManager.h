@@ -17,6 +17,6 @@
 +(BrandManager *)sharedBrandManager;
 
 - (NSArray *) getBrands;
-- (NSArray *) getMeasureParamsForClothesType:(NSString*) clothesType andPersonType:(PersonType)personType;
+- (NSArray *) getMeasureParamsForBrand:(NSString *)brand clothesType:(NSString *)clothesType andPersonType:(PersonType)personType;
 - (NSDictionary *) getSizesForBrand:(NSString *) brand ClothesType:(NSString*) clothesType BodyParams:(NSDictionary *) bodyParams andPersonType:(PersonType) personType;
 @end

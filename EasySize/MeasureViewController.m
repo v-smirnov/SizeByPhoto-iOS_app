@@ -482,17 +482,14 @@
 {
     UIImageView *tappedImageView = (UIImageView *)tapRecognizer.view;
     
-    CGRect newFrame = CGRectMake(0, 0, self.sizeView.frame.size.width, self.sizeView.frame.size.height);
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    CGRect newFrame = [[UIScreen mainScreen] bounds];
     
     UIImageView *bigImageView = [[UIImageView alloc] initWithFrame:newFrame];
-    if ([[UIScreen mainScreen] bounds].size.height == 568){
-        bigImageView.contentMode = UIViewContentModeScaleAspectFit;
-    }
-    else{
-        bigImageView.contentMode = UIViewContentModeScaleAspectFill;
-    }
+    bigImageView.contentMode = UIViewContentModeScaleAspectFill;
     bigImageView.userInteractionEnabled = YES;
-    bigImageView.center = self.sizeView.center;
+    bigImageView.center = [[appDelegate window] center];
     bigImageView.image = tappedImageView.image;
     bigImageView.alpha = 0.0f;
     
@@ -501,8 +498,7 @@
     [bigImageView addGestureRecognizer:tapRecognizer_];
     [tapRecognizer_ release];
     
-    [self.view addSubview:bigImageView];
-    
+    [[appDelegate window] addSubview:bigImageView];
     
     [UIView animateWithDuration:1.0f animations:^{
         bigImageView.alpha = 1.0f;

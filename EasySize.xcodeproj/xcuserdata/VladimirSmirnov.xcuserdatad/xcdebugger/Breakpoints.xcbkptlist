@@ -138,11 +138,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "EasySize/MeasureViewController.m"
-         timestampString = "379429096.352327"
+         timestampString = "379701542.734645"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "888"
-         endingLineNumber = "888"
+         startingLineNumber = "884"
+         endingLineNumber = "884"
          landmarkName = "-didTakePicture:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -242,11 +242,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "EasySize/MeasureViewController.m"
-         timestampString = "379429096.352327"
+         timestampString = "379701542.734645"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "905"
-         endingLineNumber = "905"
+         startingLineNumber = "901"
+         endingLineNumber = "901"
          landmarkName = "-didTakePicture:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -255,11 +255,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "EasySize/MeasureViewController.m"
-         timestampString = "379433021.5165"
+         timestampString = "379701542.734645"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "905"
-         endingLineNumber = "905"
+         startingLineNumber = "901"
+         endingLineNumber = "901"
          landmarkName = "-didTakePicture:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -320,11 +320,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "EasySize/MeasureViewController.m"
-         timestampString = "379429096.352327"
+         timestampString = "379701542.734645"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "533"
-         endingLineNumber = "533"
+         startingLineNumber = "529"
+         endingLineNumber = "529"
          landmarkName = "-viewResults"
          landmarkType = "5">
       </FileBreakpoint>
@@ -385,11 +385,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "EasySize/BrandManager.m"
-         timestampString = "379620751.479683"
+         timestampString = "379711777.769862"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "150"
-         endingLineNumber = "150"
+         startingLineNumber = "250"
+         endingLineNumber = "250"
          landmarkName = "-getSizesForBrand:ClothesType:BodyParams:andPersonType:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -398,12 +398,38 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "EasySize/BrandManager.m"
-         timestampString = "379621063.519855"
+         timestampString = "379711777.769862"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "111"
-         endingLineNumber = "111"
+         startingLineNumber = "211"
+         endingLineNumber = "211"
          landmarkName = "-getSizesForBrand:ClothesType:BodyParams:andPersonType:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "EasySize/MeasureViewController.m"
+         timestampString = "379686238.640723"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "487"
+         endingLineNumber = "487"
+         landmarkName = "-infoImageTap:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "EasySize/BrandManager.m"
+         timestampString = "379712518.718044"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "74"
+         endingLineNumber = "74"
+         landmarkName = "-getMeasureParamsForBrand:clothesType:andPersonType:"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

@@ -109,7 +109,7 @@
     NSString *clothesType = [measuredClothesType objectAtIndex:indexPath.row];
     cell.titleLabel.text = NSLocalizedString(clothesType, nil);
     //finding out sizes
-    NSArray *bodyParams = [[BrandManager sharedBrandManager] getMeasureParamsForClothesType:clothesType andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
+    NSArray *bodyParams = [[BrandManager sharedBrandManager] getMeasureParamsForBrand:[self currentBrand] clothesType:clothesType andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
     
     NSMutableDictionary *bodyParamsWithValues = [[NSMutableDictionary alloc] initWithCapacity:[bodyParams count]];
     for (NSString *param in bodyParams) {
