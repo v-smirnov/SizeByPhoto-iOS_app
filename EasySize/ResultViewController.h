@@ -7,58 +7,43 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "HowToMeasureViewController.h"
 #import "NewProfileViewController.h"
-#import "MeasureManager.h"
-#import "DataManager.h"
+#import "VSMeasureManager.h"
+#import "VSProfileManager.h"
 #import <QuartzCore/QuartzCore.h>
 #import "MeasureView.h"
 #import "TipsViewController.h"
-#import "BrandsViewController.h"
 #import "FeedbackViewController.h"
 #import <MessageUI/MessageUI.h>
+#import "Types.h"
+#import "BrandManager.h"
+#import "StartDialogViewController.h"
+#import "MeasureViewController.h"
+#import "StuffCell.h"
+#import "SizesViewController.h"
+#import "Twitter/Twitter.h"
 
-typedef enum
-{
-    standartButton,
-    rootButton
-    
-} backButtonType;
 
-typedef enum
+@interface ResultViewController : UIViewController <UIActionSheetDelegate, MFMailComposeViewControllerDelegate, StartDialogViewControllerDelegate, UIScrollViewDelegate>
 {
-    standartEditButton,
-    noButton
-    
-} editButtonType;
-
-@interface ResultViewController : UIViewController <NewProfileViewControllerDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
-{
-    UIImageView *profileImageView;
-    UILabel *nameLabel;
-    UILabel *sexLabel;
-    UILabel *bodyParamsLabel;
-    backButtonType bButtonType;
-    editButtonType eButtonType;
-    UIScrollView *resultScrollView;
-    NSArray *resultArray;
-    UIButton *fbButton;
-    UIButton *brandsButton;
+    VSMeasureManager    *measureManager;
+    BOOL userTapedOnSaveAsButton;
 }
 
 @property (nonatomic, retain) IBOutlet UIImageView *profileImageView;
 @property (nonatomic, retain) IBOutlet UILabel *nameLabel;
-@property (nonatomic, retain) IBOutlet UILabel *sexLabel;
 @property (nonatomic, retain) IBOutlet UILabel *bodyParamsLabel;
-@property (nonatomic, assign) backButtonType bButtonType;
-@property (nonatomic, assign) editButtonType eButtonType;
-@property (nonatomic, retain) IBOutlet UIScrollView *resultScrollView;
-@property (nonatomic, retain) NSArray *resultArray;
+@property (nonatomic, assign) backButtonType backButton;
+@property (nonatomic, assign) editButtonType editButton;
+@property (nonatomic, retain) NSArray *measuredStuff;
 @property (nonatomic, retain) IBOutlet UIButton *fbButton;
-@property (nonatomic, retain) IBOutlet UIButton *brandsButton;
+@property (nonatomic, retain) IBOutlet UIImageView *genderImageView;
+@property (nonatomic, retain) StartDialogViewController *startDialogController;
+@property (nonatomic, retain) IBOutlet UITableView *stuffTableView;
+
 
 -(IBAction) showTips:(id) sender;
 -(IBAction) showFeedbackOrEmailForm:(id) sender;
--(IBAction) showBrands:(id) sender;
+-(IBAction) editProfileData:(id) sender;
 
 @end

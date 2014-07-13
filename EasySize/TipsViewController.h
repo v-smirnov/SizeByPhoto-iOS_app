@@ -15,17 +15,19 @@
 @end
 
 
-@interface TipsViewController : UIViewController<UIScrollViewDelegate>
+@interface TipsViewController : UIViewController<UIScrollViewDelegate, UIWebViewDelegate>
 {
     UIScrollView *tipsScrollView;
     UIPageControl *pageControl;
     NSInteger numberOfPageToShow;
+    UIActivityIndicatorView *activityIndicator;
 }
 
 @property (assign, nonatomic) id <TipsViewControllerDelegate> delegate;
 @property (assign, nonatomic) NSInteger numberOfPageToShow;
 @property (nonatomic, retain) IBOutlet UIScrollView *tipsScrollView;
 @property (nonatomic, retain) IBOutlet UIPageControl *pageControl;
+@property (nonatomic, retain) IBOutlet UIActivityIndicatorView *activityIndicator;
 
 - (IBAction)done:(id)sender;
 - (IBAction)changePage;

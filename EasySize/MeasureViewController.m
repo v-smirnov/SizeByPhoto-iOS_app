@@ -37,10 +37,10 @@
     self.activityIndicator = nil;
     self.infoButton = nil;
     self.overlayViewController = nil;
-    [allStuffToMeasureDictionary release]; allStuffToMeasureDictionary = nil;
-    [measureObjects release]; measureObjects = nil;
     [photosDictionary release]; photosDictionary = nil;
     [firstPhotoMeasuresDictionary release]; firstPhotoMeasuresDictionary = nil;
+    [measureManager release]; measureManager = nil;
+    [featuresOnPhotos release]; featuresOnPhotos = nil;
     
 }
 
@@ -49,14 +49,14 @@
     [sizeView release];
     [linImageView release];
     [whatToMeasureArray release];
-    [allStuffToMeasureDictionary release];
-    [measureObjects release];
     [sizesScrollView release];
     [infoButton release];
     [activityIndicator release];
     [photosDictionary release];
     [firstPhotoMeasuresDictionary release];
     [overlayViewController release];
+    [measureManager release];
+    [featuresOnPhotos release];
     [super dealloc];
     
 }
@@ -66,13 +66,17 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     self.pickingCanceled = NO;
-    measureDidFail = NO;
-      
+    
+    PersonKind pKind = [[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind];
+    measureManager = [[VSMeasureManager alloc] initWithPersonKind:pKind];
+    
+    /*
     UIBarButtonItem *resultButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Result", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(viewResults)] ;
     self.navigationItem.rightBarButtonItem = resultButton;
     [resultButton release];
-
-
+     */
+    
+    self.title = NSLocalizedString(@"Measuring", nil);
     
     UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panDetected:)];
     [self.sizeView addGestureRecognizer:panRecognizer];
@@ -88,6 +92,7 @@
     [self.sizeView addGestureRecognizer:rotationRecognizer];
     rotationRecognizer.delegate = self;
     [rotationRecognizer release];
+    
     
     
     // initializing overlay view controller (custom camera)
@@ -107,53 +112,62 @@
         [overlayController release];
     }
 
-    
-    allStuffToMeasureDictionary = [[[MeasureManager sharedMeasureManager] getClothesMeasureParamsForPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]] retain];
-    
+
     // preparing all human body parts to measure
-    NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *unsortedMeasureParams = [[NSMutableDictionary alloc] init];
     
-    for (NSString *object in self.whatToMeasureArray) {
-        NSMutableArray *tmpArray = [allStuffToMeasureDictionary objectForKey:object];
-        for (NSMutableArray *mArray in tmpArray) {
-            if ([tempDict objectForKey:[mArray objectAtIndex:0]] == nil){
-                [tempDict setObject:[mArray objectAtIndex:0] forKey:[mArray objectAtIndex:0]];
+    if (!self.whatToMeasureArray){
+        NSMutableArray *stuffToFindOutSize = [[NSMutableArray alloc] initWithArray:[measureManager getStuffForSizeDefining]];
+        self.whatToMeasureArray = stuffToFindOutSize;
+        [stuffToFindOutSize release];
+    }
+    
+    for (NSString *stuff in self.whatToMeasureArray) {
+        NSArray *measureParams = [measureManager getMeasureParamsForStuffType:stuff];
+        for (NSMutableArray *param in measureParams) {
+            if ([unsortedMeasureParams objectForKey:param] == nil){
+                [unsortedMeasureParams setObject:param forKey:param];
             }
         }
     }
     
-    measureObjects = [[NSMutableArray alloc] init];
+    NSMutableArray *sortedMeasureParams = [[NSMutableArray alloc] init];
     //sorting measure params
-    NSArray *orderedMeasureParams = [[MeasureManager sharedMeasureManager] getOrderedMeasureParams];
+    NSArray *orderedMeasureParams = [measureManager getOrderedMeasureParams];
     for (NSString *param in orderedMeasureParams) {
-        if ([tempDict objectForKey:param] != nil){
-            [measureObjects addObject:param];
+        if ([unsortedMeasureParams objectForKey:param] != nil){
+            [sortedMeasureParams addObject:param];
         }
             
     }
     
-    [tempDict release];
+    [unsortedMeasureParams release];
     //
     
-    self.sizesScrollView.contentSize = CGSizeMake(self.sizesScrollView.frame.size.width , self.sizesScrollView.frame.size.height * [measureObjects count]);
+    self.sizesScrollView.contentSize = CGSizeMake(self.sizesScrollView.frame.size.width , self.sizesScrollView.frame.size.height * [sortedMeasureParams count]);
     
         
-    self.sizesScrollView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"background.png"]];
+    //self.sizesScrollView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"photo_screen_size_area.png"]];
     self.sizesScrollView.delegate = self;
 
 
-    for (int i = 0; i < [measureObjects count]; i++) {
+    for (int i = 0; i < [sortedMeasureParams count]; i++) {
         
-        [self createScrollViewScreenWithTag:i andKey:[measureObjects objectAtIndex:i]];
+        [self createScrollViewScreenWithTag:i key:[sortedMeasureParams objectAtIndex:i] andMeasureParamsCount:[sortedMeasureParams count]];
     }
+    
+    [sortedMeasureParams release];
     
     photosDictionary = [[NSMutableDictionary alloc] initWithCapacity:2];
     firstPhotoMeasuresDictionary = [[NSMutableDictionary alloc] init];
+    featuresOnPhotos = [[NSMutableDictionary alloc] initWithCapacity:2];
     
     currentAngle = 0.0f;
     distanceBetweenEyes = -1.0f;
     
     distBwtEyesInSm  = 6.5f;
+    
+    currentPictureMode = main;
 }
 
 -(void)viewDidAppear:(BOOL)animated
@@ -161,7 +175,7 @@
     [super viewDidAppear:animated];
     if ((self.sizeView.image == nil) && (self.pickingCanceled == NO) && (![photosDictionary objectForKey:@"firstPhoto"]))
     {
-        [self showImagePicker:self.source forPictureMode:0]; //0 - main mode 
+        [self showImagePicker:self.source];
     }
     else
     {
@@ -181,110 +195,333 @@
      return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
-#pragma mark selectors
-- (void) performActionFromTheList
-{
-    /*
-    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
-    {
-        UIActionSheet *startSheet = [[UIActionSheet alloc]
-                                     initWithTitle:NSLocalizedString(@"Choose the action", nil)
-                                     delegate:self
-                                     cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
-                                     destructiveButtonTitle:nil
-                                     otherButtonTitles:NSLocalizedString(@"Take a new photo", nil),
-                                     NSLocalizedString(@"Choose existing photo", nil), NSLocalizedString(@"View result", nil), nil];
-        
-        [startSheet showInView:self.view];
-        [startSheet release];
-    }
-    else
-    {
-        UIActionSheet *startSheet = [[UIActionSheet alloc]
-                                     initWithTitle:NSLocalizedString(@"Choose the action", nil)
-                                     delegate:self
-                                     cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
-                                     destructiveButtonTitle:nil
-                                     otherButtonTitles:NSLocalizedString(@"Choose existing photo", nil), NSLocalizedString(@"View result", nil), nil];
-        
-        [startSheet showInView:self.view];
-        [startSheet release];
-        
-    }
-     */
-    UIActionSheet *startSheet = [[UIActionSheet alloc]
-                                 initWithTitle:NSLocalizedString(@"Choose the action", nil)
-                                 delegate:self
-                                 cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
-                                 destructiveButtonTitle:nil
-                                 otherButtonTitles:NSLocalizedString(@"View result", nil), nil];
-    
-    [startSheet showInView:self.view];
-    [startSheet release];
-
-}
-
 
 #pragma mark help funtions
 
-- (NSString *) getTipsImageNameForBodyPart:(NSString *)bodyPart mode:(NSInteger) mode
+-(float) getMeasureAdjustmentForPersonKind:(PersonKind) personKind bodyPart:(NSString *) bodyPart angle:(float) angle cameraDirection:(NSInteger) cDirection
 {
-    NSString *imageName = @"";
-    if (mode == 0) // main
-    {
-        imageName = [bodyPart stringByAppendingString:@"_"];
-        imageName = [imageName  stringByAppendingString:[NSString stringWithFormat:@"%d", [[MeasureManager sharedMeasureManager] getCurrentProfileGender]]];
-    }
-    else if (mode == 1) //side
-    {
-        imageName = [bodyPart stringByAppendingString:@"_side_"];
-        imageName = [imageName  stringByAppendingString:[NSString stringWithFormat:@"%d", [[MeasureManager sharedMeasureManager] getCurrentProfileGender]]];
-
+    NSInteger intAngle = roundf(angle);
+    
+    if (intAngle > angle){
+        intAngle = intAngle - 1;
     }
     
-    //NSLog(@"%@", imageName);
+    float delta = 5 - (intAngle % 5)+ angle - intAngle;
+    
+    float adjustment = 0;
+    
+    if (personKind == Man){
+        if ([bodyPart  isEqual: CHEST]){
+            if (cDirection == FORWARD_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = (0.001f * delta) + 1.0f;
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = (0.0016f * delta) + 1.005f;
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = (0.01f * delta) + 1.013f;
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = (0.004f * delta) + 1.063f;
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = (0.004f * delta) + 1.083f;
+                }
+            }
+            else if (cDirection == BACK_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = 1 - (0.002f * delta);
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = 0.990f - (0.004f * delta);
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = 0.970f - (0.006f * delta);
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = 0.940f - (0.008f * delta);
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = 0.900f - (0.01f * delta);
+                }
+                else if ((angle < 65) && (angle >=60)) {
+                    adjustment = 0.850f - (0.012f * delta);
+                }
+                
+            }
+        }
+        else if ([bodyPart  isEqual: WAIST]){
+            if (cDirection == FORWARD_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = (0.006f * delta) + 1.0f;
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = (0.004f * delta) + 1.03f;
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = (0.01f * delta) + 1.05f;
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = (0.01f * delta) + 1.1f;
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = (0.01f * delta) + 1.15f;
+                }
+            }
+            else if (cDirection == BACK_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = 1 - (0.0045f * delta);
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = 0.9775f - (0.006f * delta);
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = 0.9475f - (0.008f * delta);
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = 0.9075f - (0.0095f * delta);
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = 0.86f - (0.011f * delta);
+                }
+                else if ((angle < 65) && (angle >=60)) {
+                    adjustment = 0.805f - (0.012f * delta);
+                }
+                
+            }
+            
+        }
+
+        else if ([bodyPart  isEqual: HIPS]){
+            if (cDirection == FORWARD_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = (0.011f * delta) + 1.0f;
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = (0.004f * delta) + 1.055f;
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = (0.015f * delta) + 1.077f;
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = (0.011f * delta) + 1.152f;
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = (0.008f * delta) + 1.207f;
+                }
+            }
+            else if (cDirection == BACK_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = 1 - (0.006f * delta);
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = 0.97f - (0.009f * delta);
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = 0.925f - (0.012f * delta);
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = 0.875f - (0.014f * delta);
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = 0.805f - (0.015f * delta);
+                }
+            }
+        }
+        
+    }
+    else if (personKind == Woman){
+        
+        if ([bodyPart  isEqual: CHEST]){
+            if (cDirection == FORWARD_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = (0.001f * delta) + 1.0f;
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = (0.0016f * delta) + 1.005f;
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = (0.01f * delta) + 1.013f;
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = (0.004f * delta) + 1.063f;
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = (0.004f * delta) + 1.083f;
+                }
+            }
+            else if (cDirection == BACK_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = 1 - (0.002f * delta);
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = 0.990f - (0.004f * delta);
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = 0.970f - (0.006f * delta);
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = 0.940f - (0.008f * delta);
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = 0.900f - (0.01f * delta);
+                }
+                else if ((angle < 65) && (angle >=60)) {
+                    adjustment = 0.850f - (0.012f * delta);
+                }
+                
+            }
+        }
+        else if ([bodyPart  isEqual: WAIST]){
+            if (cDirection == FORWARD_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = (0.006f * delta) + 1.0f;
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = (0.004f * delta) + 1.03f;
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = (0.01f * delta) + 1.05f;
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = (0.01f * delta) + 1.1f;
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = (0.01f * delta) + 1.15f;
+                }
+            }
+            else if (cDirection == BACK_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = 1 - (0.0045f * delta);
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = 0.9775f - (0.006f * delta);
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = 0.9475f - (0.008f * delta);
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = 0.9075f - (0.0095f * delta);
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = 0.86f - (0.011f * delta);
+                }
+                else if ((angle < 65) && (angle >=60)) {
+                    adjustment = 0.805f - (0.012f * delta);
+                }
+                
+            }
+            
+        }
+        
+        else if ([bodyPart  isEqual: HIPS]){
+            if (cDirection == FORWARD_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = (0.011f * delta) + 1.0f;
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = (0.004f * delta) + 1.055f;
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = (0.015f * delta) + 1.077f;
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = (0.011f * delta) + 1.152f;
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = (0.008f * delta) + 1.207f;
+                }
+            }
+            else if (cDirection == BACK_D){
+                if ((angle < 90) && (angle >=85)){
+                    adjustment = 1 - (0.006f * delta);
+                }
+                else if ((angle < 85) && (angle >=80)) {
+                    adjustment = 0.97f - (0.009f * delta);
+                }
+                else if ((angle < 80) && (angle >=75)) {
+                    adjustment = 0.925f - (0.012f * delta);
+                }
+                else if ((angle < 75) && (angle >=70)) {
+                    adjustment = 0.875f - (0.014f * delta);
+                }
+                else if ((angle < 70) && (angle >=65)) {
+                    adjustment = 0.805f - (0.015f * delta);
+                }
+            }
+        }
+        
+        
+    }
+    
+    return adjustment;
+}
+
+
+
+ - (void) showAndHideCurrentTip
+{
+    
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:NUMBER_OF_TIPS_LAUNCHES]){
+        
+        NSInteger num = [[[NSUserDefaults standardUserDefaults] objectForKey:NUMBER_OF_TIPS_LAUNCHES] integerValue];
+        if (num >= 3){
+            return;
+        }
+        
+    }
+    
+    NSInteger page = [self getScrollViewCurrentPage:self.sizesScrollView];
+    
+    TextFieldWithKey *currentView = (TextFieldWithKey *)[self.view viewWithTag:50+page];
+    
+    TutorialViewController *controller = [[TutorialViewController alloc] initWithNibName:@"TutorialView" bundle:nil];
+    //controller.delegate = self;
+    controller.bodyPartForAnimation = currentView.key;
+    controller.personKind = [[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind];
+    controller.pictureMode = currentPictureMode;
+    controller.closeViewWhenAminationEnds = YES;
+    controller.delegate = self;
+    controller.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    [self presentViewController:controller animated:YES completion:NULL];
+    [controller release];
+    
+   
+}
+
+
+- (NSString *) getTipsImageNameForBodyPart:(NSString *)bodyPart mode:(pictureMode) mode
+{
+    NSString *imageName = @"";
+    if (mode == main)
+    {
+        imageName = [bodyPart stringByAppendingString:@"_"];
+        imageName = [imageName  stringByAppendingString:[NSString stringWithFormat:@"%ld", (long)[[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind]]];
+    }
+    else if (mode == side) 
+    {
+        imageName = [bodyPart stringByAppendingString:@"_side_"];
+        imageName = [imageName  stringByAppendingString:[NSString stringWithFormat:@"%ld", (long)[[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind]]];
+
+    }
+
     return imageName;
 }
 
-- (void) createScrollViewScreenWithTag:(NSInteger ) tag andKey:(NSString *) key
+- (void) createScrollViewScreenWithTag:(NSInteger ) tag key:(NSString *) key andMeasureParamsCount:(NSInteger) count
 {
     
-    // label
-    UILabel *hintLabel = [[UILabel alloc] initWithFrame: CGRectMake(0, self.sizesScrollView.frame.size.height*tag+5, 110, self.sizesScrollView.frame.size.height-10)];
-    hintLabel.textColor = [UIColor blackColor];
-    hintLabel.font = [UIFont systemFontOfSize:13.0f];
-    hintLabel.backgroundColor = [UIColor clearColor];
-    hintLabel.numberOfLines = 0;
-    hintLabel.lineBreakMode = UILineBreakModeWordWrap;
-    hintLabel.textAlignment =UITextAlignmentCenter;
-    hintLabel.text = [NSString stringWithFormat:@"(%d %@ %d) %@", tag+1, NSLocalizedString(@"of", nil), [measureObjects count], NSLocalizedString(key, nil)];
-    
-    [self.sizesScrollView addSubview:hintLabel];
-    [hintLabel release];
-
-    //text view
-    TextFieldWithKey *tmpTextField = [[TextFieldWithKey alloc] initWithFrame: CGRectMake(115, self.sizesScrollView.frame.size.height*tag+5, 70, self.sizesScrollView.frame.size.height-10)];
-    tmpTextField.tag = tag + 50;
-    tmpTextField.backgroundColor = [UIColor whiteColor];
-    tmpTextField.borderStyle = UITextBorderStyleLine;
-    tmpTextField.enabled = NO;
-    tmpTextField.textAlignment = UITextAlignmentCenter;
-    //tmpTextField.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-    tmpTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-    tmpTextField.font = [UIFont systemFontOfSize:14.0f];
-    tmpTextField.key = key;
-    [self.sizesScrollView addSubview:tmpTextField];
-    
-    [tmpTextField release];
-    
+    /*
     //info image
-    ImageViewWithKey *infoImageView = [[ImageViewWithKey alloc] initWithFrame:CGRectMake(195, self.sizesScrollView.frame.size.height*tag+5, 30, self.sizesScrollView.frame.size.height-10)];
-    infoImageView.contentMode = UIViewContentModeScaleAspectFit;
+    ImageViewWithKey *infoImageView = [[ImageViewWithKey alloc] initWithFrame:CGRectMake(5, self.sizesScrollView.frame.size.height*tag+7, 40, 40)];
+    infoImageView.contentMode = UIViewContentModeScaleToFill;
     //infoImageView.layer.masksToBounds = YES;
     //infoImageView.layer.cornerRadius = 5.0f;
     infoImageView.key = key;
+    infoImageView.imageName = [self getTipsImageNameForBodyPart:key mode:main];
     infoImageView.userInteractionEnabled = YES;
-    infoImageView.image = [UIImage imageNamed:[self getTipsImageNameForBodyPart:key mode:0]];
+    infoImageView.image = [UIImage imageNamed:@"infoBtn"];//[UIImage imageNamed:@"front_small_body.png"];
     
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(infoImageTap:)];
     tapRecognizer.numberOfTapsRequired = 1;
@@ -293,158 +530,214 @@
     
     [self.sizesScrollView addSubview:infoImageView];
     [infoImageView release];
+     */
 
     //button
+    UIButton *backButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [backButton setBackgroundImage:[UIImage imageNamed:@"photo_screen_btn.png"] forState:UIControlStateNormal];
+    [backButton setFrame:CGRectMake(10, self.sizesScrollView.frame.size.height*tag+15, 70, self.sizesScrollView.frame.size.height-22)];
+    backButton.titleLabel.font = [UIFont fontWithName:BUTTON_FONT size:PHOTO_SCREEN_BUTTON_FONT_SIZE];
+    [backButton setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+    [backButton setTitle:NSLocalizedString(@"Back", nil) forState:UIControlStateNormal];
+    [backButton addTarget:self action:@selector(scrollToPreviousStuff) forControlEvents:UIControlEventTouchUpInside];
+    [self.sizesScrollView addSubview:backButton];
+
+    
+    
+    UIImageView *placeholderImageView = [[UIImageView alloc] initWithFrame:CGRectMake(50, self.sizesScrollView.frame.size.height*tag+15, self.sizesScrollView.frame.size.width-80-50-10, self.sizesScrollView.frame.size.height-22)];
+    //placeholderImageView.image = [UIImage imageNamed: @"photo_screen_measurement area.png"];
+    placeholderImageView.contentMode = UIViewContentModeScaleToFill;
+    
+    
+    // label
+    //UILabel *hintLabel = [[UILabel alloc] initWithFrame: CGRectMake(55, self.sizesScrollView.frame.size.height*tag+15, placeholderImageView.frame.size.width/2+placeholderImageView.frame.size.width/4-10, self.sizesScrollView.frame.size.height-22)];
+    UILabel *hintLabel = [[UILabel alloc] initWithFrame: CGRectMake(0, self.sizesScrollView.frame.size.height*tag+15, self.sizesScrollView.frame.size.width, self.sizesScrollView.frame.size.height-22)];
+    hintLabel.textColor = [UIColor darkGrayColor];
+    hintLabel.font = [UIFont systemFontOfSize:20.0f];
+    hintLabel.backgroundColor = [UIColor clearColor];
+    hintLabel.numberOfLines = 0;
+    hintLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    hintLabel.textAlignment =NSTextAlignmentCenter;
+    //hintLabel.text = [NSString stringWithFormat:@"(%d %@ %d) %@", tag+1, NSLocalizedString(@"of", nil), count, NSLocalizedString(key, nil)];
+    hintLabel.text = NSLocalizedString(key, nil);
+    
+    [self.sizesScrollView addSubview:hintLabel];
+    [hintLabel release];
+    
+    //label that show number of measures
+    UILabel *countInfoLabel = [[UILabel alloc] initWithFrame: CGRectMake(0, self.sizesScrollView.frame.size.height*tag+3, self.sizesScrollView.frame.size.width, 13)];
+    countInfoLabel.textColor = MAIN_THEME_COLOR;
+    countInfoLabel.font = [UIFont systemFontOfSize:11.0f];
+    countInfoLabel.backgroundColor = [UIColor clearColor];
+    countInfoLabel.numberOfLines = 0;
+    countInfoLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    countInfoLabel.textAlignment =NSTextAlignmentCenter;
+    countInfoLabel.text = [NSString stringWithFormat:@"%ld %@ %ld", (long)tag+1, NSLocalizedString(@"of", nil), (long)count];
+    
+    [self.sizesScrollView addSubview:countInfoLabel];
+    [countInfoLabel release];
+
+    
+    //text view
+    TextFieldWithKey *tmpTextField = [[TextFieldWithKey alloc] initWithFrame: CGRectMake(55+placeholderImageView.frame.size.width - placeholderImageView.frame.size.width/4-10, self.sizesScrollView.frame.size.height*tag+15, placeholderImageView.frame.size.width/4, self.sizesScrollView.frame.size.height-22)];
+    tmpTextField.tag = tag + 50;
+    tmpTextField.backgroundColor = [UIColor clearColor];
+    tmpTextField.borderStyle = UITextBorderStyleNone;
+    tmpTextField.enabled = NO;
+    tmpTextField.hidden = YES;
+    tmpTextField.textAlignment = NSTextAlignmentCenter;
+    //tmpTextField.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
+    tmpTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    tmpTextField.font = [UIFont fontWithName:MEASURE_VALUE_TEXT_FONT size:MEASURE_VALUE_TEXT_FONT_SIZE];
+    [tmpTextField setTextColor:[UIColor colorWithRed:0.4f green:0.0f blue:0.6f alpha:1.0f]];
+    tmpTextField.key = key;
+    [self.sizesScrollView addSubview:tmpTextField];
+    
+    [tmpTextField release];
+    
+    
+    [self.sizesScrollView addSubview:placeholderImageView];
+    [placeholderImageView release];
+    
+    //button
     UIButton *tmpButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [tmpButton setBackgroundImage:[UIImage imageNamed:@"grayBtnBackground.png"] forState:UIControlStateNormal];
-    [tmpButton setFrame:CGRectMake(self.sizesScrollView.frame.size.width-60, self.sizesScrollView.frame.size.height*tag+5, 50, self.sizesScrollView.frame.size.height-10)];
-    tmpButton.titleLabel.font = [UIFont systemFontOfSize:10];
-    [tmpButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [tmpButton setTitle:NSLocalizedString(@"Done", nil) forState:UIControlStateNormal];
+    [tmpButton setBackgroundImage:[UIImage imageNamed:@"photo_screen_btn.png"] forState:UIControlStateNormal];
+    [tmpButton setFrame:CGRectMake(self.sizesScrollView.frame.size.width-80, self.sizesScrollView.frame.size.height*tag+15, 70, self.sizesScrollView.frame.size.height-22)];
+    tmpButton.titleLabel.font = [UIFont fontWithName:BUTTON_FONT size:PHOTO_SCREEN_BUTTON_FONT_SIZE];
+    [tmpButton setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+    [tmpButton setTitle:NSLocalizedString(@"OK", nil) forState:UIControlStateNormal];
     [tmpButton addTarget:self action:@selector(addMeasure) forControlEvents:UIControlEventTouchUpInside];
     [self.sizesScrollView addSubview:tmpButton];
+
 }
 
-- (void) showAlertDialogWithTitle:(NSString *) title andMessage:(NSString *) message{
+- (void) showAlertDialogWithTitle:(NSString *) title andMessage:(NSString *) message
+{
     UIAlertView* alert = [[UIAlertView alloc]
                           initWithTitle:NSLocalizedString(title, nil)
                           message:NSLocalizedString(message, nil)
                           delegate:self
-                          cancelButtonTitle:@"OK"
+                          cancelButtonTitle:NSLocalizedString(@"OK",nil)
                           otherButtonTitles:nil];
     [alert show];
     [alert release];
 }
 
-- (void)showImagePicker:(UIImagePickerControllerSourceType)sourceType forPictureMode:(NSInteger) pMode
+- (void)showImagePicker:(UIImagePickerControllerSourceType)sourceType
 {
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    [appDelegate setImagePickerControllerIsActive:TRUE];
+    //AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    //[appDelegate setImagePickerControllerIsActive:TRUE];
     
-    [self.overlayViewController setupImagePicker:sourceType forPictureMode:(NSInteger) pMode];
+    [self.overlayViewController setupImagePicker:sourceType];
     [self presentViewController:self.overlayViewController.imagePickerController animated:YES completion:NULL];
+    
+    NSString *imageName = @"";
+    if (sourceType == UIImagePickerControllerSourceTypeCamera){
+        if ([[UIScreen mainScreen] bounds].size.height == 568){
+            imageName = @"contour568_new.png";
+        }
+        else{
+            imageName = @"contour_new.png";
+        }
+        
+        [self.overlayViewController setContourImage:[UIImage imageNamed:@"contour"]];
+    }
+    else{
+        if ([[UIScreen mainScreen] bounds].size.height == 568){
+            imageName = @"contour568_existing.png";
+        }
+        else{
+            imageName = @"contour_existing.png";
+        }
+    }
+    
+    [self.overlayViewController setTipsContourImage:[UIImage imageNamed:imageName]];
     
 }
 
 
-- (void) processPhoto:(NSArray *) features
+- (void) processFeatures:(NSArray *) features
 {
     self.linImageView.image = nil;
     self.linImageView = nil;
     currentAngle = 0.0f;
+    leftEyePosition = CGPointMake(0.0f, 0.0f);
     
-    BOOL eyesRecognized = NO;
+    CIFaceFeature *feature = [features objectAtIndex:0];
     
-    NSString *failMessage = nil;
+    distanceBetweenEyes = feature.rightEyePosition.x-feature.leftEyePosition.x;
+    leftEyePosition     = CGPointMake(feature.leftEyePosition.x, self.sizeView.frame.size.height - feature.leftEyePosition.y);
+                
+    float rulerWidth = distanceBetweenEyes*4.0f;
+    float rulerHeight = distanceBetweenEyes/2.5f;
+               
+    CGPoint rulerCenter = CGPointMake(self.view.center.x, self.view.center.y);
     
-    if ([features count] > 1)
+    CGRect rulerRect = CGRectMake(rulerCenter.x-rulerWidth/2, rulerCenter.y-rulerHeight/2, rulerWidth, rulerHeight);
+    
+    
+    
+    if (self.linImageView == nil)
     {
-        failMessage = @"There are too many people on the photo or bad conditions!";
+        
+        UIImageView *tmpImageView = [[UIImageView alloc] initWithFrame:rulerRect];
+        self.linImageView = tmpImageView;
+        [tmpImageView release];
+        [self.linImageView setCenter:rulerCenter];
+        self.linImageView.image = [UIImage imageNamed:@"ruler.png"];
+        self.linImageView.alpha = 0;
+        [self.sizeView addSubview:self.linImageView];
+        
     }
     else
     {
-        for (CIFaceFeature *feature in features)
+        if (self.linImageView.image  == nil)
         {
-            
-            if ((feature.hasRightEyePosition) & (feature.hasLeftEyePosition) & (feature.hasMouthPosition))
-            {
-                
-                eyesRecognized = YES;
-                distanceBetweenEyes = feature.rightEyePosition.x-feature.leftEyePosition.x;
-                
-                
-                float rulerWidth = distanceBetweenEyes*4.0f;
-                float rulerHeight = distanceBetweenEyes/2.5f;
-               
-                CGPoint rulerCenter = CGPointMake(self.view.center.x, self.view.center.y);
-                
-                CGRect rulerRect = CGRectMake(rulerCenter.x-rulerWidth/2, rulerCenter.y-rulerHeight/2, rulerWidth, rulerHeight);
-                
-                
-                
-                if (self.linImageView == nil)
-                {
-                    
-                    UIImageView *tmpImageView = [[UIImageView alloc] initWithFrame:rulerRect];
-                    self.linImageView = tmpImageView;
-                    [tmpImageView release];
-                    [self.linImageView setCenter:rulerCenter];
-                    self.linImageView.image = [UIImage imageNamed:@"ruler.png"];
-                    self.linImageView.alpha = 0;
-                    [self.sizeView addSubview:self.linImageView];
-                    
-                }
-                else
-                {
-                    if (self.linImageView.image  == nil)
-                    {
-                        self.linImageView.image = [UIImage imageNamed:@"ruler.png"];
-                    }
-                    self.linImageView.alpha = 0;
-                    [self.linImageView setFrame:rulerRect];
-                    [self.linImageView setCenter:rulerCenter];
-                    if (self.linImageView.superview == nil)
-                    {
-                        [self.sizeView addSubview:self.linImageView];
-                    }
-                }
-                
-                
-                
-            }
+            self.linImageView.image = [UIImage imageNamed:@"ruler.png"];
+        }
+        self.linImageView.alpha = 0;
+        [self.linImageView setFrame:rulerRect];
+        [self.linImageView setCenter:rulerCenter];
+        if (self.linImageView.superview == nil)
+        {
+            [self.sizeView addSubview:self.linImageView];
         }
     }
     
-    [self.activityIndicator stopAnimating];
-    // eyes don't recognized
-    if (eyesRecognized == NO)
-    {
-        self.sizeView.image = nil;
-        self.linImageView.image = nil;
-        measureDidFail = YES;
+    
+    
+    /*
+    UIView *eyeView = [self.sizeView viewWithTag:100];
+    if (!eyeView){
+        eyeView = [[UIView alloc] init];
+        eyeView.frame = CGRectMake(0, 0, (distanceBetweenEyes/2) * 0.373f, (distanceBetweenEyes/2) * 0.373f);
+        eyeView.center = leftEyePosition;
+        eyeView.alpha = 0.3f;
+        eyeView.tag = 100;
+        eyeView.backgroundColor =[UIColor whiteColor];
+        [self.sizeView addSubview:eyeView];
+    }
+    else{
+        eyeView.frame = CGRectMake(0, 0, (distanceBetweenEyes/2) * 0.373f, (distanceBetweenEyes/2) * 0.373f);
+        eyeView.center = leftEyePosition;
+    }
+    */
+    
+    
+    self.sizesScrollView.hidden = NO;
+    self.infoButton.hidden = NO;
+    
+    [UIView animateWithDuration:1.2f animations:^{
+        self.linImageView.alpha = 0.6;
+        self.sizesScrollView.alpha = 0.8f;
+        self.infoButton.alpha = 1.0f;
         
-        if (!failMessage)
-        {
-            failMessage = @"Can't see the body";
-        }
+    }
+    completion:^(BOOL finished) {
+        //[self setRulerPosition:self.linImageView];
+    }];
+    
 
-        [self showAlertDialogWithTitle:@"Warning" andMessage:failMessage];
-    }
-    else {
-        measureDidFail = NO;
-        /*
-        UIView *eyeView = [self.sizeView viewWithTag:100];
-        if (!eyeView){
-            eyeView = [[UIView alloc] init];
-            eyeView.frame = CGRectMake(0, 0, (distanceBetweenEyes/2) * 0.373f, (distanceBetweenEyes/2) * 0.373f);
-            eyeView.center = leftEyePos;
-            eyeView.alpha = 0.3f;
-            eyeView.tag = 100;
-            eyeView.backgroundColor =[UIColor whiteColor];
-            [self.sizeView addSubview:eyeView];
-        }
-        else{
-            eyeView.frame = CGRectMake(0, 0, (distanceBetweenEyes/2) * 0.373f, (distanceBetweenEyes/2) * 0.373f);
-            eyeView.center = leftEyePos;
-        }
-         */
-        
-        
-        self.sizesScrollView.hidden = NO;
-        self.infoButton.hidden = NO;
-        
-        [UIView animateWithDuration:1.2f animations:^{
-            self.linImageView.alpha = 0.6;
-            self.sizesScrollView.alpha = 0.8f;
-            self.infoButton.alpha = 1.0f;
-            
-        }
-        completion:^(BOOL finished) {
-             
-        }];
-        
-    }
-    
 }
 
 - (float) getValueFromTextFieldWithKey:(NSString *) key
@@ -453,7 +746,6 @@
         if ([tmpView isKindOfClass:[TextFieldWithKey class]]){
             NSString *textFieldKey = ((TextFieldWithKey *)tmpView).key;
             if ([textFieldKey isEqualToString:key]){
-                //NSLog(@"View key - %@, value - %f", ((TextFieldWithKey *)tmpView).key, [((TextFieldWithKey *)tmpView).text floatValue]);
                 return [((TextFieldWithKey *)tmpView).text floatValue];
             }
         }
@@ -468,136 +760,165 @@
     return  floor((scrollView.contentOffset.y - pageHeight / 2) / pageHeight) + 1;
 }
 
+- (void) setRulerPosition:(UIImageView *) ruler
+{
+    NSInteger page = [self getScrollViewCurrentPage:self.sizesScrollView];
+    TextFieldWithKey *currentView = (TextFieldWithKey *)[self.view viewWithTag:50+page];
+    NSString *currentBodyPart = currentView.key;
+    
+    CGPoint newRulerCenter = CGPointMake(self.view.center.x, self.view.center.y);
+    
+    if ([currentBodyPart isEqualToString:CHEST]){
+        newRulerCenter = CGPointMake(leftEyePosition.x+distanceBetweenEyes/2, leftEyePosition.y+distanceBetweenEyes*5.5f);
+    }
+    else if ([currentBodyPart isEqualToString:UNDER_CHEST]){
+        newRulerCenter = CGPointMake(leftEyePosition.x+distanceBetweenEyes/2, leftEyePosition.y+distanceBetweenEyes*6.5f);
+    }
+    else if ([currentBodyPart isEqualToString:WAIST]){
+        newRulerCenter = CGPointMake(leftEyePosition.x+distanceBetweenEyes/2, leftEyePosition.y+distanceBetweenEyes*8.0f);
+    }
+    else if ([currentBodyPart isEqualToString:HIPS]){
+        newRulerCenter = CGPointMake(leftEyePosition.x+distanceBetweenEyes/2, leftEyePosition.y+distanceBetweenEyes*11.0f);
+    }
+    
+    [UIView animateWithDuration:1.2f animations:^{
+        ruler.center = newRulerCenter;
+    }
+         completion:^(BOOL finished) {
+             
+         }];
+    
+}
+
 #pragma mark actions
+
+
+- (void) scrollToPreviousStuff
+{
+    NSInteger page = [self getScrollViewCurrentPage:self.sizesScrollView];
+    if (page > 0) {
+        CGRect currentFrame = self.sizesScrollView.frame;
+        currentFrame.origin.y = currentFrame.size.height * (page-1);
+        [self.sizesScrollView scrollRectToVisible:currentFrame animated:YES];
+    }
+    else if ((page == 0) && (self.sizeView.image == [photosDictionary objectForKey:@"secondPhoto"])){
+        self.sizeView.image = [photosDictionary objectForKey:@"firstPhoto"];
+        [self processFeatures:[featuresOnPhotos objectForKey:@"featuresOnFirstPhoto"]];
+    }
+  
+
+    
+}
+
 - (IBAction) showTips:sender
 {
+    /*
     TipsViewController *controller = [[TipsViewController alloc] initWithNibName:@"TipsView" bundle:nil];
     controller.numberOfPageToShow = 3;
     [self.navigationController pushViewController:controller animated:YES];
     [controller release];
+    */
     
+    
+    NSInteger currentPage = [self getScrollViewCurrentPage:self.sizesScrollView];
+    TextFieldWithKey *currentField = (TextFieldWithKey *)[self.sizesScrollView viewWithTag:50+currentPage];
+    
+    if (currentField){
+        [[LocalyticsSession shared] tagEvent:@"Photo tip tapped"];
+
+        TutorialViewController *controller = [[TutorialViewController alloc] initWithNibName:@"TutorialView" bundle:nil];
+        //controller.delegate = self;
+        controller.bodyPartForAnimation = currentField.key;
+        controller.personKind = [[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind];
+        controller.pictureMode = currentPictureMode;
+        controller.closeViewWhenAminationEnds = NO;
+        controller.delegate = self;
+        controller.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+        [self presentViewController:controller animated:YES completion:NULL];
+        [controller release];
+    }
 }
 
 - (void)infoImageTap:(UITapGestureRecognizer *)tapRecognizer
 {
-    UIImageView *tappedImageView = (UIImageView *)tapRecognizer.view;
     
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[LocalyticsSession shared] tagEvent:@"Photo tip tapped"];
     
-    CGRect newFrame = [[UIScreen mainScreen] bounds];
-    
-    UIImageView *bigImageView = [[UIImageView alloc] initWithFrame:newFrame];
-    bigImageView.contentMode = UIViewContentModeScaleAspectFill;
-    bigImageView.userInteractionEnabled = YES;
-    bigImageView.center = [[appDelegate window] center];
-    bigImageView.image = tappedImageView.image;
-    bigImageView.alpha = 0.0f;
-    
-    UITapGestureRecognizer *tapRecognizer_ = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(bigImageTap:)];
-    tapRecognizer_.numberOfTapsRequired = 1;
-    [bigImageView addGestureRecognizer:tapRecognizer_];
-    [tapRecognizer_ release];
-    
-    [[appDelegate window] addSubview:bigImageView];
-    
-    [UIView animateWithDuration:1.0f animations:^{
-        bigImageView.alpha = 1.0f;
-    }
-                     completion:^(BOOL finished) {
-                     }];
-    
-    [bigImageView release];
-    
+    ImageViewWithKey *tappedImageView = (ImageViewWithKey *)tapRecognizer.view;
+   
+    TutorialViewController *controller = [[TutorialViewController alloc] initWithNibName:@"TutorialView" bundle:nil];
+    //controller.delegate = self;
+    controller.bodyPartForAnimation = tappedImageView.key;
+    controller.personKind = [[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind];
+    controller.pictureMode = currentPictureMode;
+    controller.closeViewWhenAminationEnds = NO;
+    controller.delegate = self;
+    controller.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    [self presentViewController:controller animated:YES completion:NULL];
+    [controller release];
+
+
 }
-- (void)bigImageTap:(UITapGestureRecognizer *)tapRecognizer
-{
-    [UIView animateWithDuration:1.0f animations:^{
-        tapRecognizer.view.alpha = 0.0f;
-    }
-                     completion:^(BOOL finished) {
-                         [tapRecognizer.view removeFromSuperview];
-                     }];
-}
+
 
 
 - (void)viewResults
 {
+    [[LocalyticsSession shared] tagEvent:@"Results before saving"];
     
-    // if was not measured all stuff we ask user about updating sizes for other clothes
-    // else just showing the result
-    //if ([[[MeasureManager sharedMeasureManager] getClothesListForPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]] count] != [self.whatToMeasureArray count]){
-    if ([[MeasureManager sharedMeasureManager] needToUpdateSizesForClothesWithTheSameParameters:self.whatToMeasureArray forPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]]){
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:NUMBER_OF_TIPS_LAUNCHES]){
         
-        UIAlertView* alert = [[UIAlertView alloc]
-                              initWithTitle:NSLocalizedString(@"", nil)
-                              message:NSLocalizedString(@"updateMessage", nil)
-                              delegate:self
-                              cancelButtonTitle:NSLocalizedString(@"No",nil)
-                              otherButtonTitles:NSLocalizedString(@"Yes",nil), nil];
-        [alert show];
-        [alert release];
-        
+        NSInteger num = [[[NSUserDefaults standardUserDefaults] objectForKey:NUMBER_OF_TIPS_LAUNCHES] integerValue];
+        if (num < 4){
+            
+            num = num + 1;
+            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInteger:num] forKey:NUMBER_OF_TIPS_LAUNCHES];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+            
     }
     else{
-
-        NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] init];
-        for (NSString *object in self.whatToMeasureArray) {
-            NSMutableArray *tmpArray = [allStuffToMeasureDictionary objectForKey:object];
-            for (NSMutableArray *mArray in tmpArray) {
-                //we don't need chest to define number size for bra
-                //we need it to define letter
-                if (([object isEqualToString:@"Bras"]) && ([[mArray objectAtIndex:0] isEqualToString:@"Chest"])){
-                    continue;
-                }
-                [tempDict setObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:[mArray objectAtIndex:0]]] forKey:[mArray objectAtIndex:0]];
-            }
-            // finding pointer to sizes string in array
-            NSInteger numberInSizesArray = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
-            
-            NSMutableArray *resultsArray = [[NSMutableArray alloc] init];
-            //adding main size
-            [resultsArray addObject:[NSNumber numberWithInteger: numberInSizesArray]];
-            //adding additional size
-            if ([object isEqualToString:@"Jeans"]){
-                [resultsArray addObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:@"Inside leg"]]];
-            }
-            //definig and savin bra letter
-            if ([object isEqualToString:@"Bras"]){
-                [resultsArray addObject:[[MeasureManager sharedMeasureManager] getLetterForBrasSizeWithChest:[self getValueFromTextFieldWithKey:@"Chest"] andUnderChest:[self getValueFromTextFieldWithKey:@"Under chest"]]];
-            }
-            //saving data in current profile
-            [[[DataManager sharedDataManager] currentProfile] setObject:resultsArray forKey: object];
-            
-            //saving body params
-            for (UIView *tmpView in self.sizesScrollView.subviews) {
-                if ([tmpView isKindOfClass:[TextFieldWithKey class]]){
-                    [[[DataManager sharedDataManager] currentProfile] setObject:[NSNumber numberWithFloat: [((TextFieldWithKey *)tmpView).text floatValue]] forKey: ((TextFieldWithKey *)tmpView).key];
-                                       
-                }
-            }
-
-            
-            [resultsArray release];
-            [tempDict removeAllObjects];
-        }
-        
-        //saving profile
-        [[DataManager sharedDataManager] saveDataWithKey:[[[DataManager sharedDataManager] currentProfile] objectForKey:@"searchingKey"]
-                                                  oldKey:[[[DataManager sharedDataManager] currentProfile] objectForKey:@"searchingKey"]
-                                           andDictionary:[[DataManager sharedDataManager] currentProfile]];
-        //updating profile
-        [[DataManager sharedDataManager] getProfileList];
-        
-        [tempDict release];
-        
-        
-        ResultViewController *resultController = [[ResultViewController alloc] initWithNibName:@"ResultView" bundle:nil];
-        resultController.bButtonType = rootButton;
-        resultController.eButtonType = noButton;
-        resultController.resultArray = self.whatToMeasureArray;
-        [self.navigationController pushViewController:resultController animated:YES];
-        [resultController release];
+        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:1] forKey:NUMBER_OF_TIPS_LAUNCHES];
+        [[NSUserDefaults standardUserDefaults] synchronize];
     }
+
+    
+    for (NSString *object in self.whatToMeasureArray) {
+        
+        NSMutableArray *results = [[NSMutableArray alloc] init];
+        //adding main size
+        [results addObject:[NSNumber numberWithInteger: SIZE_DEFINED]];
+        //saving data in current profile
+        [[[VSProfileManager sharedProfileManager] currentProfile] setObject:results forKey: object];
+        
+        //saving body params
+        for (UIView *tmpView in self.sizesScrollView.subviews) {
+            if ([tmpView isKindOfClass:[TextFieldWithKey class]]){
+                [[[VSProfileManager sharedProfileManager] currentProfile] setObject:[NSNumber numberWithFloat: [((TextFieldWithKey *)tmpView).text floatValue]] forKey: ((TextFieldWithKey *)tmpView).key];
+                                   
+            }
+        }
+
+        [results release];
+    }
+    
+    //saving profile
+    [[VSProfileManager sharedProfileManager] saveDataWithKey:[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:@"searchingKey"]
+                                              oldKey:[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:@"searchingKey"]
+                                       andDictionary:[[VSProfileManager sharedProfileManager] currentProfile]];
+    //updating profile
+    [[VSProfileManager sharedProfileManager] getProfilesList];
+    
+
+    ResultViewController *resultController = [[ResultViewController alloc] initWithNibName:@"ResultView" bundle:nil];
+    //resultController.backButton = rootButton;
+    resultController.backButton = standartButton;
+    resultController.editButton = saveAsButton;
+    //resultController.measuredStuff = self.whatToMeasureArray;
+    //resultController.measuredStuff = [measureManager getAllStuffWithTheSameMeasureParams:self.whatToMeasureArray];
+    [self.navigationController pushViewController:resultController animated:YES];
+    [resultController release];
+
 
 }
 
@@ -608,6 +929,7 @@
     NSInteger page = [self getScrollViewCurrentPage:self.sizesScrollView];
     
     TextFieldWithKey *currentView = (TextFieldWithKey *)[self.view viewWithTag:50+page];
+    
     
     CGFloat measure = 0.0f;
     
@@ -642,7 +964,8 @@
     float koef = 1;
     
     if (!makeMeasurementsUsingTwoPhotos){
-        koef = [[MeasureManager sharedMeasureManager] getMeasureKoefForKey:currentView.key personType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
+        
+        koef = [measureManager getMeasureCoefficientForBodyParam:currentView.key];
         //koef = 1;
     }
   
@@ -653,26 +976,80 @@
     if (makeMeasurementsUsingTwoPhotos){
         if (([firstPhotoMeasuresDictionary objectForKey:[self getStringKeyFromTag:50+page]]) && (self.sizeView.image == [photosDictionary objectForKey:@"secondPhoto"])){
             
-            if (([currentView.key isEqualToString:@"Foot"]) || ([currentView.key isEqualToString:@"Inside leg"])){
+            PersonKind pKind = [[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind];
+            
+            float adjustment = [self getMeasureAdjustmentForPersonKind:pKind bodyPart:currentView.key angle:angleWhenUserTookSecondPhoto cameraDirection:cameraDirectionWhenUserTookSecondPhoto];
+            
+            //NSLog(@"sadj - %f", adjustment);
+            //NSLog(@"sang - %f", angleWhenUserTookSecondPhoto);
+            if (adjustment != 0){
+                measure = measure * adjustment;
+            }
+            
+            if (([currentView.key isEqualToString:FOOT]) || ([currentView.key isEqualToString:INSIDE_LEG])){
                 //don't calculate ellipse length 
             }
             else{
+                
                 float firstMeasure = [[firstPhotoMeasuresDictionary objectForKey:[self getStringKeyFromTag:50+page]] floatValue];
                 //priamougolnik perimetr
                 float perimetrPr = (firstMeasure*2) + (measure*2);
+                
+                float frontProection = firstMeasure;
+                float sideProection = measure;
                 
                 measure = measure / 2;
                 firstMeasure = firstMeasure/2;
                 //ellipse
                 float ellipsePer = 4*((M_PI * firstMeasure * measure+((firstMeasure - measure)*(firstMeasure - measure)))/(firstMeasure + measure));
+                
                 measure = (0.2f * perimetrPr) + (0.8f * ellipsePer);
+                
+                
+                if ([[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind] == Woman){
+                    if ([currentView.key isEqualToString:CHEST]){
+                        measure = (0.25f * perimetrPr) + (0.75f * ellipsePer);
+                    }
+                    else if ([currentView.key isEqualToString:WAIST]){
+                        measure = M_PI_2*(frontProection + sideProection);
+                    }
+                    else if ([currentView.key isEqualToString:HIPS]){
+                        measure = (0.2f * perimetrPr) + (0.8f * ellipsePer);
+                    }
+
+                }
+                else if ([[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind] == Man){
+                    if ([currentView.key isEqualToString:CHEST]){
+                        measure = (0.35f * perimetrPr) + (0.65f * ellipsePer);
+                    }
+                    else if ([currentView.key isEqualToString:WAIST]){
+                        measure = (0.1f * perimetrPr) + (0.9f * ellipsePer);
+                    }
+                    else if ([currentView.key isEqualToString:HIPS]){
+                        measure = (0.12f * perimetrPr) + (0.88f * ellipsePer);
+                    }
+                }
+                
                 
                 //before
                 //measure = 4*((M_PI * firstMeasure * measure+((firstMeasure - measure)*(firstMeasure - measure)))/(firstMeasure + measure));
+
                 
             }
         }
         else{
+            
+            PersonKind pKind = [[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind];
+            
+            float adjustment = [self getMeasureAdjustmentForPersonKind:pKind bodyPart:currentView.key angle:angleWhenUserTookFirstPhoto cameraDirection:cameraDirectionWhenUserTookFirstPhoto];
+            
+            //NSLog(@"fadj - %f", adjustment);
+            //NSLog(@"fang - %f", angleWhenUserTookFirstPhoto);
+            
+            if (adjustment != 0){
+                measure = measure * adjustment;
+            }
+            
             [firstPhotoMeasuresDictionary setObject:[NSNumber numberWithFloat:measure] forKey:[self getStringKeyFromTag:50+page]];
         }
     }
@@ -698,55 +1075,58 @@
     CGRect currentFrame = self.sizesScrollView.frame;
     currentFrame.origin.y = currentFrame.size.height * (page+1);
     [self.sizesScrollView scrollRectToVisible:currentFrame animated:YES];
+    
+    //[self showAndHideCurrentTip];
+    //[self setRulerPosition:self.linImageView];
+    [self performSelector:@selector(showAndHideCurrentTip) withObject:nil afterDelay:1.0f];
 }
+
 
 - (void) prepareSecondPhoto
 {
-    /*
+    
     // version without rotated head on the second photo
+    /*
     if (self.sizeView.image != [photosDictionary objectForKey:@"secondPhoto"]){
         self.sizeView.image = [photosDictionary objectForKey:@"secondPhoto"];
         [self.sizesScrollView scrollRectToVisible:self.sizesScrollView.frame animated:YES];
+        
     }
-    */
+     */
     
     if (self.sizeView.image != [photosDictionary objectForKey:@"secondPhoto"]){
         self.sizeView.image = [photosDictionary objectForKey:@"secondPhoto"];
-        self.linImageView.image = nil;
-        self.linImageView = nil;
-        [self.sizesScrollView scrollRectToVisible:self.sizesScrollView.frame animated:YES];
+        if ( [[[UIDevice currentDevice] systemVersion] floatValue] < 7.0 ){
+            [self.sizesScrollView scrollRectToVisible:self.sizesScrollView.frame animated:YES];
+        }
+        else{
+            [self.sizesScrollView scrollRectToVisible:CGRectMake(0, 0, self.sizesScrollView.frame.size.width, self.sizesScrollView.frame.size.height) animated:YES];
+        }
+        [self processFeatures:[featuresOnPhotos objectForKey:@"featuresOnSecondPhoto"]];
+        currentPictureMode = side;
+        //[self showAndHideCurrentTip];
+        [self performSelector:@selector(showAndHideCurrentTip) withObject:nil afterDelay:1.0f];
         //changing images to side
         for (UIView *tmpView in self.sizesScrollView.subviews) {
             if ([tmpView isKindOfClass:[ImageViewWithKey class]]){
                 ImageViewWithKey *imageView = (ImageViewWithKey *)tmpView;
-                imageView.image = [UIImage imageNamed:[self getTipsImageNameForBodyPart:imageView.key mode:1]];
+                imageView.imageName = [self getTipsImageNameForBodyPart:imageView.key mode:side];
+                imageView.image = [UIImage imageNamed:@"infoBtn"];//[UIImage imageNamed:[self getTipsImageNameForBodyPart:imageView.key mode:side]];
             }
         }
 
-        
-        self.activityIndicator.hidden = NO;
-        [self.activityIndicator startAnimating];
-        
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-                       ^{
-                           
-                           //eye detector block
-                           CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeFace context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyHigh forKey:CIDetectorAccuracy]];
-                           
-                           
-                           
-                           NSArray *features = [detector featuresInImage:[CIImage imageWithCGImage: self.sizeView.image.CGImage]];
-                           
-                           dispatch_async(dispatch_get_main_queue(), ^{[self processPhoto: features];});
-                       });
     }
-
-     
+    else{
+        [self viewResults];
+    }
+    
+    
+        
 }
 
 - (NSString *) getStringKeyFromTag:(NSInteger) tag
 {
-    return [NSString stringWithFormat:@"%d", tag ];
+    return [NSString stringWithFormat:@"%ld", (long)tag ];
 }
 
 
@@ -805,185 +1185,186 @@
         }
     }
     //decreasing speed of rotation
-    angle = angle/3;
+    angle = angle/6;
     
     
     currentAngle = currentAngle + angle;
-    self.linImageView.transform = CGAffineTransformRotate(self.linImageView.transform, angle);
-    rotationRecognizer.rotation = 0.0f;
-    
-    
-    /*
-    UIView *tmp = [self.view viewWithTag:33];
-    
-    if (tmp) {
-               
-        tmp.frame = self.linImageView.frame;
-        
+    //doesn't allow to rotate ruler more than 10 degrees
+    if ((currentAngle > 0.17f) || (currentAngle < -0.17f)) {
+        if (currentAngle > 0.17f){
+            currentAngle = 0.17f;
+        }
+        else if (currentAngle < -0.17f){
+            currentAngle = -0.17f;
+        }
     }
     else{
-        tmp = [[UIView alloc] initWithFrame:self.linImageView.frame];
-        tmp.backgroundColor = [UIColor whiteColor];
-        tmp.tag = 33;
-        tmp.alpha = 0.3f;
-        [self.view insertSubview:tmp belowSubview:self.linImageView];
-        [tmp release];
+        self.linImageView.transform = CGAffineTransformRotate(self.linImageView.transform, angle);
     }
-*/
-    
+       
+    rotationRecognizer.rotation = 0.0f;
+   
 }
 
 #pragma mark OverlayViewControllerDelegate
 
-
-- (void)didTakePicture:(UIImage *)picture
+-(void) didTakePhoto:(UIImage *)photo withAngle:(float)angle cameraDirection:(NSInteger)cDirection andReceiveFeatures:(NSArray *)features
 {
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    [appDelegate setImagePickerControllerIsActive:FALSE];
-    
-    CGSize newSize = CGSizeMake(self.sizeView.frame.size.width, self.sizeView.frame.size.height);
-    
-    //UIImage *picture = [info objectForKey:UIImagePickerControllerOriginalImage];
-    
-    if (picture.size.width > picture.size.height) //landscape
-    {
-        // koef - special koefficient, that allows to crop the landscape photo properly
-        
-        
-        CGFloat koef = self.view.frame.size.height / self.view.frame.size.width;
-        //NSLog(@"koef - %f", koef);
-        CGRect cropRect = CGRectMake(((picture.size.width - picture.size.height)/2)*koef, 0, picture.size.height/koef, picture.size.height);
-        picture = [picture croppedAndRotadedImage:cropRect];
-    }
-    else
-    {
-        CGFloat koef = picture.size.height/picture.size.width;
-        
-        // 1.34 - iphone photo height / iPhone photo width
-        // used for cropping photos from other sources
-        if (koef > 1.34f)
-        {
-            CGFloat newHeight = picture.size.width*1.34f;
-            
-            //NSLog(@"%f", newHeight);
-            
-            CGRect cropRect = CGRectMake(0, (picture.size.height - newHeight)/2, picture.size.width, newHeight - ((picture.size.height - newHeight)/2));
-            picture = [picture croppedAndRotadedImage:cropRect];
-        }
-        else if ((koef < 1.3f) && (koef > 1.0f))
-        {
-            CGFloat newHeight = picture.size.width*1.34f;
-            
-            //NSLog(@"%f", newHeight);
-            
-            CGRect cropRect = CGRectMake(0, 0, picture.size.width, newHeight);
-            picture = [picture croppedAndRotadedImage:cropRect];
-            
-        }
-        else if (koef <= 1.0f){
-            CGFloat newWidth = picture.size.width/1.34f;
-            
-            //NSLog(@"%f", newHeight);
-            
-            CGRect cropRect = CGRectMake(picture.size.width/2 - newWidth/2, 0 , newWidth, picture.size.height);
-            picture = [picture croppedAndRotadedImage:cropRect];
-
-        }
-    }
-    UIImage *shrunkenImage = [picture resizedImage:newSize interpolationQuality:kCGInterpolationHigh];
-    
-    
-    if (makeMeasurementsUsingTwoPhotos){
+    if (makeMeasurementsUsingTwoPhotos)  {
         
         if (![photosDictionary objectForKey:@"firstPhoto"]){
-            //self.sizeView.image = shrunkenImage;
-            [photosDictionary setObject:shrunkenImage forKey:@"firstPhoto"];
-            [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:^{[self showImagePicker:self.source forPictureMode:1];}]; // side mode
+            
+            if (!features){
+                if (self.source == UIImagePickerControllerSourceTypeCamera){
+                    [self showAlertDialogWithTitle:@"" andMessage:@"CantFindBodyOnNewPictureFailMessage"];
+                }
+                else{
+                    [self showAlertDialogWithTitle:@"" andMessage:@"CantFindBodyOnExistingPictureFailMessage"];
+                }
+                
+                [[LocalyticsSession shared] tagEvent:@"Human not detected"];
+            }
+            else{
+                [photosDictionary setObject:photo forKey:@"firstPhoto"];
+                [featuresOnPhotos setObject:features forKey:@"featuresOnFirstPhoto"];
+                angleWhenUserTookFirstPhoto = angle;
+                cameraDirectionWhenUserTookFirstPhoto = cDirection;
+                
+                NSString *imageName = @"";
+                if (self.source == UIImagePickerControllerSourceTypeCamera){
+                    if ([[UIScreen mainScreen] bounds].size.height == 568){
+                        imageName = @"contour_side568_new.png";
+                    }
+                    else{
+                        imageName = @"contour_side_new.png";
+                    }
+                    [self.overlayViewController setContourImage:[UIImage imageNamed:@"side_contour"]];
+                }
+                else{
+                    if ([[UIScreen mainScreen] bounds].size.height == 568){
+                        imageName = @"contour_side568_existing.png";
+                    }
+                    else{
+                        imageName = @"contour_side_existing.png";
+                    }
+                }
+                [self.overlayViewController setTipsContourImage:[UIImage imageNamed:imageName]];
+            }
+            
         }
         else{
+            /*
+            //version without rotated head on the second photo
             [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
-            [photosDictionary setObject:shrunkenImage forKey:@"secondPhoto"];
-            
+            [photosDictionary setObject:photo forKey:@"secondPhoto"];
             self.sizeView.image = [photosDictionary objectForKey:@"firstPhoto"];
-            self.activityIndicator.hidden = NO;
-            [self.activityIndicator startAnimating];
+            [self processFeatures:[featuresOnPhotos objectForKey:@"featuresOnFirstPhoto"]];
+            */
             
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-                           ^{
-                               
-                               //eye detector block
-                               CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeFace context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyHigh forKey:CIDetectorAccuracy]];
-                               
-                               
-                               
-                               NSArray *features = [detector featuresInImage:[CIImage imageWithCGImage: self.sizeView.image.CGImage]];
-                               
-                               dispatch_async(dispatch_get_main_queue(), ^{[self processPhoto: features];});
-                           });
 
+            if (!features){
+                if (self.source == UIImagePickerControllerSourceTypeCamera){
+                    [self showAlertDialogWithTitle:@"" andMessage:@"CantFindBodyOnNewPictureFailMessage"];
+                }
+                else{
+                    [self showAlertDialogWithTitle:@"" andMessage:@"CantFindBodyOnExistingPictureFailMessage"];
+                }
+                
+                [[LocalyticsSession shared] tagEvent:@"Human not detected"];
+            }
+            else{
+                [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
+                //AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+                //[appDelegate setImagePickerControllerIsActive:FALSE];
+                angleWhenUserTookSecondPhoto = angle;
+                cameraDirectionWhenUserTookSecondPhoto = cDirection;
+                [photosDictionary setObject:photo forKey:@"secondPhoto"];
+                [featuresOnPhotos setObject:features forKey:@"featuresOnSecondPhoto"];
+                self.sizeView.image = [photosDictionary objectForKey:@"firstPhoto"];
+                [self processFeatures:[featuresOnPhotos objectForKey:@"featuresOnFirstPhoto"]];
+                [self performSelector:@selector(showAndHideCurrentTip) withObject:nil afterDelay:1.0f];
+                
+                
+                if (self.source == UIImagePickerControllerSourceTypeCamera){
+                    
+                    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.view.frame.size.width-20, 60)];
+                    [label setCenter: self.view.center];
+                    [label setTextColor: [UIColor whiteColor]];
+                    [label setFont: [UIFont systemFontOfSize:16.0f]];
+                    [label setBackgroundColor: [UIColor darkGrayColor]];
+                    [label setNumberOfLines: 0];
+                    [label setLineBreakMode: NSLineBreakByWordWrapping];
+                    [label setTextAlignment: NSTextAlignmentCenter];
+                    [label setAlpha:0.0f];
+                    [label setText:NSLocalizedString(@"Photos have been saved", nil)];
+                    
+                    [self.view addSubview:label];
+                    
+                    [UIView animateWithDuration:1.0f delay:1.0f options:UIViewAnimationOptionCurveLinear animations:^{
+                        label.alpha = 0.8f;
+                    }
+                                     completion:^(BOOL finished) {
+                                         [UIView animateWithDuration:1.0f delay:1.5f options:UIViewAnimationOptionCurveLinear animations:^{
+                                             label.alpha = 0.0f;
+                                         }
+                                                          completion:^(BOOL finished) {
+                                                              [label removeFromSuperview];
+                                                              [label release];
+                                                          }];
+                                     }];
+                    
+                }
+
+                
+                [[LocalyticsSession shared] tagEvent:@"Measuring starts"];
+             }
+            
         }
     }
     else{
-        
-        [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
-        self.sizeView.image = shrunkenImage;
-        self.activityIndicator.hidden = NO;
-        [self.activityIndicator startAnimating];
-        
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-                       ^{
-                           
-                           //eye detector block
-                           CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeFace context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyHigh forKey:CIDetectorAccuracy]];
-                           
-                           
-                           
-                           NSArray *features = [detector featuresInImage:[CIImage imageWithCGImage: self.sizeView.image.CGImage]];
-                           
-                           dispatch_async(dispatch_get_main_queue(), ^{[self processPhoto: features];});
-                       });
-
+        if (!features){
+            [self showAlertDialogWithTitle:@"" andMessage:@"Bad photo!"];
+            [[LocalyticsSession shared] tagEvent:@"Human not detected"];
+        }
+        else{
+            [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
+            self.sizeView.image = photo;
+            [self processFeatures:features];
+            [[LocalyticsSession shared] tagEvent:@"Measuring starts"];
+        }
         
     }
-    
-  
 }
+
 
 // as a delegate we are told to finished with the camera
 - (void)didFinishWithCamera
 {
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    [appDelegate setImagePickerControllerIsActive:FALSE];
-
-     [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
-    //[self dismissViewControllerAnimated:YES completion:^{
-        //;
-    //}];
+    //AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    //[appDelegate setImagePickerControllerIsActive:FALSE];
+    [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
+   
 }
 
 - (void)didCancelWithCamera
 {
     self.pickingCanceled = YES;
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    [appDelegate setImagePickerControllerIsActive:FALSE];
+    //AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    //[appDelegate setImagePickerControllerIsActive:FALSE];
 
+    [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
     
-     [self.overlayViewController.imagePickerController dismissViewControllerAnimated:YES completion:NULL];
-    //[self dismissViewControllerAnimated:YES completion:^{
-        //;
-    //}];
+    [[VSProfileManager sharedProfileManager] deleteTempProfile];
+    [[VSProfileManager sharedProfileManager] getProfilesList];
 }
-
-
-
 
 
 
 - (void) imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     self.pickingCanceled = YES;
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    [appDelegate setImagePickerControllerIsActive:FALSE];
+    //AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    //[appDelegate setImagePickerControllerIsActive:FALSE];
     
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }
@@ -997,159 +1378,18 @@
     return YES;
 }
 
-#pragma mark action sheet delegate methods
-- (void) actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    if (buttonIndex == actionSheet.cancelButtonIndex){
-        
-    }
-    else
-    {
-        
-    }
-}
+
 
 #pragma mark alert view delegate methods
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if (measureDidFail)
-    {
-        [self.navigationController popViewControllerAnimated:YES];
-    }
-    else{
-        
-       
-        NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] init];
-        
-        BOOL updateSizeForOtherClothes = NO;
-        
-        //YES
-        if (buttonIndex == 1){
-            updateSizeForOtherClothes = YES;
-        }
-        
-        if (updateSizeForOtherClothes){
-           
-            for (NSString *object in self.whatToMeasureArray) {
-                NSMutableArray *tmpArray = [allStuffToMeasureDictionary objectForKey:object];
-                for (NSMutableArray *mArray in tmpArray) {
-                    if (([object isEqualToString:@"Bras"]) && ([[mArray objectAtIndex:0] isEqualToString:@"Chest"])){
-                        continue;
-                    }
-                    [tempDict setObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:[mArray objectAtIndex:0]]] forKey:[mArray objectAtIndex:0]];
-                }
-                // finding pointer to sizes string in array
-                NSInteger numberInSizesArray = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
-                
-                NSMutableArray *resultsArray = [[NSMutableArray alloc] init];
-                //adding main size
-                [resultsArray addObject:[NSNumber numberWithInteger: numberInSizesArray]];
-                
-                           
-                //getting  dictionaty to change the size for the clothes with the same params
-                NSArray *clothesWithTheSameSize = [[MeasureManager sharedMeasureManager] getClothesWithTheSameSizeForChoosenOne:object andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
-                
-                for (NSString *wear in clothesWithTheSameSize) {
-                    // TODO: think about saving the additional info!!!
-                    
-                    //if wear in main array we don't need to update size
-                    //if ([self.whatToMeasureArray indexOfObject:wear] == NSNotFound){
-                    [[[DataManager sharedDataManager] currentProfile] setObject:resultsArray forKey:wear];
-                    //}
-                }
-                [resultsArray release];
-                
-                resultsArray = [[NSMutableArray alloc] init];
-                //adding main size
-                [resultsArray addObject:[NSNumber numberWithInteger: numberInSizesArray]];
-                //adding additional size
-                if ([object isEqualToString:@"Jeans"]){
-                    [resultsArray addObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:@"Inside leg"]]];
-                }
-                //definig and savin bra letter
-                if ([object isEqualToString:@"Bras"]){
-                    [resultsArray addObject:[[MeasureManager sharedMeasureManager] getLetterForBrasSizeWithChest:[self getValueFromTextFieldWithKey:@"Chest"] andUnderChest:[self getValueFromTextFieldWithKey:@"Under chest"]]];
-                }
-                //saving data in current profile
-                [[[DataManager sharedDataManager] currentProfile] setObject:resultsArray forKey: object];
-                
-                //saving body params
-                for (UIView *tmpView in self.sizesScrollView.subviews) {
-                    if ([tmpView isKindOfClass:[TextFieldWithKey class]]){
-                        [[[DataManager sharedDataManager] currentProfile] setObject:[NSNumber numberWithFloat: [((TextFieldWithKey *)tmpView).text floatValue]] forKey: ((TextFieldWithKey *)tmpView).key];
-                        
-                    }
-                }
-
-                [resultsArray release];
-                [tempDict removeAllObjects];
-            }
-
-            
-        }
-        else{
-            
-            for (NSString *object in self.whatToMeasureArray) {
-                NSMutableArray *tmpArray = [allStuffToMeasureDictionary objectForKey:object];
-                for (NSMutableArray *mArray in tmpArray) {
-                    if (([object isEqualToString:@"Bras"]) && ([[mArray objectAtIndex:0] isEqualToString:@"Chest"])){
-                        continue;
-                    }
-                    [tempDict setObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:[mArray objectAtIndex:0]]] forKey:[mArray objectAtIndex:0]];
-                }
-                // finding pointer to sizes string in array
-                NSInteger numberInSizesArray = [[MeasureManager sharedMeasureManager] findSizeForKeysAndValues:tempDict andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
-                
-                NSMutableArray *resultsArray = [[NSMutableArray alloc] init];
-                //adding main size
-                [resultsArray addObject:[NSNumber numberWithInteger: numberInSizesArray]];
-                //adding additional size
-                if ([object isEqualToString:@"Jeans"]){
-                    [resultsArray addObject:[NSNumber numberWithFloat:[self getValueFromTextFieldWithKey:@"Inside leg"]]];
-                }
-                //definig and savin bra letter
-                if ([object isEqualToString:@"Bras"]){
-                    [resultsArray addObject:[[MeasureManager sharedMeasureManager] getLetterForBrasSizeWithChest:[self getValueFromTextFieldWithKey:@"Chest"] andUnderChest:[self getValueFromTextFieldWithKey:@"Under chest"]]];
-                }
-                //saving data in current profile
-                [[[DataManager sharedDataManager] currentProfile] setObject:resultsArray forKey: object];
-                
-                //saving body params
-                for (UIView *tmpView in self.sizesScrollView.subviews) {
-                    if ([tmpView isKindOfClass:[TextFieldWithKey class]]){
-                        [[[DataManager sharedDataManager] currentProfile] setObject:[NSNumber numberWithFloat: [((TextFieldWithKey *)tmpView).text floatValue]] forKey: ((TextFieldWithKey *)tmpView).key];
-                        
-                    }
-                }            
-                [resultsArray release];
-                [tempDict removeAllObjects];
-            }
-
-            
-        
-        }
-        
-        
-            
-        //saving profile
-        [[DataManager sharedDataManager] saveDataWithKey:[[[DataManager sharedDataManager] currentProfile] objectForKey:@"searchingKey"]
-                                                  oldKey:[[[DataManager sharedDataManager] currentProfile] objectForKey:@"searchingKey"]
-                                           andDictionary:[[DataManager sharedDataManager] currentProfile]];
-        //updating profile
-        [[DataManager sharedDataManager] getProfileList];
-        
-        [tempDict release];
-        
-        
-        ResultViewController *resultController = [[ResultViewController alloc] initWithNibName:@"ResultView" bundle:nil];
-        resultController.bButtonType = rootButton;
-        resultController.eButtonType = noButton;
-        resultController.resultArray = self.whatToMeasureArray;
-        [self.navigationController pushViewController:resultController animated:YES];
-        [resultController release];
-
-    }
     
+}
+#pragma mark tutorial view delegate methods
+- (void)TutorialViewControllerDidFinish:(TutorialViewController *)controller
+{
+    [self dismissViewControllerAnimated:YES completion:NULL];
+
 }
 
 

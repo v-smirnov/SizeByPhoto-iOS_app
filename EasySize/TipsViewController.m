@@ -7,6 +7,7 @@
 //
 
 #import "TipsViewController.h"
+#import "Types.h"
 #define TIPS_NUMBER 5 
 
 @interface TipsViewController ()
@@ -15,13 +16,14 @@
 
 @implementation TipsViewController
 
-@synthesize delegate, tipsScrollView, pageControl, numberOfPageToShow;
+@synthesize delegate, tipsScrollView, pageControl, numberOfPageToShow, activityIndicator;
 
 
 - (void) dealloc
 {
     [tipsScrollView release];
     [pageControl release];
+    [activityIndicator release];
     [super dealloc];
 }
 
@@ -32,6 +34,7 @@
     // e.g. self.myOutlet = nil;
     self.tipsScrollView = nil;
     self.pageControl = nil;
+    self.activityIndicator = nil;
 }
 
 
@@ -49,6 +52,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     self.title = NSLocalizedString(@"Tips", nil);
+    [self.activityIndicator startAnimating];
     
     self.pageControl.numberOfPages =TIPS_NUMBER;
     self.pageControl.currentPage = 0;
@@ -64,6 +68,10 @@
     
     [self.tipsScrollView scrollRectToVisible:visibleRect animated:NO];
     
+    //UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithCustomView:[self createCustomButtonForNavBarWithTitle:NSLocalizedString(@"Back", nil) selector:@selector(backBtnAction) andStyle:back]];
+    
+    //self.navigationItem.leftBarButtonItem = backButton;
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -76,6 +84,12 @@
 {
     [self.delegate tipsViewControllerDidFinish:self];
 }
+
+- (void) backBtnAction
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 #pragma mark - help funtions
 -(void) createNewTipsWithNumber:(int) number andPlaceItToView:(UIScrollView *) sView
 {
@@ -99,6 +113,7 @@
     [webView setAutoresizingMask:  UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth ];
     [webView setBackgroundColor:[UIColor clearColor]];
     [webView setOpaque:NO];
+    webView.delegate = self;
     [webView loadHTMLString:NSLocalizedString(tipsName, nil) baseURL:nil];
     [sView addSubview:webView];
     [webView release];
@@ -106,7 +121,7 @@
 
 - (IBAction)changePage
 {
-    int page = self.pageControl.currentPage;
+    NSInteger page = self.pageControl.currentPage;
     CGRect currentFrame = self.tipsScrollView.frame;
     currentFrame.origin.x = currentFrame.size.width * page;
     currentFrame.origin.y = 0;
@@ -114,7 +129,8 @@
     
 }
 
-#pragma mark - UIScrillDelegate methods
+
+#pragma mark - UIScrollViewDelegate methods
 - (void)scrollViewDidScroll:(UIScrollView *)sender {
     
     CGFloat pageWidth = self.tipsScrollView.frame.size.width;
@@ -122,5 +138,12 @@
     self.pageControl.currentPage = page;
     
 }
+#pragma mark - UIWebViewDelegate methods
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    [self.activityIndicator stopAnimating];
+}
+
+
 
 @end

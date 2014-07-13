@@ -7,14 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-typedef enum
-{
-  general,
-  result
-}
-formType;
+#import "Types.h"
+#import "Consts.h"
 
-@interface FeedbackViewController : UIViewController<NSURLConnectionDelegate, NSURLConnectionDataDelegate, UITextViewDelegate>
+@interface FeedbackViewController : UIViewController<NSURLConnectionDelegate, NSURLConnectionDataDelegate, UITextViewDelegate, UIAlertViewDelegate>
 {
     UITextField *nameField;
     UILabel *nameLabel;
@@ -22,12 +18,12 @@ formType;
     UILabel *textLabel;
     UITextField *email;
     UITextView *feedbackTextView;
-    UIButton *sendButton;
     NSMutableData *recievedData;
     NSURLConnection *connection;
     UIActivityIndicatorView *activityIndicator;
     NSString *textForFeedbackLabel;
     formType form;
+    UIImageView *feedbackFormImageView;
 }
 
 @property (nonatomic, retain) IBOutlet UITextField *email;
@@ -37,9 +33,9 @@ formType;
 @property (nonatomic, retain) IBOutlet UILabel *textLabel;
 @property (nonatomic, retain) IBOutlet UITextView *feedbackTextView;
 @property (nonatomic, retain) IBOutlet UIActivityIndicatorView *activityIndicator;
-@property (nonatomic, retain) IBOutlet UIButton *sendButton;
 @property (nonatomic, assign) formType form;
 @property (nonatomic, retain) NSString *textForFeedbackLabel;
+@property (nonatomic, retain) IBOutlet UIImageView *feedbackFormImageView;
 
 
 -(IBAction)sendRequest:(id)sender;

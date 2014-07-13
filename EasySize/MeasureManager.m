@@ -7,7 +7,7 @@
 //
 
 #import "MeasureManager.h"
-#import "DataManager.h"
+#import "VSProfileManager.h"
 static MeasureManager *manager = nil;
 
 @implementation MeasureManager
@@ -52,7 +52,7 @@ static MeasureManager *manager = nil;
 }
 
 
-- (NSArray *)getClothesListForPersonType:(PersonType)personType
+- (NSArray *)getClothesListForPersonType:(PersonKind)personType
 {
     
     NSArray *returnedArray;
@@ -79,7 +79,7 @@ static MeasureManager *manager = nil;
 
 }
 
-- (NSArray *)getClothesWithTheSameSizeForChoosenOne:(NSString *)clothesType andPersonType:(PersonType)personType
+- (NSArray *)getClothesWithTheSameSizeForChoosenOne:(NSString *)clothesType andPersonType:(PersonKind)personType
 {
     NSDictionary *retDict;
     if (personType == Man){
@@ -110,7 +110,7 @@ static MeasureManager *manager = nil;
 }
 
 
-- (BOOL)needToUpdateSizesForClothesWithTheSameParameters:(NSArray *)clothesArray forPersonType:(PersonType)personType;
+- (BOOL)needToUpdateSizesForClothesWithTheSameParameters:(NSArray *)clothesArray forPersonType:(PersonKind)personType;
 {
     BOOL needToUpdate = FALSE;
     
@@ -154,7 +154,7 @@ static MeasureManager *manager = nil;
 
 
 
-- (NSMutableDictionary *)getClothesMeasureParamsForPersonType:(PersonType)personType
+- (NSMutableDictionary *)getClothesMeasureParamsForPersonType:(PersonKind)personType
 {
     
     NSMutableDictionary *returnedDictionary;
@@ -233,7 +233,7 @@ static MeasureManager *manager = nil;
     return returnedDictionary;
 }
 
-- (NSArray *)getSizesTableForClothesType:(NSString *)clothesType andPersonType:(PersonType)personType
+- (NSArray *)getSizesTableForClothesType:(NSString *)clothesType andPersonType:(PersonKind)personType
 {
     //EU RU US UK INT
     NSDictionary *sizesDict;
@@ -535,7 +535,7 @@ static MeasureManager *manager = nil;
 }
 
 
-- (float)getMinSizeForClothesType:(NSString *)clothesType andPersonType:(PersonType) personType
+- (float)getMinSizeForClothesType:(NSString *)clothesType andPersonType:(PersonKind) personType
 {
     if (personType == Man){
         NSDictionary *valuesDict =   [NSDictionary dictionaryWithObjectsAndKeys:
@@ -557,7 +557,7 @@ static MeasureManager *manager = nil;
                                       [NSNumber numberWithFloat:83.0f], @"Hips",
                                       [NSNumber numberWithFloat:0.0f],  @"Inside leg",
                                       nil];
-        return [[valuesDict valueForKey:clothesType] floatValue];
+        return [[valuesDict objectForKey:clothesType] floatValue];
     }
     else{
         return 0.0f;
@@ -565,7 +565,7 @@ static MeasureManager *manager = nil;
     return 0.0f;
 }
 
-- (float)getMaxSizeForClothesType:(NSString *)clothesType andPersonType:(PersonType) personType
+- (float)getMaxSizeForClothesType:(NSString *)clothesType andPersonType:(PersonKind) personType
 {
     if (personType == Man){
         NSDictionary *valuesDict =   [NSDictionary dictionaryWithObjectsAndKeys:
@@ -588,7 +588,7 @@ static MeasureManager *manager = nil;
                                       [NSNumber numberWithFloat:200.0f], @"Inside leg",
                                       nil];
         
-        return [[valuesDict valueForKey:clothesType] floatValue];
+        return [[valuesDict objectForKey:clothesType] floatValue];
 
     }
     else{
@@ -621,7 +621,7 @@ static MeasureManager *manager = nil;
 }*/
 
 //returned value is scrollview offset koef
-- (NSInteger)findSizeForKeysAndValues:(NSDictionary *)keyAndValues andPersonType:(PersonType)personType
+- (NSInteger)findSizeForKeysAndValues:(NSDictionary *)keyAndValues andPersonType:(PersonKind)personType
 {
     NSInteger maxValue = 0;
     
@@ -642,7 +642,7 @@ static MeasureManager *manager = nil;
     return maxValue;
 }
 
-- (float)getSizeValueForKey:(NSString *)key PersonType:(PersonType)personType andState:(NSInteger)state
+- (float)getSizeValueForKey:(NSString *)key PersonType:(PersonKind)personType andState:(NSInteger)state
 {
     NSArray *sizesIntervals = [self getSizesIntervalsForClothesType:key andPersonType:personType];
     // return min value from interval
@@ -651,7 +651,7 @@ static MeasureManager *manager = nil;
 
 #pragma mark help functions
 
-- (NSArray *)getSizesIntervalsForClothesType:(NSString *)clothesType andPersonType:(PersonType) personType
+- (NSArray *)getSizesIntervalsForClothesType:(NSString *)clothesType andPersonType:(PersonKind) personType
 {
     
     NSDictionary *sizesDict;
@@ -763,18 +763,18 @@ static MeasureManager *manager = nil;
                          @"Chest",
 
                          [NSArray arrayWithObjects:
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:0.0f],   [NSNumber numberWithFloat:67.0f], nil],
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:67.0f],  [NSNumber numberWithFloat:72.0f], nil],
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:72.0f],  [NSNumber numberWithFloat:77.0f], nil],
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:77.0f],  [NSNumber numberWithFloat:82.0f], nil],
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:82.0f],  [NSNumber numberWithFloat:87.0f], nil],
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:87.0f],  [NSNumber numberWithFloat:92.0f], nil],
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:92.0f],  [NSNumber numberWithFloat:97.0f], nil],
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:97.0f],  [NSNumber numberWithFloat:102.0f], nil],
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:102.0f], [NSNumber numberWithFloat:107.0f], nil],
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:107.0f], [NSNumber numberWithFloat:112.0f], nil],
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:112.0f], [NSNumber numberWithFloat:117.0f], nil],
-                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:117.0f], [NSNumber numberWithFloat:999.0f], nil],nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:0.0f],   [NSNumber numberWithFloat:66.0f], nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:66.0f],  [NSNumber numberWithFloat:72.5f], nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:72.5f],  [NSNumber numberWithFloat:77.5f], nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:77.5f],  [NSNumber numberWithFloat:82.5f], nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:82.5f],  [NSNumber numberWithFloat:87.5f], nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:87.5f],  [NSNumber numberWithFloat:92.5f], nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:92.5f],  [NSNumber numberWithFloat:97.5f], nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:97.5f],  [NSNumber numberWithFloat:102.5f], nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:102.5f], [NSNumber numberWithFloat:107.5f], nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:107.5f], [NSNumber numberWithFloat:112.5f], nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:112.5f], [NSNumber numberWithFloat:117.5f], nil],
+                          [NSArray arrayWithObjects:[NSNumber numberWithFloat:117.5f], [NSNumber numberWithFloat:999.0f], nil],nil],
                          @"Under chest",
 
                          
@@ -831,21 +831,21 @@ static MeasureManager *manager = nil;
 // TODO: create new class fo this functions
 - (NSInteger)getCurrentProfileGender
 {
-    return [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"sex"] integerValue];
+    return [[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:@"sex"] integerValue];
 }
 
 - (float)getCurrentProfileBodyParam:(NSString *)bodyParam
 {
-    return [[[[DataManager sharedDataManager] currentProfile] objectForKey:bodyParam] floatValue];
+    return [[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:bodyParam] floatValue];
 }
 //
 
-- (NSArray *)getSizesListForClothesType:(NSString *)clothesType personType:(PersonType)personType andIndex:(NSInteger)index
+- (NSArray *)getSizesListForClothesType:(NSString *)clothesType personType:(PersonKind)personType andIndex:(NSInteger)index
 {
     return [[self getSizesTableForClothesType:clothesType andPersonType:personType] objectAtIndex:index];
 }
 
-- (float)getMeasureKoefForKey:(NSString *)key personType:(PersonType)personType
+- (float)getMeasureKoefForKey:(NSString *)key personType:(PersonKind)personType
 {
     float koef = 3.5f;
     
@@ -881,7 +881,7 @@ static MeasureManager *manager = nil;
     return koef;
 }
 
--(NSString *)getLegLengthDescriptionForValue:(float)value andPersonType:(PersonType) personType
+-(NSString *)getLegLengthDescriptionForValue:(float)value andPersonType:(PersonKind) personType
 {
     NSString *retDescription = @"";
     
@@ -922,25 +922,25 @@ static MeasureManager *manager = nil;
     else if ((diff >= 12) && (diff < 14)){
         letter = @"A";
     }
-    else if ((diff >= 14) && (diff < 16)){
+    else if ((diff >= 14) && (diff < 16.5f)){
         letter = @"B";
     }
-    else if ((diff >= 16) && (diff < 18)){
+    else if ((diff >= 16.5f) && (diff < 19)){
         letter = @"C";
     }
-    else if ((diff >= 18) && (diff < 20)){
+    else if ((diff >= 19) && (diff < 21.5f)){
         letter = @"D";
     }
-    else if ((diff >= 20) && (diff < 22)){
+    else if ((diff >= 21.5f) && (diff < 24)){
         letter = @"E";
     }
-    else if ((diff >= 22) && (diff < 24)){
+    else if ((diff >= 24) && (diff < 26.5f)){
         letter = @"F";
     }
-    else if ((diff >= 24) && (diff < 26)){
+    else if ((diff >= 26.5f) && (diff < 29)){
         letter = @"G";
     }
-    else if ((diff >= 26) && (diff < 28)){
+    else if ((diff >= 29) && (diff < 31.5f)){
         letter = @"H";
     }
     

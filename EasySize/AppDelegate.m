@@ -10,11 +10,11 @@
 
 #import "MasterViewController.h"
 #import <CommonCrypto/CommonDigest.h>
-#import "LocalyticsSession.h"
+#import "Consts.h"
 
-//#define LOCALYTICS_KEY @"00fb78a21902e83de0fdc6a-88ab17d4-581c-11e2-3908-004b50a28849"
+#define LOCALYTICS_KEY @"00fb78a21902e83de0fdc6a-88ab17d4-581c-11e2-3908-004b50a28849"
 //test key
-#define LOCALYTICS_KEY @"d8722b8bedd61a7d9f9f6a3-414e236c-5827-11e2-3909-004b50a28849"
+//#define LOCALYTICS_KEY @"d8722b8bedd61a7d9f9f6a3-414e236c-5827-11e2-3909-004b50a28849"
 
 
 @implementation AppDelegate
@@ -22,6 +22,8 @@
 @synthesize window = _window;
 @synthesize navigationController = _navigationController;
 @synthesize imagePickerControllerIsActive;
+@synthesize rateController;
+@synthesize backgroundView;
 
 
 
@@ -29,15 +31,21 @@
 {
     [_window release];
     [_navigationController release];
+    [rateController release];
+    [backgroundView release];
     [super dealloc];
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     //Localytics
-    [[LocalyticsSession sharedLocalyticsSession] startSession:LOCALYTICS_KEY];
+    [[LocalyticsSession shared] startSession:LOCALYTICS_KEY];
     
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
+    UIImageView *bgView = [[UIImageView alloc] initWithFrame:self.window.frame];
+    self.backgroundView = bgView;
+    [bgView release];
+    [self.window addSubview:self.backgroundView];
     // Override point for customization after application launch.
     MasterViewController *masterViewController = [[[MasterViewController alloc] initWithNibName:@"RootView" bundle:nil] autorelease];
     self.navigationController = [[[UINavigationController alloc] initWithRootViewController:masterViewController] autorelease];
@@ -45,38 +53,44 @@
     [self.window makeKeyAndVisible];
     
     
-    UIImage *button30 = [[UIImage imageNamed:@"barBtn.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 8, 0, 8)];
-    //UIImage *button24 = [[UIImage imageNamed:@"barBtn.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 5, 0, 5)];
-    [[UIBarButtonItem appearance] setBackgroundImage:button30 forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-    //[[UIBarButtonItem appearance] setBackgroundImage:button24 forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
+    [[UINavigationBar appearance] setBackgroundImage:[UIImage imageNamed:@"navBar"] forBarMetrics:UIBarMetricsDefault];
+    
+    [[UINavigationBar appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
+                                  [UIColor whiteColor], UITextAttributeTextColor,
+                                  [UIFont fontWithName:NAV_BAR_FONT size:NAV_BAR_FONT_SIZE], UITextAttributeFont, nil]];
+                                                           
+    
+    
+    [[UIBarButtonItem appearance] setTintColor:[UIColor colorWithRed:0.5961f green:0.4196f blue:0.6745f alpha:1.0f]];
+    [[UISegmentedControl appearance] setTintColor:[UIColor colorWithRed:0.5961f green:0.4196f blue:0.6745f alpha:1.0f]];
+    [[UISlider appearance] setMinimumTrackTintColor:[UIColor colorWithRed:0.5961f green:0.4196f blue:0.6745f alpha:1.0f]];
+    [[UISlider appearance] setMaximumTrackTintColor:[UIColor darkGrayColor]];
+    
+    
+    [[UISegmentedControl appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys: [UIColor whiteColor], UITextAttributeTextColor,  [UIFont fontWithName:SEGMENTED_CONTROL_FONT size:SEGMENTED_CONTROL_FONT_SIZE], UITextAttributeFont, nil] forState:UIControlStateNormal];
+    
+    [[UISegmentedControl appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys: [UIColor colorWithRed:0.8431f green:0.5804f blue:0.9451f alpha:1.0f], UITextAttributeTextColor, [UIFont fontWithName:SEGMENTED_CONTROL_FONT size:SEGMENTED_CONTROL_FONT_SIZE], UITextAttributeFont, nil] forState:UIControlStateSelected];
     
 
-    UIImage *buttonBack30 = [[UIImage imageNamed:@"barBtn.png"]
-                             resizableImageWithCapInsets:UIEdgeInsetsMake(0, 8, 0, 8)];
-    //UIImage *buttonBack24 = [[UIImage imageNamed:@"button_back_textured_24"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 12, 0, 5)];
-    [[UIBarButtonItem appearance] setBackButtonBackgroundImage:buttonBack30
-                                                      forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-    //[[UIBarButtonItem appearance] setBackButtonBackgroundImage:buttonBack24 forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
     
-    //[[UIBarButtonItem appearance] setTintColor:[UIColor colorWithRed:0.58f green:0.34f blue:0.075f alpha:1.0f]];
-    //[[UIBarButtonItem appearance] setTintColor:[UIColor brownColor]];
-    [[UISegmentedControl appearance] setTintColor:[UIColor grayColor]];
-    [[UISlider appearance] setMinimumTrackTintColor:[UIColor brownColor]];
+    //[[UIBarButtonItem appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys: [UIFont fontWithName:BAR_BUTTON_FONT size:BAR_BUTTON_FONT_SIZE], UITextAttributeFont, [UIColor lightGrayColor], UITextAttributeTextColor, nil] forState:UIControlStateNormal];
     
-    /*
+    
+    //[[UIBarButtonItem appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys: [UIFont fontWithName:BAR_BUTTON_FONT size:BAR_BUTTON_FONT_SIZE], UITextAttributeFont, [UIColor colorWithRed:0.8431f green:0.5804f blue:0.9451f alpha:1.0f], UITextAttributeTextColor, nil] forState:UIControlStateHighlighted];
+    
     [[UIBarButtonItem appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
-                                                          [UIColor colorWithRed:106.0f green:58.0f blue:5.0f alpha:1.0f],
-                                                              UITextAttributeTextColor,
-                                                          [UIFont fontWithName:@"Futura-Medium" size:0.0],UITextAttributeFont, nil]
-                                                          forState:UIControlStateNormal];
+                                  [UIColor whiteColor], UITextAttributeTextColor, nil] forState:UIControlStateNormal];
     
-    */
-    [[UISegmentedControl appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys: [UIColor whiteColor], UITextAttributeTextColor, [UIColor whiteColor], UITextAttributeTextShadowColor, [NSValue valueWithUIOffset:UIOffsetMake(0, 0)],UITextAttributeTextShadowOffset, nil] forState:UIControlStateNormal];
     
-    [[UIBarButtonItem appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys: [UIColor blackColor], UITextAttributeTextColor, [UIColor blackColor], UITextAttributeTextShadowColor, [NSValue valueWithUIOffset:UIOffsetMake(0, 0)],UITextAttributeTextShadowOffset, nil] forState:UIControlStateNormal];
+    [[UIBarButtonItem appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
+                                  [UIColor colorWithRed:0.8431f green:0.5804f blue:0.9451f alpha:1.0f], UITextAttributeTextColor, nil] forState:UIControlStateHighlighted];
+    
+    [[UINavigationBar appearance] setTintColor:[UIColor whiteColor]];
     
     //addMob
-    [self performSelectorInBackground:@selector(reportAppOpenToAdMob) withObject:nil];
+    //[self performSelectorInBackground:@selector(reportAppOpenToAdMob) withObject:nil];
+    
+    //[[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
     
     return YES;
      
@@ -87,6 +101,8 @@
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     
+    [[LocalyticsSession shared] close];
+    [[LocalyticsSession shared] upload];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -95,39 +111,95 @@
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
     
     // if image picker controller is active don't pop to root controller
-    if (!imagePickerControllerIsActive){
-        [self.navigationController popToRootViewControllerAnimated:NO];
-    }
+    //190213 - not the best way for user experience
+    //if (!imagePickerControllerIsActive){
+        //[self.navigationController popToRootViewControllerAnimated:NO];
+    //}
     
     //Localytics
-    [[LocalyticsSession sharedLocalyticsSession] close];
-    [[LocalyticsSession sharedLocalyticsSession] upload];
+    [[LocalyticsSession shared] close];
+    [[LocalyticsSession shared] upload];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
     //Localytics
-    [[LocalyticsSession sharedLocalyticsSession] resume];
-    [[LocalyticsSession sharedLocalyticsSession] upload];
+    [[LocalyticsSession shared] resume];
+    [[LocalyticsSession shared] upload];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    //when app become active, counter of enters in app increase on 1
+    //when it will be equal NUMBER_OF_APP_LAUNCHES_TO_SHOW_RATE_POPUP, rate popup will be shown
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:NUMBER_OF_APP_LAUNCHES_FOR_RATE_POPUP]){
+        
+        NSInteger num = [[[NSUserDefaults standardUserDefaults] objectForKey:NUMBER_OF_APP_LAUNCHES_FOR_RATE_POPUP] integerValue];
+        if (num != NUMBER_OF_APP_LAUNCHES_TO_SHOW_RATE_POPUP){
+                    
+            num = num + 1;
+            //NSLog(@"%d",num);
+            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInteger:num] forKey:NUMBER_OF_APP_LAUNCHES_FOR_RATE_POPUP];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+        else{
+            rateController = [[RateViewController alloc] initWithNibName:@"RateView" bundle:nil] ;
+            //[[rateController view] setCenter:self.window.center];
+            [[rateController view] setCenter:CGPointMake(self.window.center.x+[[rateController view] frame].size.width, self.window.center.y)];
+            [[self window] addSubview:[rateController view]];
+            
+            
+            [UIView animateWithDuration:1.0f delay:0 options:UIViewAnimationOptionCurveLinear animations:^{
+                [[rateController view] setAlpha:1.0f];
+                [[rateController view] setCenter:self.window.center];
+            }
+                             completion:^(BOOL finished) {
+                                 //
+                             }];
+
+            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:0] forKey:NUMBER_OF_APP_LAUNCHES_FOR_RATE_POPUP];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+            
+    }
+    else{
+        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:1] forKey:NUMBER_OF_APP_LAUNCHES_FOR_RATE_POPUP];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+    
+    [[LocalyticsSession shared] resume];
+    [[LocalyticsSession shared] upload];    
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     //Localytics
-    [[LocalyticsSession sharedLocalyticsSession] close];
-    [[LocalyticsSession sharedLocalyticsSession] upload];
+    [[LocalyticsSession shared] close];
+    [[LocalyticsSession shared] upload];
 }
 
+/*
+- (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken
+{
+	//NSLog(@"My token is: %@", deviceToken);
+}
+
+- (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error
+{
+	//NSLog(@"Failed to get token, error: %@", error);
+}
+ */
+/*
+- (void) onPushAccepted:(PushNotificationManager *)pushManager withNotification:(NSDictionary *)pushNotification {
+    //NSLog(@"Push notification received");
+}
+*/
 #pragma mark - help functions
 //add mob
-
+/*
 - (NSString *)hashedISU {
     
     NSString *result = nil;
@@ -180,5 +252,6 @@
     }
     [pool release];
 }
+ */
 
 @end

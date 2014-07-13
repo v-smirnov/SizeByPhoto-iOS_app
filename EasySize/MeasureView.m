@@ -10,7 +10,7 @@
 
 @implementation MeasureView
 
-@synthesize slidersArray, viewKey, sizesScrollView, additionalInfoLabel;
+@synthesize viewKey, additionalInfoLabel;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -23,9 +23,7 @@
 
 - (void)dealloc
 {
-    [slidersArray release];
     [viewKey release];
-    [sizesScrollView release];
     [additionalInfoLabel release];
     [super dealloc];
 }

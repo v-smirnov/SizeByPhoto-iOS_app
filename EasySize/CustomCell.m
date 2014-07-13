@@ -10,13 +10,14 @@
 
 @implementation CustomCell
 
-@synthesize customImageView, customTextLabel;
+@synthesize customImageView, customTextLabel, favoriteImageView;
 
 
 - (void)dealloc
 {
     [customImageView release];
     [customTextLabel release];
+    [favoriteImageView release];
     [super dealloc];
 }
 

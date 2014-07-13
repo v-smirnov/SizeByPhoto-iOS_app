@@ -7,16 +7,25 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "types.h"
+#import "Types.h"
+#import "Consts.h"
 
 @interface BrandManager : NSObject
 {
-    
+    PersonKind personKind;
 }
 
-+(BrandManager *)sharedBrandManager;
+@property (nonatomic, assign) PersonKind personKind;
+
+
+-(id) init;
+-(id) initWithPersonKind:(PersonKind) pKind;
+
+
+//+(BrandManager *)sharedBrandManager;
 
 - (NSArray *) getBrands;
-- (NSArray *) getMeasureParamsForBrand:(NSString *)brand clothesType:(NSString *)clothesType andPersonType:(PersonType)personType;
-- (NSDictionary *) getSizesForBrand:(NSString *) brand ClothesType:(NSString*) clothesType BodyParams:(NSDictionary *) bodyParams andPersonType:(PersonType) personType;
+- (NSArray *) getMeasureParamsForBrand:(NSString *)brand stuffType:(NSString *)stuff;
+- (NSDictionary *) getSizesForBrand:(NSString *) brand stuffType:(NSString*) stuff andBodyParams:(NSDictionary *) bodyParams;
+- (NSDictionary *) getSizesForAllBrandsForStuffType:(NSString *)stuff forCurrentProfile:(NSDictionary *)currentProfile;
 @end

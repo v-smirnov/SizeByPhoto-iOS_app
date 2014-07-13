@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "types.h"
+#import "Types.h"
 
 
 
@@ -18,25 +18,42 @@
 
 +(MeasureManager *)sharedMeasureManager;
 
-- (NSArray *) getClothesListForPersonType:(PersonType) personType;
-- (NSArray *) getClothesListForAllGenders;
-- (NSMutableDictionary *) getClothesMeasureParamsForPersonType:(PersonType) personType;;
-- (NSArray *)getSizesTableForClothesType:(NSString *) clothesType andPersonType:(PersonType) personType;
-- (float) getMinSizeForClothesType:(NSString *) clothesType andPersonType:(PersonType) personType;
-- (float) getMaxSizeForClothesType:(NSString *) clothesType andPersonType:(PersonType) personType;
+- (NSArray *) getClothesListForPersonType:(PersonKind) personType; //+
+
+- (NSArray *) getClothesListForAllGenders; //+
+
+- (NSMutableDictionary *) getClothesMeasureParamsForPersonType:(PersonKind) personType;//+
+
+- (NSArray *)getSizesTableForClothesType:(NSString *) clothesType andPersonType:(PersonKind) personType;
+
+- (float) getMinSizeForClothesType:(NSString *) clothesType andPersonType:(PersonKind) personType;//+
+
+- (float) getMaxSizeForClothesType:(NSString *) clothesType andPersonType:(PersonKind) personType;//+
+
 //- (float) getStepSliderValueForKey:(NSString *) key andPersonType:(PersonType) personType;
-- (NSInteger)findSizeForKeysAndValues:(NSDictionary *)keyAndValues andPersonType:(PersonType)personType;
-- (float) getSizeValueForKey:(NSString *) key PersonType:(PersonType) personType andState:(NSInteger) state;
-- (NSArray *) getGenderList;
-- (NSArray *) getSizesListForClothesType:(NSString *) clothesType personType:(PersonType) personType andIndex:(NSInteger) index;
-- (float) getMeasureKoefForKey:(NSString *) key personType:(PersonType) personType;
-- (NSArray *)getClothesWithTheSameSizeForChoosenOne:(NSString *)clothesType andPersonType:(PersonType)personType;
-- (NSString *) getLegLengthDescriptionForValue:(float) value andPersonType:(PersonType) personType;
+
+- (NSInteger)findSizeForKeysAndValues:(NSDictionary *)keyAndValues andPersonType:(PersonKind)personType;
+
+- (float) getSizeValueForKey:(NSString *) key PersonType:(PersonKind) personType andState:(NSInteger) state;
+
+- (NSArray *) getGenderList;//+
+
+- (NSArray *) getSizesListForClothesType:(NSString *) clothesType personType:(PersonKind) personType andIndex:(NSInteger) index;
+
+- (float) getMeasureKoefForKey:(NSString *) key personType:(PersonKind) personType;//+
+
+- (NSArray *)getClothesWithTheSameSizeForChoosenOne:(NSString *)clothesType andPersonType:(PersonKind)personType;
+
+- (NSString *) getLegLengthDescriptionForValue:(float) value andPersonType:(PersonKind) personType;
+
 - (NSArray *)getOrderedMeasureParams;
+
 - (NSString *) getLetterForBrasSizeWithChest:(float) chest andUnderChest:(float) underChest;
-- (BOOL) needToUpdateSizesForClothesWithTheSameParameters:(NSArray *) clothesArray forPersonType:(PersonType)personType;
+
+- (BOOL) needToUpdateSizesForClothesWithTheSameParameters:(NSArray *) clothesArray forPersonType:(PersonKind)personType;
 
 - (NSInteger) getCurrentProfileGender;
+
 - (float) getCurrentProfileBodyParam:(NSString *) bodyParam;
 
 

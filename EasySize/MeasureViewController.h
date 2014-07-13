@@ -9,23 +9,21 @@
 #import <UIKit/UIKit.h>
 #import "UIImageResize.h"
 #import <CoreImage/CoreImage.h>
-#import "MeasureManager.h"
-#import "DataManager.h"
+#import "VSProfileManager.h"
+#import "VSMeasureManager.h"
 #import "TextFieldWithKey.h"
 #import "ResultViewController.h"
 #import "ImageViewWithKey.h"
 #import "AppDelegate.h"
 #import "OverlayViewController.h"
-
-typedef enum
-{
-    main,
-    side
-    
-} pictureMode;
+#import "Types.h"
+#import "Consts.h"
+#import "TutorialViewController.h"
 
 
-@interface MeasureViewController : UIViewController <UIGestureRecognizerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIScrollViewDelegate, UIActionSheetDelegate, UIAlertViewDelegate, OverlayViewControllerDelegate>
+
+
+@interface MeasureViewController : UIViewController <UIGestureRecognizerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIScrollViewDelegate, UIAlertViewDelegate, OverlayViewControllerDelegate, TutorialViewControllerDelegate>
 {
     UIImageView *sizeView;
     CGFloat currentAngle;
@@ -33,19 +31,23 @@ typedef enum
     NSMutableArray *whatToMeasureArray;
     float distanceBetweenEyes;
     float distBwtEyesInSm;
-    NSMutableDictionary *allStuffToMeasureDictionary;
-    NSMutableArray *measureObjects;
     UIImagePickerControllerSourceType source;
-    BOOL pickingCanceled;
     UIScrollView *sizesScrollView;
     UIActivityIndicatorView *activityIndicator;
     BOOL makeMeasurementsUsingTwoPhotos;
+    BOOL pickingCanceled;
     NSMutableDictionary *photosDictionary;
     NSMutableDictionary *firstPhotoMeasuresDictionary;
-    BOOL measureDidFail;
     UIButton *infoButton;
     OverlayViewController *overlayViewController; // the camera custom overlay view
-    
+    VSMeasureManager *measureManager;
+    CGPoint leftEyePosition;
+    NSMutableDictionary *featuresOnPhotos;
+    pictureMode currentPictureMode;
+    float angleWhenUserTookFirstPhoto;
+    float angleWhenUserTookSecondPhoto;
+    NSInteger cameraDirectionWhenUserTookFirstPhoto;
+    NSInteger cameraDirectionWhenUserTookSecondPhoto;
 }
 
 @property (nonatomic, retain) IBOutlet UIImageView *sizeView;
@@ -59,7 +61,9 @@ typedef enum
 @property (nonatomic, retain) IBOutlet UIButton *infoButton;
 @property (nonatomic, retain) OverlayViewController *overlayViewController;
 
+
+
 -(void)addMeasure;
-- (IBAction) showTips:(id)sender;
+-(IBAction) showTips:(id)sender;
 
 @end

@@ -19,7 +19,7 @@
 @end
 
 @implementation FeedbackViewController
-@synthesize email, feedbackTextView, nameField, nameLabel, emailLabel, textLabel, sendButton,activityIndicator, form, textForFeedbackLabel;
+@synthesize email, feedbackTextView, nameField, nameLabel, emailLabel, textLabel,activityIndicator, form, textForFeedbackLabel, feedbackFormImageView;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -39,8 +39,8 @@
     [nameLabel release];
     [emailLabel release];
     [textLabel release];
-    [sendButton release];
     [textForFeedbackLabel release];
+    [feedbackFormImageView release];
     [super dealloc];
 }
 
@@ -56,8 +56,8 @@
     self.nameLabel = nil;
     self.emailLabel = nil;
     self.textLabel = nil;
-    self.sendButton = nil;
     self.textForFeedbackLabel = nil;
+    self.feedbackFormImageView = nil;
 }
 
 
@@ -66,13 +66,24 @@
     [super viewDidLoad];
     self.title = NSLocalizedString(@"Feedback", nil);
     // Do any additional setup after loading the view from its nib.
-    self.nameLabel.text = NSLocalizedString(@"Your name", nil);
-    self.emailLabel.text = NSLocalizedString(@"Your e-mail", nil);
-    self.textLabel.text = NSLocalizedString(self.textForFeedbackLabel, nil);
-    self.nameField.placeholder = NSLocalizedString(@"Your name", nil);
-    [self.sendButton setTitle:NSLocalizedString(@"Send", nil) forState:UIControlStateNormal];
+    //UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithCustomView:[self createCustomButtonForNavBarWithTitle:NSLocalizedString(@"Back", nil) selector:@selector(backBtnAction) andStyle:back]];
     
-    self.feedbackTextView.layer.cornerRadius = 10.0f;
+    //self.navigationItem.leftBarButtonItem = backButton;
+    //[backButton release];
+    self.feedbackTextView.font = [UIFont fontWithName:FEEDBACK_TEXT_FONT size:FEEDBACK_TEXT_FONT_SIZE];
+    
+    self.nameLabel.text = NSLocalizedString(@"Your name", nil);
+    self.nameLabel.font = [UIFont fontWithName:FEEDBACK_LABEL_FONT size:FEEDBACK_LABEL_FONT_SIZE];
+    self.emailLabel.text = NSLocalizedString(@"Your e-mail", nil);
+    self.emailLabel.font = [UIFont fontWithName:FEEDBACK_LABEL_FONT size:FEEDBACK_LABEL_FONT_SIZE];
+    self.textLabel.text = NSLocalizedString(self.textForFeedbackLabel, nil);
+    self.textLabel.font = [UIFont fontWithName:FEEDBACK_LABEL_FONT size:FEEDBACK_LABEL_FONT_SIZE];
+    
+    UIBarButtonItem *sendButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Send", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(sendRequest:)] ;
+    self.navigationItem.rightBarButtonItem = sendButton;
+    [sendButton release];
+    
+    //self.feedbackTextView.layer.cornerRadius = 10.0f;
     self.feedbackTextView.delegate = self;
     [self.activityIndicator stopAnimating];
 }
@@ -95,6 +106,10 @@
     [self.feedbackTextView resignFirstResponder];
 }
 
+- (void) backBtnAction
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 - (IBAction)sendRequest:(id)sender
 {
@@ -147,12 +162,12 @@
         [request setHTTPMethod:@"POST"];
         [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-        [request setValue:[NSString stringWithFormat:@"%d", [jsonData length]] forHTTPHeaderField:@"Content-Length"];
+        [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[jsonData length]] forHTTPHeaderField:@"Content-Length"];
         [request setHTTPBody: jsonData];
         
         connection = [[NSURLConnection alloc]initWithRequest:request delegate:self];
         if (!connection) {
-            [self showAlertDialogWithTitle:@"Warning" andMessage:@"Connection failed!"];
+            [self showAlertDialogWithTitle:@"" andMessage:@"Connect to the Internet to continue"];
         }
         else{
             self.navigationController.navigationItem.backBarButtonItem.enabled = false;
@@ -161,7 +176,7 @@
         }
     }
     else{
-        [self showAlertDialogWithTitle:@"Warning" andMessage:[error localizedDescription]];
+        [self showAlertDialogWithTitle:@"" andMessage:@"Connect to the Internet to continue"];
     }
 
     
@@ -178,6 +193,8 @@
     [alert show];
     [alert release];
 }
+
+
 #pragma mark - NSURLConnection delegate methods
 -(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
@@ -210,22 +227,34 @@
 #pragma mark - Text view delegate methods
 - (void)textViewDidBeginEditing:(UITextView *)textView
 {
-    CGRect newFrame;
+    CGRect newTextViewFrame;
     if ([[UIScreen mainScreen] bounds].size.height == 568){
-        newFrame = CGRectMake(textView.frame.origin.x, textView.frame.origin.y, textView.frame.size.width, 125);
-    }
+        newTextViewFrame = CGRectMake(textView.frame.origin.x, textView.frame.origin.y, textView.frame.size.width, 120);
+        }
     else{
-        newFrame = CGRectMake(textView.frame.origin.x, textView.frame.origin.y, textView.frame.size.width, 45);
+        newTextViewFrame = CGRectMake(textView.frame.origin.x, textView.frame.origin.y, textView.frame.size.width, 35);
     }
     
-    textView.frame = newFrame;
+    textView.frame = newTextViewFrame;
+ 
 }
 
 - (void) textViewDidEndEditing:(UITextView *)textView
 {
-    CGRect newFrame = CGRectMake(textView.frame.origin.x, textView.frame.origin.y, textView.frame.size.width, 207);
+    CGRect newTextViewFrame = CGRectMake(textView.frame.origin.x, textView.frame.origin.y, textView.frame.size.width, 179);
     
-    textView.frame = newFrame;
+    textView.frame = newTextViewFrame;
+}
+
+#pragma mark alert view delegate methods
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    
+    if (buttonIndex == 0){
+        [self.navigationController popViewControllerAnimated:YES];
+    }
+           
+    
 }
 
 @end

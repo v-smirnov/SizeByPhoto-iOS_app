@@ -11,8 +11,10 @@
 @interface ImageViewWithKey : UIImageView
 {
     NSString *key;
+    NSString *imageName;
 }
 
 @property (nonatomic, retain) NSString *key;
+@property (nonatomic, retain) NSString *imageName;
 
 @end

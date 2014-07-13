@@ -8,12 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface CustomCell : UITableViewCell{
-    UILabel *customTextLabel;
-    UIImageView *customImageView;
-}
+@interface CustomCell : UITableViewCell
+
 
 @property (nonatomic, retain) IBOutlet UILabel *customTextLabel;
 @property (nonatomic, retain) IBOutlet UIImageView *customImageView;
+@property (nonatomic, retain) IBOutlet UIImageView *favoriteImageView;
 
 @end

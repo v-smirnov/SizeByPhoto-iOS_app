@@ -7,6 +7,21 @@
 //
 
 #import "ResultViewController.h"
+#import "MPAnimation.h"
+#import "Consts.h"
+
+#define DEGREES_TO_RADIANS(d) (d * M_PI / 180)
+#define WIRE_VIEW_TAG 100
+
+#define SEND_SHEET 10
+#define EDIT_SHEET 11
+#define SHARE_SHEET 12
+
+#define SHARE_ALERT 20
+#define SAVE_PROFILE_ALERT 21
+
+
+#define START_DIALOG_TAG 101
 
 
 @interface ResultViewController ()
@@ -15,7 +30,7 @@
 
 @implementation ResultViewController
 
-@synthesize profileImageView, nameLabel, bButtonType, sexLabel, bodyParamsLabel, eButtonType, fbButton,resultScrollView, resultArray, brandsButton;
+@synthesize profileImageView, nameLabel, backButton, bodyParamsLabel, editButton, fbButton, measuredStuff, genderImageView, startDialogController, stuffTableView;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -33,24 +48,26 @@
     // Release any retained subviews of the main view.
     self.profileImageView = nil;
     self.nameLabel = nil;
-    self.sexLabel = nil;
     self.bodyParamsLabel = nil;
-    self.resultScrollView = nil;
-    self.resultArray = nil;
+    self.measuredStuff = nil;
     self.fbButton = nil;
-    self.brandsButton = nil;
+    [measureManager release]; measureManager = nil;
+    self.genderImageView = nil;
+    [startDialogController release]; startDialogController = nil;
+    self.stuffTableView = nil;
 }
 
 - (void)dealloc
 {
     [profileImageView release];
     [nameLabel release];
-    [sexLabel release];
     [bodyParamsLabel release];
-    [resultScrollView release];
-    [resultArray release];
+    [measuredStuff release];
     [fbButton release];
-    [brandsButton release];
+    [measureManager release];
+    [genderImageView release];
+    [startDialogController release];
+    [stuffTableView release];
     [super dealloc];
 }
 
@@ -60,82 +77,122 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
+    userTapedOnSaveAsButton = false;
+    
     self.profileImageView.clipsToBounds =YES;
     self.profileImageView.layer.cornerRadius = 10.0f;
-
-    //just viewing results
-    if (eButtonType != noButton){
-        UIBarButtonItem *changeButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Edit", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(editData)] ;
     
-        self.navigationItem.rightBarButtonItem = changeButton;
-        [changeButton release];
+    PersonKind pKind = [[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind];
+    measureManager = [[VSMeasureManager alloc] initWithPersonKind:pKind];
+    
+      
+    //just viewing results
+    if (editButton == standartEditButton){
+        
+        UIBarButtonItem *measureButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Measure", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(startMeasure)] ;
+        
+        self.navigationItem.rightBarButtonItem = measureButton;
+        [measureButton release];
+        
         self.fbButton.hidden = NO;
-        [self.fbButton setTitle:NSLocalizedString(@"Send by e-mail", nil) forState:UIControlStateNormal];
+    }
+    else if (editButton == saveAsButton){
+        UIBarButtonItem *saveAsButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Save as", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(saveProfileData:)] ;
+        self.navigationItem.rightBarButtonItem = saveAsButton;
+        [saveAsButton release];
+            
+        self.fbButton.hidden = NO;
     }
     //viewing results after measuring
-    else{
+    else if (editButton == noButton){
         self.fbButton.hidden = NO;
-        [self.fbButton setTitle:NSLocalizedString(@"Wrong size?", nil) forState:UIControlStateNormal];
     }
-    [self.brandsButton setTitle:NSLocalizedString(@"Sizes by brands", nil) forState:UIControlStateNormal];
     
-    if (self.bButtonType == rootButton){
+    if (self.backButton == rootButton){
         UIBarButtonItem *backToProfilesButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Profiles", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(backToProfiles)] ;
         
         self.navigationItem.leftBarButtonItem = backToProfilesButton;
         [backToProfilesButton release];
     }
-    self.title = NSLocalizedString(@"Result", nil);
     
-    
-    
-    [self fillScrollViewWithSizes];
-   
+    self.measuredStuff = [measureManager getStuffForSizeDefining];
     
 }
 
 - (void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    if ([[DataManager sharedDataManager] currentProfile]){
+    self.title = [[VSProfileManager sharedProfileManager] getCurrentProfileCharacteristic:PROFILE_NAME];
+    
+    // we have to reload stuff table if we change person kind
+    if (measureManager){
+        PersonKind pKind = [[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind];
+        if (measureManager.personKind != pKind){
+            measureManager.personKind = pKind;
+            self.measuredStuff = [measureManager getStuffForSizeDefining];
+            [self.stuffTableView reloadData];
+        }
+    }
+    
+    if (userTapedOnSaveAsButton){
+        UIBarButtonItem *backToProfilesButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Profiles", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(backToProfiles)] ;
         
-        NSString *name = [[[DataManager sharedDataManager] currentProfile] objectForKey:@"name"];
+        self.navigationItem.rightBarButtonItem = backToProfilesButton;
+        [backToProfilesButton release];
+    }
+    
+    if ([[VSProfileManager sharedProfileManager] currentProfileNotEmpty]){
+        
+        NSString *name = [[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:PROFILE_NAME];
         
         name = [name stringByAppendingString:@" "];
         
-        name = [name stringByAppendingString:[[[DataManager sharedDataManager] currentProfile] objectForKey:@"surname"]];
+        name = [name stringByAppendingString:[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:PROFILE_SURNAME]];
         
-        
+        self.nameLabel.textColor = MAIN_THEME_COLOR;
+        self.nameLabel.font = [UIFont fontWithName:PROFILE_NAME_FONT size:SIZE_LABEL_FONT_SIZE];
         self.nameLabel.text = name;
 
-        self.sexLabel.text = NSLocalizedString([[[MeasureManager sharedMeasureManager] getGenderList] objectAtIndex:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]], nil);
+        self.genderImageView.image = [[measureManager getPersonKindsImagesList] objectAtIndex:(NSInteger)[[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind]];
+        
         NSString *bodyParams = @"";
-        if ([[[DataManager sharedDataManager] currentProfile] objectForKey:@"Chest"] )
+        if ([[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:CHEST] )
         {
             //chest
             bodyParams = [bodyParams stringByAppendingString:NSLocalizedString(@"Chest", nil)];
-            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@": %.2f cm", [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"Chest"] floatValue]]];
+            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@": %.1f cm", [[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:CHEST] floatValue]]];
             //inches
-            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@"/%.2f inch\n", [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"Chest"] floatValue]/2.54f]];
+            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@"/%.1f inch\n", [[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:CHEST] floatValue]/2.54f]];
 
             
         }
-        if ([[[DataManager sharedDataManager] currentProfile] objectForKey:@"Waist"] )
+        
+        if ([[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:UNDER_CHEST] )
+        {
+            //under chest
+            bodyParams = [bodyParams stringByAppendingString:NSLocalizedString(@"Under chest", nil)];
+            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@": %.1f cm", [[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:UNDER_CHEST] floatValue]]];
+            //inches
+            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@"/%.1f inch\n", [[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:UNDER_CHEST] floatValue]/2.54f]];
+            
+        }
+         
+        if ([[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:WAIST] )
         {
             //waist
             bodyParams = [bodyParams stringByAppendingString:NSLocalizedString(@"Waist", nil)];
-            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@": %.2f cm", [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"Waist"] floatValue]]];
+            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@": %.1f cm", [[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:WAIST] floatValue]]];
             //inches
-            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@"/%.2f inch\n", [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"Waist"] floatValue]/2.54f]];
+            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@"/%.1f inch\n", [[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:WAIST] floatValue]/2.54f]];
             
         }
-        if ([[[DataManager sharedDataManager] currentProfile] objectForKey:@"Hips"] )
+        if ([[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:HIPS] )
         {
             //waist
-            bodyParams = [bodyParams stringByAppendingString:NSLocalizedString(@"Hips", nil)];
-            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@": %.2f cm", [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"Hips"] floatValue]]];
+            bodyParams = [bodyParams stringByAppendingString:NSLocalizedString(HIPS, nil)];
+            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@": %.1f cm", [[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:HIPS] floatValue]]];
             //inches
-            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@"/%.2f inch ", [[[[DataManager sharedDataManager] currentProfile] objectForKey:@"Hips"] floatValue]/2.54f]];
+            bodyParams = [bodyParams stringByAppendingString:[NSString stringWithFormat:@"/%.1f inch ", [[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:HIPS] floatValue]/2.54f]];
 
             
         }
@@ -144,11 +201,14 @@
         self.bodyParamsLabel.text = bodyParams;
         
         //getting photo
-        NSData *imageData = [[[DataManager sharedDataManager] currentProfile] objectForKey:@"photo"];
+        NSData *imageData = [[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:PROFILE_PHOTO];
         if (imageData)
         {
             UIImage *image = [UIImage imageWithData:imageData];
             self.profileImageView.image = image;
+        }
+        else{
+            self.profileImageView.image = [UIImage imageNamed:@"No_photo"];
         }
     }
 
@@ -161,59 +221,144 @@
 
 #pragma mark - help functions
 
-- (NSString *) getCurrentProfileSizes
+- (void) unlockAllStuff
+{
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:1] forKey:USER_UNLOCK_ALL_STUFF];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+
+}
+
+- (BOOL) stuffUnlocked
+{
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:USER_UNLOCK_ALL_STUFF]){
+        NSInteger num = [[[NSUserDefaults standardUserDefaults] objectForKey:USER_UNLOCK_ALL_STUFF] integerValue];
+        return (num == 1);
+        //return false;
+    }
+    else{
+        return false;
+    }
+    
+}
+
+- (void) shareViaTwitter
+{
+
+    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter]) {
+        
+        SLComposeViewController *controller = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
+        
+        SLComposeViewControllerCompletionHandler myBlock = ^(SLComposeViewControllerResult result){
+            if (result == SLComposeViewControllerResultCancelled) {
+                
+                //NSLog(@"Cancelled");
+                
+            } else
+                
+            {
+                [self unlockAllStuff];
+                [self.stuffTableView reloadData];
+            }
+            
+            [controller dismissViewControllerAnimated:YES completion:Nil];
+        };
+        controller.completionHandler =myBlock;
+        
+        //Adding the Text to the facebook post value from iOS
+        [controller setInitialText:@"#easysize"];
+        
+        [self presentViewController:controller animated:YES completion:Nil];
+        
+    }
+    else{
+        [self showAlertDialogWithTitle:@"Twitter" andMessage:@"You can't send a twit right now. Make sure your device has an internet connection and you have at least one Twitter account setup."];
+    }
+    
+}
+
+- (void) shareViaFacebook
+{
+    //NSLog(@"F");
+    
+}
+
+- (NSString *) getMessageBody
 {
     NSString *resStr = @"";
     NSArray *stuffArray;
     
-    NSArray *countries = [NSArray arrayWithObjects:@"EU", @"RU", @"US", @"UK", @"INT", nil];
     
-    if (self.resultArray){
-        stuffArray = self.resultArray;
+    if (self.measuredStuff){
+        stuffArray = self.measuredStuff;
     }
     else{
-        stuffArray = [[MeasureManager sharedMeasureManager] getClothesListForPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
+        stuffArray = [measureManager getStuffForSizeDefining];
     }
     
-    for (NSString *clothesType in stuffArray) {
+    
+    //start html-message
+    resStr = [resStr stringByAppendingFormat:@"<!DOCTYPE HTML><html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"></head><body><p>%@</p>", NSLocalizedString(@"email_part1", nil)];
+    
+    
+    NSInteger pKind = (NSInteger) [[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind];
+    
+    if (pKind == Man){ 
+        resStr = [resStr stringByAppendingFormat:@"<p>%@ %@ %@</p>", NSLocalizedString(@"email_part2", nil), self.nameLabel.text, NSLocalizedString(@"email_part3_0", nil)];
+    }
+    else if (pKind == Woman){
+         resStr = [resStr stringByAppendingFormat:@"<p>%@ %@ %@</p>", NSLocalizedString(@"email_part2", nil), self.nameLabel.text, NSLocalizedString(@"email_part3_1", nil)];
+    }
+    else {
+         resStr = [resStr stringByAppendingFormat:@"<p>%@ %@ %@</p>", NSLocalizedString(@"email_part2", nil), self.nameLabel.text, NSLocalizedString(@"email_part3", nil)];
+    }
+    
+    resStr = [resStr stringByAppendingFormat:@"<table border=\"1\" cellspacing=\"0\" cellpadding=\"2\"><tbody><tr><td valign=\"top\"></td><td valign=\"top\" ><p>EU</p></td><td valign=\"top\" ><p>RU</p></td><td valign=\"top\" ><p>US</p></td><td valign=\"top\" ><p>UK</p></td><td valign=\"top\" ><p>%@</p></td></tr>",  NSLocalizedString(@"email_part4", nil)];
+    
+    // html sizes table
+    for (NSString *stuffType in stuffArray) {
         
-        if ([[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:0] integerValue] != -1)
+        if ([[[[[VSProfileManager sharedProfileManager] currentProfile] objectForKey:stuffType] objectAtIndex:0] integerValue] != -1)
         {
             
-            resStr = [resStr stringByAppendingString:NSLocalizedString(clothesType, nil)];
-            resStr = [resStr stringByAppendingString:@": "];
+            resStr = [resStr stringByAppendingFormat:@"<tr><td valign=\"middle\">%@</td>", NSLocalizedString(stuffType, nil)];
             
-            NSArray *sizesArray =  [[MeasureManager sharedMeasureManager] getSizesListForClothesType:clothesType personType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender] andIndex:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:0] integerValue]];
+            NSArray *bodyParams = [measureManager getMeasureParamsForStuffType:stuffType];
+            
+            NSMutableDictionary *bodyParamsWithValues = [[NSMutableDictionary alloc] initWithCapacity:[bodyParams count]];
+            for (NSString *param in bodyParams) {
+                [bodyParamsWithValues setObject:[NSNumber numberWithFloat:[[VSProfileManager sharedProfileManager] getCurrentProfileValueForBodyParam:param]] forKey:param];
+            }
+            NSDictionary *sizes = [measureManager getSizesForStuffType:stuffType andBodyParams:bodyParamsWithValues];
+            [bodyParamsWithValues release];
             
             NSString *additionalInfo = @"";
-            if ([[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] count] == 2){
-                /*
-                 if ([clothesType isEqualToString:@"Jeans"]){
-                 additionalInfo = [[MeasureManager sharedMeasureManager] getLegLengthDescriptionForValue:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:1] floatValue] andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
-                 }
-                 */
-                //letter for bra size
-                if ([clothesType isEqualToString:@"Bras"]){
-                    additionalInfo = [[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:1];
+            if ([sizes objectForKey:@"additionalInfo"]){
+                additionalInfo = [sizes objectForKey:@"additionalInfo"];
+            }
+            
+            if ([sizes objectForKey:@"Sizes"]){
+                NSArray *sizesArray = [sizes objectForKey:@"Sizes"];
+                for (NSString *sizeString in sizesArray) {
+                    if (![additionalInfo isEqualToString:@""]){
+                        sizeString = [sizeString stringByAppendingString:additionalInfo];
+                    }
+                    resStr = [resStr stringByAppendingFormat:@"<td valign=\"middle\" align=\"center\">%@</td>", sizeString];
+                    
                 }
-                
             }
-            NSInteger i = 0;
-            for (NSString *sizeString in sizesArray) {
-                resStr = [resStr stringByAppendingString:[countries objectAtIndex:i]];
-                resStr = [resStr stringByAppendingString:@" - "];
-                resStr = [resStr stringByAppendingString:sizeString];
-                resStr = [resStr stringByAppendingString:@"; "];
-                i++;
-            }
-            resStr = [resStr stringByAppendingString: additionalInfo];
-            resStr = [resStr stringByAppendingString:@"\n"];
+            
+            resStr = [resStr stringByAppendingString:@"</tr>"];
         }
         
         
     }
-    resStr = [resStr stringByAppendingString:@"\n"];
-    resStr = [resStr stringByAppendingString: NSLocalizedString(@"Sent from EasySize", nil)];
+    resStr = [resStr stringByAppendingString:@"</tbody></table>"];
+    
+    //end html message
+    resStr = [resStr stringByAppendingFormat:@"%@", NSLocalizedString(@"email_part5", nil)];
+    
+    resStr = [resStr stringByAppendingString:@"</body></html>"];
+    
     return resStr;
     
 }
@@ -229,63 +374,66 @@
     [alert release];
 }
 
-- (void) fillScrollViewWithSizes
-{
-    float currentY = 0;
-    NSArray *stuffArray;
-    
-    if (self.resultArray){
-        stuffArray = self.resultArray;
-    }
-    else{
-        stuffArray = [[MeasureManager sharedMeasureManager] getClothesListForPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
-    }
-    
-    for (NSString *clothesType in stuffArray) {
-        
-        if ([[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:0] integerValue] != -1)
-        {
-            
-            NSArray *sizesArray =  [[MeasureManager sharedMeasureManager] getSizesListForClothesType:clothesType personType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender] andIndex:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:0] integerValue]];
-            
-            NSString *additionalInfo = @"";
-            if ([[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] count] == 2){
-                //NSLog(@"%@",clothesType);
-                /*
-                if ([clothesType isEqualToString:@"Jeans"]){
-                    additionalInfo = [[MeasureManager sharedMeasureManager] getLegLengthDescriptionForValue:[[[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:1] floatValue] andPersonType:[[MeasureManager sharedMeasureManager] getCurrentProfileGender]];
-                }
-                 */
-                //letter for bra size
-                if ([clothesType isEqualToString:@"Bras"]){
-                    additionalInfo = [[[[DataManager sharedDataManager] currentProfile] objectForKey:clothesType] objectAtIndex:1];
-                }
+- (void) showYesNoDialogWithTitle:(NSString *) title message:(NSString *) message andTag:(NSInteger) tag{
+    UIAlertView* alert = [[UIAlertView alloc]
+                          initWithTitle:NSLocalizedString(title, nil)
+                          message:NSLocalizedString(message, nil)
+                          delegate:self
+                          cancelButtonTitle:NSLocalizedString(@"No", nil)
+                          otherButtonTitles:NSLocalizedString(@"Yes", nil), nil];
+    alert.tag = tag;
+    [alert show];
+    [alert release];
+}
 
-            }
-            
-            CGRect currentFrame = CGRectMake(0, currentY, self.resultScrollView.frame.size.width, 120);
-            
-            [self createSizeViewWithFrame:currentFrame Background:[UIImage imageNamed:@"cell_background.png"] Title:clothesType sizesArray:sizesArray addInfo:additionalInfo];
-            currentY = currentY + 120;
-        }
-        
-        
-    }
-    if (currentY <= self.resultScrollView.frame.size.height){
-        currentY = self.resultScrollView.frame.size.height + 10;
-    }
-    self.resultScrollView.contentSize = CGSizeMake(self.resultScrollView.frame.size.width , currentY);
+- (void) showShareDialogWithTitle:(NSString *) title message:(NSString *) message andTag:(NSInteger) tag{
+    UIAlertView* alert = [[UIAlertView alloc]
+                          initWithTitle:NSLocalizedString(title, nil)
+                          message:NSLocalizedString(message, nil)
+                          delegate:self
+                          cancelButtonTitle:NSLocalizedString(@"No, thanks", nil)
+                          otherButtonTitles:NSLocalizedString(@"Share", nil), nil];
+    alert.tag = tag;
+    [alert show];
+    [alert release];
 }
 
 
-- (void) createSizeViewWithFrame:(CGRect) frame Background:(UIImage *) bg  Title:(NSString *) title sizesArray:(NSArray *) sizesArray addInfo:(NSString *) additionalInfo
+- (MeasureView *) createSizeViewWithFrame:(CGRect) frame background:(UIImage *) bg  stuffType:(NSString *) stuff
 {
-    //image cell
-    MeasureView *currentView = [[MeasureView alloc] initWithFrame:frame];
-    currentView.userInteractionEnabled = YES;
-    currentView.image = bg;
-    currentView.viewKey = title;
     
+    NSArray *bodyParams = [measureManager getMeasureParamsForStuffType:stuff];
+    
+    NSMutableDictionary *bodyParamsWithValues = [[NSMutableDictionary alloc] initWithCapacity:[bodyParams count]];
+    for (NSString *param in bodyParams) {
+        [bodyParamsWithValues setObject:[NSNumber numberWithFloat:[[VSProfileManager sharedProfileManager] getCurrentProfileValueForBodyParam:param]] forKey:param];
+    }
+    NSDictionary *sizes = [measureManager getSizesForStuffType:stuff andBodyParams:bodyParamsWithValues];
+    
+    [bodyParamsWithValues release];
+    
+    NSString *additionalInfo = @"";
+    if ([sizes objectForKey:@"additionalInfo"]){
+        additionalInfo = [sizes objectForKey:@"additionalInfo"];
+    }
+    
+    NSArray *sizesArray = nil;
+    if ([sizes objectForKey:@"Sizes"]){
+        sizesArray = [sizes objectForKey:@"Sizes"];
+    }
+
+    
+    
+    //image cell
+    MeasureView *currentView = [[[MeasureView alloc] initWithFrame:frame] autorelease];
+    currentView.userInteractionEnabled = YES;
+    //currentView.contentMode = UIViewContentModeScaleAspectFit;
+    currentView.image = bg;
+    //[currentView setBackgroundColor:[UIColor lightGrayColor]];
+    //[[currentView layer] setBorderWidth:2.0f];
+    //[[currentView layer] setBorderColor:[[UIColor grayColor] CGColor]];
+    currentView.viewKey = stuff;
+    /*
     //adding gesture to image view
     UISwipeGestureRecognizer *swipeShowRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(showDeleteButton:)];
     swipeShowRecognizer.direction =UISwipeGestureRecognizerDirectionRight;
@@ -296,156 +444,161 @@
     swipeHideRecognizer.direction =UISwipeGestureRecognizerDirectionLeft;
     [currentView addGestureRecognizer:swipeHideRecognizer];
     [swipeHideRecognizer release];
-
+     */
+    
+    //for left page right swipe
+    /*
+    UISwipeGestureRecognizer *rightSwipeGR = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(rightSwipe:)];
+    [rightSwipeGR setDirection: UISwipeGestureRecognizerDirectionRight];
+    [currentView addGestureRecognizer:rightSwipeGR];
+    [rightSwipeGR release];
+    */
     
     //title
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 7, currentView.frame.size.width, 17)];
-    label.textColor = [UIColor blackColor];
-    label.font = [UIFont systemFontOfSize:16.0f];
+    CGRect titleLabelFrame;
+    if ([[UIScreen mainScreen] bounds].size.height == 568){
+        titleLabelFrame = CGRectMake(0, 30, currentView.frame.size.width, 20);
+    }
+    else{
+        titleLabelFrame = CGRectMake(0, 20, currentView.frame.size.width, 20);
+    }
+    UILabel *label = [[UILabel alloc] initWithFrame:titleLabelFrame];
+    label.textColor = [UIColor lightGrayColor];
+    label.font = [UIFont fontWithName:SIZE_LABEL_TITLE_FONT size:SIZE_LABEL_TITLE_FONT_SIZE];
     label.backgroundColor = [UIColor clearColor];
     label.numberOfLines = 0;
-    label.lineBreakMode = UILineBreakModeWordWrap;
-    label.textAlignment =UITextAlignmentCenter;
-    label.text = NSLocalizedString(title, nil);
+    label.lineBreakMode = NSLineBreakByWordWrapping;
+    label.textAlignment =NSTextAlignmentCenter;
+    label.text =  [NSLocalizedString(stuff, nil) uppercaseString];
     [currentView addSubview:label];
     [label release];
 
-    //additional info label
-    UILabel *infoLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, currentView.frame.size.height-37, currentView.frame.size.width/2, 25)];
-    infoLabel.textColor = [UIColor blackColor];
-    infoLabel.font = [UIFont systemFontOfSize:16.0f];
-    infoLabel.backgroundColor = [UIColor clearColor];
-    infoLabel.numberOfLines = 0;
-    infoLabel.lineBreakMode = UILineBreakModeWordWrap;
-    infoLabel.textAlignment =UITextAlignmentLeft;
-    infoLabel.text = additionalInfo;
-    [currentView addSubview:infoLabel];
-    [infoLabel release];
-
+   
+    //to imitate angle for flags use direction var
+    NSInteger slopeDirection = -1;
+    
     
     //flags view
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(10, 25, 40, 35)];
-    imageView.image = [UIImage imageNamed:@"EU_Flag.png"];
-    [currentView addSubview:imageView];
-    [imageView release];
+    NSArray *flags = [NSArray arrayWithObjects:@"eu_flag.png", @"ru_flag.png", @"us_flag.png", @"uk_flag.png", @"wo_flag.png", nil];
+    float yPoint;
+    if ([[UIScreen mainScreen] bounds].size.height == 568){
+        yPoint= 80.0f;
+    }
+    else{
+        yPoint = 62.0f;
+    }
+    NSInteger slopeKoef = 0;
+    for (NSString *flag in flags) {
+        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(25 + (slopeKoef*slopeDirection), yPoint, 25, 25)];
+        imageView.image = [UIImage imageNamed:flag];
+        [currentView addSubview:imageView];
+        [imageView release];
+        
+        yPoint = yPoint + 30;
+        slopeKoef++;
+    }
+    UIButton *addCountryButton = [UIButton buttonWithType:UIButtonTypeContactAdd];
+    [addCountryButton setFrame:CGRectMake(25+(slopeKoef*slopeDirection), yPoint, 25, 25)];
+    [currentView addSubview:addCountryButton];
+    [addCountryButton addTarget:self action:@selector(onAddCountryButtonTap:) forControlEvents:UIControlEventTouchUpInside];
     
-    imageView = [[UIImageView alloc] initWithFrame:CGRectMake(75, 25, 40, 35)];
-    imageView.image = [UIImage imageNamed:@"RUS_Flag.png"];
-    [currentView addSubview:imageView];
-    [imageView release];
     
-    imageView = [[UIImageView alloc] initWithFrame:CGRectMake(140, 25, 40, 35)];
-    imageView.image = [UIImage imageNamed:@"US_Flag.png"];
-    [currentView addSubview:imageView];
-    [imageView release];
     
-    imageView = [[UIImageView alloc] initWithFrame:CGRectMake(205, 25, 40, 35)];
-    imageView.image = [UIImage imageNamed:@"UK_Flag.png"];
-    [currentView addSubview:imageView];
-    [imageView release];
-    
-    imageView = [[UIImageView alloc] initWithFrame:CGRectMake(270, 25, 40, 35)];
-    imageView.image = [UIImage imageNamed:@"World_Flag.png"];
-    [currentView addSubview:imageView];
-    [imageView release];
-    
-    /*
-    UILabel *labelView = [[UILabel alloc] initWithFrame:CGRectMake(10, 25, 40, 35)];
-    labelView.backgroundColor = [UIColor clearColor];
-    labelView.textColor = [UIColor brownColor];
-    labelView.font = [UIFont systemFontOfSize:15.0f];
-    labelView.adjustsFontSizeToFitWidth = YES;
-    labelView.lineBreakMode = UILineBreakModeWordWrap;
-    labelView.textAlignment =UITextAlignmentCenter;
-    labelView.text = @"EU";
-    [currentView addSubview:labelView];
-    [labelView release];
-    
-    labelView = [[UILabel alloc] initWithFrame:CGRectMake(75, 25, 40, 35)];
-    labelView.backgroundColor = [UIColor clearColor];
-    labelView.textColor = [UIColor brownColor];
-    labelView.font = [UIFont systemFontOfSize:15.0f];
-    labelView.adjustsFontSizeToFitWidth = YES;
-    labelView.lineBreakMode = UILineBreakModeWordWrap;
-    labelView.textAlignment =UITextAlignmentCenter;
-    labelView.text = @"RUS";
-    [currentView addSubview:labelView];
-    [labelView release];
-
-    labelView = [[UILabel alloc] initWithFrame:CGRectMake(140, 25, 40, 35)];
-    labelView.backgroundColor = [UIColor clearColor];
-    labelView.textColor = [UIColor brownColor];
-    labelView.font = [UIFont systemFontOfSize:15.0f];
-    labelView.adjustsFontSizeToFitWidth = YES;
-    labelView.lineBreakMode = UILineBreakModeWordWrap;
-    labelView.textAlignment =UITextAlignmentCenter;
-    labelView.text = @"US";
-    [currentView addSubview:labelView];
-    [labelView release];
-
-    labelView = [[UILabel alloc] initWithFrame:CGRectMake(205, 25, 40, 35)];
-    labelView.backgroundColor = [UIColor clearColor];
-    labelView.textColor = [UIColor brownColor];
-    labelView.font = [UIFont systemFontOfSize:15.0f];
-    labelView.adjustsFontSizeToFitWidth = YES;
-    labelView.lineBreakMode = UILineBreakModeWordWrap;
-    labelView.textAlignment =UITextAlignmentCenter;
-    labelView.text = @"UK";
-    [currentView addSubview:labelView];
-    [labelView release];
-
-    labelView = [[UILabel alloc] initWithFrame:CGRectMake(270, 25, 40, 35)];
-    labelView.backgroundColor = [UIColor clearColor];
-    labelView.textColor = [UIColor brownColor];
-    labelView.font = [UIFont systemFontOfSize:15.0f];
-    labelView.adjustsFontSizeToFitWidth = YES;
-    labelView.lineBreakMode = UILineBreakModeWordWrap;
-    labelView.textAlignment =UITextAlignmentCenter;
-    labelView.text = @"INT";
-    [currentView addSubview:labelView];
-    [labelView release];
-    */
-    
-    float xPoint = 10.0f;
+    if ([[UIScreen mainScreen] bounds].size.height == 568){
+        yPoint= 80.0f;
+    }
+    else{
+        yPoint = 62.0f;
+    }
+    slopeKoef = 0;
     for (NSString *sizeString in sizesArray) {
         
-        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(xPoint, 55, 40, 30)];
-        label.textColor = [UIColor blackColor];
-        label.font = [UIFont systemFontOfSize:15.0f];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(frame.size.width/2+(slopeKoef*slopeDirection), yPoint, frame.size.width/2-(slopeKoef*slopeDirection), 25)];
+        label.textColor = [UIColor darkGrayColor];
+        label.font = [UIFont fontWithName:SIZE_LABEL_FONT size:SIZE_LABEL_FONT_SIZE];
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;
-        label.lineBreakMode = UILineBreakModeWordWrap;
-        label.textAlignment =UITextAlignmentCenter;
-        label.text = sizeString;
+        label.lineBreakMode = NSLineBreakByWordWrapping;
+        label.textAlignment =NSTextAlignmentCenter;
+        if (![additionalInfo isEqualToString:@""]){
+            label.text = [NSString stringWithFormat:@"%@ %@", sizeString, additionalInfo];
+        }
+        else{
+            label.text = sizeString;
+        }
         [currentView addSubview:label];
         [label release];
-        xPoint = xPoint+40+25;
+        yPoint = yPoint+25+5;
+        slopeKoef++;
     }
     
-    
-    [self.resultScrollView addSubview:currentView];
-    [currentView release];
+    return currentView;
 }
+
+
 
 
 
 #pragma mark - actions
 
-- (IBAction) showBrands:(id) sender
+- (void) showSaveDialog
 {
-    BrandsViewController *controller = [[BrandsViewController alloc] initWithNibName:@"BrandsView" bundle:nil];
+    [self showYesNoDialogWithTitle:@"" message:@"Do you want to save current profile?" andTag:SAVE_PROFILE_ALERT];
+}
+
+
+- (void) onAddCountryButtonTap:(id)sender
+{
+    FeedbackViewController *controller = [[FeedbackViewController alloc] initWithNibName:@"FeedbackView" bundle:nil];
+    controller.textForFeedbackLabel = @"Add your country" ;
+    controller.form = result;
     [self.navigationController pushViewController:controller animated:YES];
     [controller release];
     
 }
 
 
+- (void) onAddBrandButtonTap:(id)sender
+{
+    FeedbackViewController *controller = [[FeedbackViewController alloc] initWithNibName:@"FeedbackView" bundle:nil];
+    controller.textForFeedbackLabel = @"Add your favorite brand" ;
+    controller.form = result;
+    [self.navigationController pushViewController:controller animated:YES];
+    [controller release];
+
+}
+
+- (void)editProfileData:(id)sender
+{
+    NewProfileViewController *newProfileController = [[NewProfileViewController alloc] initWithNibName:@"NewProfileView" bundle:nil] ;
+    newProfileController.saveButtonAction = saveButtonAction_save;
+    [self.navigationController pushViewController:newProfileController animated:YES];
+    [newProfileController release];
+}
+
+- (void)saveProfileData:(id)sender
+{
+    [[LocalyticsSession shared] tagEvent:@"User goes to saving profile screen"];
+    
+    userTapedOnSaveAsButton = true;
+    
+    NewProfileViewController *newProfileController = [[NewProfileViewController alloc] initWithNibName:@"NewProfileView" bundle:nil] ;
+    newProfileController.saveButtonAction = saveButtonAction_save;
+    [self.navigationController pushViewController:newProfileController animated:YES];
+    [newProfileController release];
+}
+
+
+- (void) backBtnAction
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+
+
 - (IBAction) showTips:(id) sender
 {
     TipsViewController *controller = [[TipsViewController alloc] initWithNibName:@"TipsView" bundle:nil];
-    //controller.delegate = self;
-    //controller.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    //[self presentViewController:controller animated:YES completion:NULL];
     controller.numberOfPageToShow = 1;
     [self.navigationController pushViewController:controller animated:YES];
     [controller release];
@@ -454,149 +607,57 @@
 
 -(IBAction) showFeedbackOrEmailForm:(id) sender
 {
-    //just viewing results
-    //and sending e-mail
-    if (eButtonType != noButton){
-        if(![MFMailComposeViewController canSendMail]) {
-            [self showAlertDialogWithTitle:@"Warning" andMessage:@"Can't send e-mail"];
-            
-        } else {
-            MFMailComposeViewController *mailController = [[MFMailComposeViewController alloc] init];
-            [mailController setSubject:[NSLocalizedString(@"Sizes of ", nil) stringByAppendingString:self.nameLabel.text]];
-            [mailController setToRecipients:
-             [NSArray arrayWithObjects:@"person_mail@mail.com", nil]];
-            
-            [mailController setMessageBody:[self getCurrentProfileSizes]
-                                    isHTML:NO];
-            
-            mailController.mailComposeDelegate = self;
-            /*
-            NSString *path = [[NSBundle mainBundle] pathForResource:@"my_logo"
-                                                             ofType:@"png"];
-            NSData *data = [NSData dataWithContentsOfFile:path];
-            [mailController addAttachmentData:myData mimeType:@"image/png"
-                                     fileName:@"my_logo"];
-            */
-            [self presentViewController:mailController animated:YES completion:NULL];
-            [mailController  release];
-        }
-        
-    }
-    //show sending feedback form
-    else{
-        FeedbackViewController *controller = [[FeedbackViewController alloc] initWithNibName:@"FeedbackView" bundle:nil];
-        controller.textForFeedbackLabel = @"Tell us about your problem" ;
-        controller.form = result;
-        [self.navigationController pushViewController:controller animated:YES];
-        [controller release];
-    }
 
-}
+    UIActionSheet *sendSheet = [[UIActionSheet alloc]
+                                 initWithTitle:NSLocalizedString(@"Choose the action", nil)
+                                 delegate:self
+                                 cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                                 destructiveButtonTitle:nil
+                                 otherButtonTitles: NSLocalizedString(@"Send feedback", nil),
+                                 NSLocalizedString(@"Send sizes via e-mail", nil), nil];
+    [sendSheet setTag:SEND_SHEET];
+    [sendSheet showInView:self.view];
+    [sendSheet release];
 
-- (void) showDeleteButton:sender
-{
-    //uncheking wear at the table
-    UIView *swipedView = ((UISwipeGestureRecognizer *)sender).view;
-    
-    
-    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-    [button setFrame:CGRectMake(swipedView.frame.size.width-90, swipedView.frame.size.height-37, 80, 25)];
-    [button setBackgroundImage:[UIImage imageNamed:@"grayBtnBackground.png"] forState:UIControlStateNormal];
-    [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [button.titleLabel setFont:[UIFont systemFontOfSize:13.0f]];
-    [button setTitle:NSLocalizedString(@"Delete", nil) forState:UIControlStateNormal];
-    [button addTarget:self action:@selector(anyDelButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [button setAlpha:0.0f];
-    [swipedView addSubview:button];
-
-    
-
-    [UIView animateWithDuration:0.5f animations:^{
-        [button setAlpha:1.0f];
-    }
-    completion:^(BOOL finished) {
-                         
-    }];
     
 }
 
-- (void) hideDeleteButton:sender
-{
-    
-    UIView *swipedView = ((UISwipeGestureRecognizer *)sender).view;
-    
-    for (UIView *view in [swipedView subviews]) {
-        if ([view isKindOfClass:[UIButton class]]){
-            
-            [UIView animateWithDuration:0.5f animations:^{
-                view.alpha = 0.0f;
-            }
-            completion:^(BOOL finished) {
-                 [view removeFromSuperview];
-            }];
-            break;
-        }
-    }
-    
-      
-}
 
-- (void) anyDelButtonPressed:sender
-{
-    UIButton *delButton = (UIButton *)sender;
-    
-    MeasureView *owner = (MeasureView *)[delButton superview];
-    
-    [delButton removeFromSuperview];
-    
-    NSMutableArray *resultsArray = [[NSMutableArray alloc] init];
-    //adding main size
-    [resultsArray addObject:[NSNumber numberWithInteger: -1]];
-    
-    [[[DataManager sharedDataManager] currentProfile] setObject:resultsArray forKey:owner.viewKey];
-    [resultsArray release];
-    
-    //saving profile
-    [[DataManager sharedDataManager] saveDataWithKey:[[[DataManager sharedDataManager] currentProfile] objectForKey:@"searchingKey"]
-                                          oldKey:[[[DataManager sharedDataManager] currentProfile] objectForKey:@"searchingKey"]
-                                   andDictionary:[[DataManager sharedDataManager] currentProfile]];
-
-    //updating profile list
-    [[DataManager sharedDataManager] getProfileList];
-    
-    [owner removeFromSuperview];
-    
-    //cleaning scrollview
-    for (UIView *view in [self.resultScrollView subviews]) {
-        [view removeFromSuperview];
-    }
-    
-    
-    [self fillScrollViewWithSizes];
-
-}
 
 - (void) backToProfiles
 {
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
-- (void) editData
+-(void) startMeasure
 {
     
-    UIActionSheet *startSheet = [[UIActionSheet alloc]
-                                 initWithTitle:NSLocalizedString(@"Choose the action", nil)
-                                 delegate:self
-                                 cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
-                                 destructiveButtonTitle:nil
-                                 otherButtonTitles:NSLocalizedString(@"Edit profile data", nil),
-                                 NSLocalizedString(@"Edit sizes", nil),  nil];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-    [startSheet showInView:self.view];
-    [startSheet release];
+    UIView *startDialogView = [[appDelegate window] viewWithTag:START_DIALOG_TAG];
+    
+    if (!startDialogView){
+        startDialogController = [[StartDialogViewController alloc] initWithNibName:@"StartDialogView" bundle:nil] ;
+        startDialogController.delegate = self;
+        startDialogController.startingFrom = startingFromOtherView;
+        [[startDialogController view] setCenter:[[appDelegate window] center]];
+        [[startDialogController view] setTag:START_DIALOG_TAG];
+        [[appDelegate window] addSubview:[startDialogController view]];
+        
+        [UIView animateWithDuration:0.5f delay:0 options:UIViewAnimationOptionCurveLinear animations:^{
+            [[startDialogController view] setAlpha:1.0f];
+            [[startDialogController view] setCenter:[[appDelegate window] center]];
+        }
+                         completion:^(BOOL finished) {
+                             //
+                         }];
+    }
 
     
-   }
+}
+
+
+
 
 #pragma mark - MFMailComposeViewControllerDelegate methods
 -(void) mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
@@ -636,70 +697,275 @@
     [controller dismissViewControllerAnimated:YES completion:NULL];
 }
 
-#pragma mark - newProfileViewController delegate methods
-
-- (void)newProfileViewControllerDidFinish:(NewProfileViewController *)controller
-{
-    [self dismissViewControllerAnimated:YES completion:NULL];
-}
-
-- (void) newProfileViewControllerUpdateData:(NSMutableDictionary *)dataDictionary
-{
-    [[DataManager sharedDataManager] setCurrentProfile: dataDictionary];
-    
-}
 
 #pragma mark action sheet delegate methods
+
 - (void) willPresentActionSheet:(UIActionSheet *)actionSheet
 {
-    for (UIView *btnView in actionSheet.subviews)
-    {
-        if ([btnView isKindOfClass:[UIButton class]])
+    if ( [[[UIDevice currentDevice] systemVersion] floatValue] < 7.0 ){
+    
+        for (UIView *btnView in actionSheet.subviews)
         {
-            UIButton *btn = (UIButton*) btnView;
-            
-            [btn setBackgroundImage:[UIImage imageNamed:@"asBtnBackground.png"]  forState:UIControlStateHighlighted];
+            if ([btnView isKindOfClass:[UIButton class]])
+            {
+                UIButton *btn = (UIButton*) btnView;
+                
+                [btn setBackgroundImage:[UIImage imageNamed:@"asBtnBackground.png"]  forState:UIControlStateHighlighted];
+            }
         }
     }
-    
     
 }
 
 - (void) actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    if (buttonIndex == actionSheet.cancelButtonIndex){
+    if ([actionSheet tag] == EDIT_SHEET){
+
+        if (buttonIndex == actionSheet.cancelButtonIndex){
+            
+        }
+        else
+        {
+            // edit profile data
+            if (buttonIndex == actionSheet.firstOtherButtonIndex){
+                NewProfileViewController *newProfileController = [[NewProfileViewController alloc] initWithNibName:@"NewProfileView" bundle:nil] ;
+                newProfileController.saveButtonAction = saveButtonAction_save;
+                [self.navigationController pushViewController:newProfileController animated:YES];
+                [newProfileController release];
+            }
+            //edit sizes
+            else if (buttonIndex == 1){
+                /*
+                NSString *nibName = nil;
+                if ([[UIScreen mainScreen] bounds].size.height == 568){
+                    nibName = @"HowToMeasure568";
+                }
+                else{
+                    nibName = @"HowToMeasure";
+                }
+                
+                HowToMeasureViewController *howToMeasureController = [[HowToMeasureViewController alloc] initWithNibName:nibName bundle:nil] ;
+                howToMeasureController.backButtonAction = backButtonAction_goToResults;
+                [self.navigationController pushViewController:howToMeasureController animated:YES];
+                [howToMeasureController release];
+                 */
+            }
+                                 
+        }
+    }
+    else if ([actionSheet tag] == SEND_SHEET){
+        if (buttonIndex == actionSheet.cancelButtonIndex){
+            
+        }
+        else
+        {
+            // send feedback
+            if (buttonIndex == actionSheet.firstOtherButtonIndex){
+                FeedbackViewController *controller = [[FeedbackViewController alloc] initWithNibName:@"FeedbackView" bundle:nil];
+                controller.textForFeedbackLabel = @"Tell us about your problem" ;
+                controller.form = result;
+                [self.navigationController pushViewController:controller animated:YES];
+                [controller release];
+
+            }
+            //send mail
+            else if (buttonIndex == 1){
+                if(![MFMailComposeViewController canSendMail]) {
+                    [self showAlertDialogWithTitle:@"Warning" andMessage:@"Can't send e-mail"];
+                    
+                } else {
+                    MFMailComposeViewController *mailController = [[MFMailComposeViewController alloc] init];
+                    [mailController setSubject:[self.nameLabel.text stringByAppendingString:NSLocalizedString(@"'s sizes", nil)]];
+                    [mailController setToRecipients:
+                     [NSArray arrayWithObjects:@"_recipient@mail.com", nil]];
+                    
+                    [mailController setMessageBody:[self getMessageBody]
+                                            isHTML:YES];
+                    
+                    mailController.mailComposeDelegate = self;
+                    /*
+                     NSString *path = [[NSBundle mainBundle] pathForResource:@"my_logo"
+                     ofType:@"png"];
+                     NSData *data = [NSData dataWithContentsOfFile:path];
+                     [mailController addAttachmentData:myData mimeType:@"image/png"
+                     fileName:@"my_logo"];
+                     */
+                    [self presentViewController:mailController animated:YES completion:NULL];
+                    [mailController  release];
+                }
+                             
+            }
+            
+        }
+
         
     }
-    else
-    {
-        // edit profile data
-        if (buttonIndex == actionSheet.firstOtherButtonIndex){
-            NewProfileViewController *newProfileController = [[NewProfileViewController alloc] initWithNibName:@"NewProfileView" bundle:nil] ;
-            newProfileController.delegate = self;
-            newProfileController.saveButtonAction = 2; //just save action
-            [self.navigationController pushViewController:newProfileController animated:YES];
-            [newProfileController release];
-        }
-        //edit sizes
-        else if (buttonIndex == 1){
+    else if ([actionSheet tag] == SHARE_SHEET){
+        if (buttonIndex == actionSheet.cancelButtonIndex){
             
-            NSString *nibName = nil;
-            if ([[UIScreen mainScreen] bounds].size.height == 568){
-                nibName = @"HowToMeasure568";
-            }
-            else{
-                nibName = @"HowToMeasure";
-            }
-            
-            HowToMeasureViewController *howToMeasureController = [[HowToMeasureViewController alloc] initWithNibName:nibName bundle:nil] ;
-            howToMeasureController.backButtonNum = 99;
-            [self.navigationController pushViewController:howToMeasureController animated:YES];
-            [howToMeasureController release];
-
         }
-                             
+        else{
+            if (buttonIndex == actionSheet.firstOtherButtonIndex){ //share via twitter
+                [self shareViaTwitter];
+            }
+            else if (buttonIndex == 1){ // share via facebook
+                [self shareViaFacebook];
+            }
+        }
     }
 }
+
+
+#pragma mark - StartDialogViewControllerDelegate
+-(void) startMeasureUsingPhotoSource:(UIImagePickerControllerSourceType) sourceType
+{
+    
+    self.navigationController.navigationBar.hidden = false;
+    
+    NSString *measureViewNib = nil;
+    if ([[UIScreen mainScreen] bounds].size.height == 568){
+        measureViewNib = @"MeasureView568";
+    }
+    else{
+        measureViewNib = @"MeasureView";
+    }
+    
+    
+    MeasureViewController *measureController = [[MeasureViewController alloc] initWithNibName:measureViewNib bundle:nil];
+    measureController.makeMeasurementsUsingTwoPhotos = YES;
+    measureController.source = sourceType;
+    [self.navigationController pushViewController:measureController animated:YES];
+    [measureController release];
+    
+}
+
+#pragma mark - Table view delegate methods
+
+ - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+ {
+     return 80.0f;
+ }
+
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [self.measuredStuff count];
+    
+}
+
+// Customize the appearance of table view cells.
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{static NSString *CellIdentifier = @"Cell";
+    
+    StuffCell *cell = (StuffCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+    if (cell == nil) {
+        
+        NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"StuffCell" owner:self options:nil];
+        cell = [nib objectAtIndex:0];
+        
+        //инициализация фонов
+        cell.backgroundView = [[UIImageView new] autorelease];
+        cell.selectedBackgroundView = [[UIImageView new] autorelease];
+        cell.accessoryView = [[[UIImageView alloc] initWithImage:[UIImage imageNamed:@"arrow.png"]] autorelease];
+        //cell.accessoryType = UITableViewCellAccessoryNone;
+        //cell.stuffImageView.frame = CGRectMake(20, cell.frame.size.height/2-15, 30, 30);
+        //cell.customImageView.center = CGPointMake(40, 40);
+        
+    }
+    
+    ((UIImageView *)cell.backgroundView).image = [UIImage imageNamed:@"stuff_choosing_cell.png"];
+    ((UIImageView *)cell.selectedBackgroundView).image = [UIImage imageNamed:@"stuff_choosing_cell_pressed.png"];
+    
+    NSString *currentStuff = [self.measuredStuff objectAtIndex:indexPath.row];
+    
+    cell.stuffTextLabel.font = [UIFont fontWithName:PROFILE_NAME_FONT size:PROFILE_NAME_FONT_SIZE];
+    cell.stuffTextLabel.textColor = MAIN_THEME_COLOR;
+    cell.stuffTextLabel.text = NSLocalizedString(currentStuff, nil);
+    
+    
+    cell.stuffImageView.image = [UIImage imageNamed:[currentStuff stringByAppendingFormat:@"_%d",[[VSProfileManager sharedProfileManager] getCurrentProfilePersonKind]]];
+    
+    if (![self stuffUnlocked]){
+        NSSet *lockedStuff = [measureManager getLockedBeforeSharingStuff];
+        if ([lockedStuff containsObject:currentStuff]){
+            cell.lockImageView.image = [UIImage imageNamed:@"locker.png"];
+        }
+    }
+    return cell;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // Return NO if you do not want the specified item to be editable.
+    return YES;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    NSSet *lockedStuff;
+    if ([self stuffUnlocked]){
+        lockedStuff = [NSSet set];
+    }
+    else{
+        lockedStuff = [measureManager getLockedBeforeSharingStuff];
+    }
+    
+    NSString *currentStuff = [self.measuredStuff objectAtIndex:indexPath.row];
+    
+    if ([lockedStuff containsObject:currentStuff]){
+        [self showShareDialogWithTitle:@"" message:@"Share via social networks to unlock the item?" andTag:SHARE_ALERT];
+    }
+    else{
+        SizesViewController *sizesController = [[SizesViewController alloc] initWithNibName:@"SizesView" bundle:nil];
+        sizesController.stuffToShowSizes = currentStuff;
+        [self.navigationController pushViewController:sizesController animated:YES];
+        [sizesController release];
+    }
+    
+    
+}
+
+#pragma mark alert view delegate methods
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (alertView.tag == SHARE_ALERT){
+        if (buttonIndex == 0){//No
+            //
+        }
+        else if (buttonIndex == 1){ //Yes
+            UIActionSheet *sendSheet = [[UIActionSheet alloc]
+                                        initWithTitle:NSLocalizedString(@"Choose the action", nil)
+                                        delegate:self
+                                        cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                                        destructiveButtonTitle:nil
+                                        otherButtonTitles: NSLocalizedString(@"Share via Twitter", nil),nil];
+            [sendSheet setTag:SHARE_SHEET];
+            [sendSheet showInView:self.view];
+            [sendSheet release];
+
+        }
+    }
+    else if (alertView.tag == SAVE_PROFILE_ALERT) {
+        if (buttonIndex == 0){//No
+            [[VSProfileManager sharedProfileManager] deleteTempProfile];
+            [self.navigationController popViewControllerAnimated:YES];
+        }
+        else if (buttonIndex == 1){ //Yes
+            [self editProfileData:nil];
+        }
+
+    }
+    
+}
+
 
 
 @end

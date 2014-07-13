@@ -9,7 +9,7 @@
 #import "ImageViewWithKey.h"
 
 @implementation ImageViewWithKey
-@synthesize key;
+@synthesize key, imageName;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -23,6 +23,7 @@
 - (void)dealloc
 {
     [key release];
+    [imageName release];
     [super dealloc];
 }
 

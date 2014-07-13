@@ -7,55 +7,53 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "DataManager.h"
+#import "VSProfileManager.h"
 #import "UIImageResize.h"
-#import "MeasureManager.h"
+#import "VSMeasureManager.h"
 #import <CoreGraphics/CoreGraphics.h>
 #import <QuartzCore/QuartzCore.h>
+#import "StartDialogViewController.h"
+#import "AppDelegate.h"
+#import "MeasureViewController.h"
+#import "Consts.h"
+#import "Types.h"
 
 @class NewProfileViewController;
 
 
-@protocol NewProfileViewControllerDelegate
-- (void)newProfileViewControllerDidFinish:(NewProfileViewController *)controller;
-@optional
-- (void)newProfileViewControllerUpdateData:(NSMutableDictionary *)dataDictionary;
-@end
 
 
-@interface NewProfileViewController : UIViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate,UIActionSheetDelegate, UIScrollViewDelegate>
+@interface NewProfileViewController : UIViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate,UIActionSheetDelegate, UIScrollViewDelegate, StartDialogViewControllerDelegate>
 {
     UIImageView *profileImageView;
     UITextField *nameField;
     UITextField *surnameField;
     UITextField *ageField;
-    UILabel *nameLabel;
-    UILabel *surnameLabel;
-    UILabel *ageLabel;
-    UILabel *sexLabel;
-    NSInteger saveButtonAction;
+    saveButtonActionType saveButtonAction;
     UIScrollView *sexScrollView;
     UISegmentedControl *genderSegmentedControl;
+    VSMeasureManager *measureManager;
+    BOOL userMakeCurrentProfileMain;
+    BOOL userSelectedNewPhoto;
 }
 
-@property (nonatomic, assign) id <NewProfileViewControllerDelegate> delegate;
 @property (nonatomic, retain) IBOutlet UIImageView *profileImageView;
 @property (nonatomic, retain) IBOutlet UITextField *nameField;
 @property (nonatomic, retain) IBOutlet UITextField *surnameField;
 @property (nonatomic, retain) IBOutlet UITextField *ageField;
-@property (nonatomic, assign) NSInteger saveButtonAction;
+@property (nonatomic, assign) saveButtonActionType saveButtonAction;
 @property (nonatomic, retain) IBOutlet UIScrollView *sexScrollView;
-@property (nonatomic, retain) IBOutlet UILabel *nameLabel;
-@property (nonatomic, retain) IBOutlet UILabel *surnameLabel;
-@property (nonatomic, retain) IBOutlet UILabel *ageLabel;
-@property (nonatomic, retain) IBOutlet UILabel *sexLabel;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *genderSegmentedControl;
+@property (nonatomic, retain)  StartDialogViewController *startDialogController;
+@property (nonatomic, retain) IBOutlet UIButton *mainProfileButton;
+@property (nonatomic, assign) BOOL createdMainProfile;
+@property (nonatomic, retain) IBOutlet UILabel *mainProfileLabel;
+
 
 -(IBAction) selectProfileImage;
 -(IBAction) textFieldDoneEditing:(id)sender;
 -(IBAction) hideKeyboard:(id)sender;
 -(IBAction) onAgeFieldValueChanged:(id)sender;
--(IBAction) onNameFieldValueChanged:(id)sender;
--(IBAction) onSurnameFieldValueChanged:(id)sender;
+-(IBAction) onMainProfileButtonTap:(id)sender;
 
 @end

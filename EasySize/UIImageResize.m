@@ -80,8 +80,8 @@
         
         transform = [self transformForOrientation:newSize];
     } 
-     
-    */
+     */
+    
     switch ( self.imageOrientation ) 
     {
         case UIImageOrientationLeft:
@@ -117,7 +117,7 @@
             break;
             
         default:
-            [NSException raise:NSInvalidArgumentException format:@"Unsupported content mode: %d", contentMode];
+            [NSException raise:NSInvalidArgumentException format:@"Unsupported content mode: %d", (int)contentMode];
     }
     
     CGSize newSize = CGSizeMake(self.size.width * ratio, self.size.height * ratio);
